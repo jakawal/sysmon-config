@@ -10,13 +10,16 @@
 
 <Sysmon schemaversion="4.50">
 	<!--SYSMON META CONFIG-->
-	<HashAlgorithms>md5,sha256,IMPHASH</HashAlgorithms> <!-- Both MD5 and SHA256 are the industry-standard algorithms. Remove IMPHASH if you do not use DLL import fingerprinting. -->
-	<CheckRevocation/> <!-- Check loaded drivers, log if their code-signing certificate has been revoked, in case malware stole one to sign a kernel driver -->
-
-	<!-- <ImageLoad/> --> <!-- Would manually force-on ImageLoad monitoring, even without configuration below. Included only documentation. -->
-	<!-- <ProcessAccessConfig/> --> <!-- Would manually force-on ProcessAccess monitoring, even without configuration below. Included only documentation. -->
-	<!-- <PipeMonitoringConfig/> --> <!-- Would manually force-on PipeCreated / PipeConnected events, even without configuration below. Included only documentation. -->
-	<!-- <ArchiveDirectory> -->
+	<HashAlgorithms>md5,sha256</HashAlgorithms>
+	<!-- Both MD5 and SHA256 are the industry-standard algorithms -->
+	<CheckRevocation>False</CheckRevocation> 
+	<!-- Check loaded drivers, log if their code-signing certificate has been revoked, in case malware stole one to sign a kernel driver -->
+	<!-- Setting this to true might impact performance -->
+	<DnsLookup>False</DnsLookup>
+  	<!-- Disables lookup behavior, default is True (Boolean) -->
+	<ArchiveDirectory>Sysmon</ArchiveDirectory>
+	<!-- Name of directories at volume roots into which copy-on-delete files are moved. The directory is protected with a System ACL --> 
+	<!-- You can use PsExec from Sysinternals to access the directory using psexec -sid cmd). Default: Sysmon -->
 
 	<EventFiltering>
 

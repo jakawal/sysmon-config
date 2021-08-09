@@ -19,5 +19,10 @@ run cmd as administrator
     ```
     sysmon.exe -u
     ```
-1. Log Location
-    * Microsoft-Windows-Sysmon/Operational
+
+## Note 
+* Log Location
+  * Microsoft-Windows-Sysmon/Operational
+  * Applications and Services Logs/Microsoft/Windows/Sysmon/Operational
+* On older systems events are written to the System event log. 
+* Event timestamps are in UTC standard time.
