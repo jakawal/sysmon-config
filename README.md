@@ -26,3 +26,9 @@ run cmd as administrator
   * Applications and Services Logs/Microsoft/Windows/Sysmon/Operational
 * On older systems events are written to the System event log. 
 * Event timestamps are in UTC standard time.
+
+## References
+* https://docs.microsoft.com/en-us/sysinternals/downloads/sysmon
+* https://github.com/SwiftOnSecurity/sysmon-config
+* https://github.com/olafhartong/sysmon-modular
+* https://github.com/trustedsec/SysmonCommunityGuide
