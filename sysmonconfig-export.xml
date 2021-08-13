@@ -52,7 +52,7 @@
 			<Image condition="is">C:\Windows\system32\powercfg.exe</Image> <!--Microsoft:Power configuration management-->
 			<Image condition="is">C:\Windows\system32\sndVol.exe</Image> <!--Windows: Volume control-->
 			<Image condition="is">C:\Windows\System32\wermgr.exe</Image>
-        	<Image condition="is">C:\Windows\SysWOW64\wermgr.exe</Image>
+			<Image condition="is">C:\Windows\SysWOW64\wermgr.exe</Image>
 			<Image condition="is">C:\Windows\system32\sppsvc.exe</Image> <!--Windows: Software Protection Service-->
 			<Image condition="is">C:\Windows\system32\wbem\WmiApSrv.exe</Image> <!--Windows: WMI performance adapter host process-->
 			<IntegrityLevel condition="is">AppContainer</IntegrityLevel> <!--Windows: Don't care about sandboxed processes right now. Will need to revisit this decision.-->
@@ -171,10 +171,10 @@
 			<CommandLine condition="begin with">"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --type=</CommandLine> <!--Google:Chrome: massive command-line arguments-->
 			<CommandLine condition="begin with">"C:\Program Files\Google\Chrome\Application\chrome.exe" --type=</CommandLine> <!--Google:Chrome: massive command-line arguments-->
 			<Image condition="begin with">C:\Program Files (x86)\Google\Update\</Image>
-        	<ParentImage condition="begin with">C:\Program Files (x86)\Google\Update\</ParentImage>
+			<ParentImage condition="begin with">C:\Program Files (x86)\Google\Update\</ParentImage>
 			<!--SECTION: Mozilla:Firefox-->
 			<CommandLine condition="begin with">"C:\Program Files\Mozilla Firefox\plugin-container.exe" --channel</CommandLine>
-        	<CommandLine condition="begin with">"C:\Program Files (x86)\Mozilla Firefox\plugin-container.exe" --channel</CommandLine>
+			<CommandLine condition="begin with">"C:\Program Files (x86)\Mozilla Firefox\plugin-container.exe" --channel</CommandLine>
 			<!--SECTION: Adobe-->
 			<Rule groupRelation="and">
 				<Image condition="end with">AcroRd32.exe</Image>
@@ -208,7 +208,7 @@
 			<ParentImage condition="end with">C:\Program Files\Realtek\Audio\HDA\RtkAudioService64.exe</ParentImage>
 			<!--SECTION: Cloud Storage-->
 			<Image condition="end with">C:\Program Files (x86)\Dropbox\Update\DropboxUpdate.exe</Image>
-        	<ParentImage condition="end with">C:\Program Files (x86)\Dropbox\Update\DropboxUpdate.exe</ParentImage>
+			<ParentImage condition="end with">C:\Program Files (x86)\Dropbox\Update\DropboxUpdate.exe</ParentImage>
 			<Image condition="contains all"> C:\Users\;\AppData\Local\Microsoft\OneDrive;\FileCoAuth.exe</Image>
 			<!--SECTION: Splunk-->
 			<Image condition="begin with">C:\Program Files\Splunk\bin\</Image>
@@ -374,10 +374,10 @@
 			<Image name="T1518.001,Security_Software_Discovery" condition="image">netsh.exe</Image>
 			<Image condition="image">klist.exe</Image>
 			<Image name="T1070,Indicator_Removal_on_Host" condition="image">wevtutil.exe</Image>
-        	<Image name="T1053,Scheduled_Task/Job" condition="image">taskeng.exe</Image>
+			<Image name="T1053,Scheduled_Task/Job" condition="image">taskeng.exe</Image>
 			<Image name="T1218,Signed_Binary_Proxy_Execution" condition="image">Msdt.exe</Image>
 			<Image name="T1059.001,PowerShell" condition="image">OpenConsole.exe</Image>
-        	<Image name="T1059.001,PowerShell" condition="image">WindowsTerminal.exe</Image>
+			<Image name="T1059.001,PowerShell" condition="image">WindowsTerminal.exe</Image>
 			<Image condition="image">dllhost.exe</Image>
 			<Image name="T1218,Signed_Binary_Proxy_Execution" condition="image">Mavinject.exe</Image>
 			<Image name="T1218,Signed_Binary_Proxy_Execution" condition="image">replace.exe</Image>
@@ -397,7 +397,7 @@
 			<Image name="T1021,Remote_Services" condition="image">hpsmhd.exe</Image>
 			<Image name="T1102,Web_Service" condition="begin with">C:\Program Files\Microsoft\HybridConnectionManager</Image>
 			<Image name="T1202,Indirect_Command_Execution" condition="image">bash.exe</Image>
-        	<Image name="T1202,Indirect_Command_Execution" condition="image">pcalua.exe</Image>
+			<Image name="T1202,Indirect_Command_Execution" condition="image">pcalua.exe</Image>
 			<Image name="T1033,System_Owner/User_Discovery" condition="image">nltest.exe</Image>
 			<Image name="T1202,Indirect_Command_Execution" condition="image">winrs.exe</Image>
 			<Image name="T1127,Trusted_Developer_Utilities_Proxy_Execution" condition="image">dfsvc.exe</Image>
@@ -458,17 +458,17 @@
 			<Image condition="is">C:\Program Files (x86)\Sophos\Sophos Anti-Virus\Web Intelligence\swi_service.exe</Image>
 			<Image condition="is">C:\Program Files\Sophos\Sophos Network Threat Protection\bin\SntpService.exe</Image>
 			<Image condition="is">C:\Program files (x86)\Trend Micro\OfficeScan Client\tmlisten.exe</Image>
-        	<Image condition="is">C:\Program Files (x86)\Trend Micro\BM\TMBMSRV.exe</Image>
+			<Image condition="is">C:\Program Files (x86)\Trend Micro\BM\TMBMSRV.exe</Image>
 			<!--SECTION: Cloud Storage-->
 			<Image condition="end with">AppData\Roaming\Dropbox\bin\Dropbox.exe</Image>
 			<Image condition="image">OneDrive.exe</Image>
-        	<Image condition="image">OneDriveStandaloneUpdater.exe</Image>
+			<Image condition="image">OneDriveStandaloneUpdater.exe</Image>
 			<Image condition="end with">ownCloud\owncloud.exe</Image>
 			<Image condition="end with">AppData\Local\SynologyDrive\SynologyDrive.app\bin\cloud-drive-ui.exe</Image>
-        	<Image condition="end with">AppData\Local\SynologyDrive\SynologyDrive.app\bin\cloud-drive-daemon.exe</Image>
+			<Image condition="end with">AppData\Local\SynologyDrive\SynologyDrive.app\bin\cloud-drive-daemon.exe</Image>
 			<!--SECTION: Others-->
 			<Image condition="end with">winlogbeat.exe</Image>
-        	<Image condition="end with">packetbeat.exe</Image>
+			<Image condition="end with">packetbeat.exe</Image>
 			<Image condition="end with">AppData\Roaming\Spotify\Spotify.exe</Image>
 			<Rule groupRelation="and">
 				<Image condition="is">C:\Windows\System32\lsass.exe</Image>
@@ -644,7 +644,7 @@
 			<TargetFilename name="T1044,File_System_Permissions_Weakness" condition="begin with">C:\Windows\System32</TargetFilename>
 			<TargetFilename name="T1044,File_System_Permissions_Weakness" condition="begin with">C:\Windows\</TargetFilename>
 			<TargetFilename name="T1546.008,Services_File_Permissions_Weakness" condition="begin with">C:\Windows\Temp\</TargetFilename>
-        	<TargetFilename name="T1546.008,Services_File_Permissions_Weakness" condition="begin with">C:\Program\</TargetFilename>
+			<TargetFilename name="T1546.008,Services_File_Permissions_Weakness" condition="begin with">C:\Program\</TargetFilename>
 			<TargetFilename name="T1047,File_System_Permissions_Weakness" condition="begin with">C:\Temp\</TargetFilename>
 			<TargetFilename name="T1047,File_System_Permissions_Weakness" condition="begin with">C:\PerfLogs\</TargetFilename>
 			<TargetFilename name="T1047,File_System_Permissions_Weakness" condition="begin with">C:\Users\Public\</TargetFilename>
@@ -678,7 +678,7 @@
 			<TargetFilename condition="end with">.img</TargetFilename>
 			<TargetFilename condition="end with">.kirbi</TargetFilename>
 			<TargetFilename name="T1187,Forced_Authentication" condition="end with">.lnk</TargetFilename>
-        	<TargetFilename name="T1187,Forced_Authentication" condition="end with">.scf</TargetFilename>
+			<TargetFilename name="T1187,Forced_Authentication" condition="end with">.scf</TargetFilename>
 			<TargetFilename condition="end with">.settingcontent-ms</TargetFilename>
 			<TargetFilename condition="end with">.rwz</TargetFilename>
 			<TargetFilename condition="end with">.ace</TargetFilename>
@@ -720,9 +720,9 @@
 			<Image condition="begin with">C:\Windows\winsxs\amd64_microsoft-windows</Image> <!-- Windows: Windows update-->
 			<!--Others-->
 			<Image condition="is">C:\Program Files (x86)\Dell\CommandUpdate\InvColPC.exe</Image>
-        	<Image condition="is">C:\Windows\system32\igfxCUIService.exe</Image>
+			<Image condition="is">C:\Windows\system32\igfxCUIService.exe</Image>
 			<Image condition="is">C:\Program Files (x86)\Ivanti\Workspace Control\pfwsmgr.exe</Image>
-        	<Image condition="is">C:\Program Files (x86)\RES Software\Workspace Manager\pfwsmgr.exe</Image>
+			<Image condition="is">C:\Program Files (x86)\RES Software\Workspace Manager\pfwsmgr.exe</Image>
 			<TargetFilename condition="end with">WRITABLE.TST</TargetFilename>
 			<TargetFilename condition="contains">\AppData\Roaming\Microsoft\Windows\Recent\</TargetFilename>
 			<Image condition="is">c:\Program Files\Microsoft Security Client\MsMpEng.exe</Image>
@@ -731,7 +731,7 @@
 				<TargetFilename condition="contains">Roaming\Microsoft\Outlook\Outlook.xml</TargetFilename>
 			</Rule>
 			<Image condition="is">c:\windows\system32\provtool.exe</Image>
-        	<Image condition="is">C:\WINDOWS\CCM\CcmExec.exe</Image>
+			<Image condition="is">C:\WINDOWS\CCM\CcmExec.exe</Image>
 			<TargetFilename condition="begin with">C:\Windows\CCM</TargetFilename>
 			<TargetFilename condition="begin with">C:\Windows\System32\Tasks\Microsoft\Windows\PLA\FabricTraces</TargetFilename>
 			<TargetFilename condition="begin with">C:\Windows\System32\Tasks\Microsoft\Windows\SoftwareProtectionPlatform\SvcRestartTask</TargetFilename>
@@ -906,9 +906,9 @@
 			<Image name="Suspicious,ImageBeginWithBackslash" condition="begin with">\</Image> <!--Devices and VSC shouldn't be executing changes | Credit: @SBousseaden @ionstorm @neu5ron @PerchedSystems [ https://twitter.com/SwiftOnSecurity/status/1133167323991486464 ] -->
 			<!--Disable Something-->
 			<TargetObject name="T1562.002,Disable_Windows_Event_Logging" condition="contains all">REGISTRY\MACHINE\SYSTEM\ControlSet001\Service\EventLog;Retention</TargetObject>
-        	<TargetObject name="T1562.002,Disable_Windows_Event_Logging" condition="contains all">REGISTRY\MACHINE\SYSTEM\ControlSet001\Service\EventLog;MaxSize</TargetObject>
+			<TargetObject name="T1562.002,Disable_Windows_Event_Logging" condition="contains all">REGISTRY\MACHINE\SYSTEM\ControlSet001\Service\EventLog;MaxSize</TargetObject>
 			<TargetObject name="T1089,Disabling_Security_Tools" condition="contains">SYSTEM\CurrentControlSet\services\SysmonDrv</TargetObject>
-        	<TargetObject name="T1089,Disabling_Security_Tools" condition="contains">SYSTEM\CurrentControlSet\services\Sysmon</TargetObject>
+			<TargetObject name="T1089,Disabling_Security_Tools" condition="contains">SYSTEM\CurrentControlSet\services\Sysmon</TargetObject>
 			<TargetObject name="T1089,Disabling_Security_Tools" condition="begin with">HKLM\SOFTWARE\Microsoft\Security Center\AntiVirusDisableNotify</TargetObject>
 			<TargetObject name="T1089,Disabling_Security_Tools" condition="begin with">HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\DisableAntiSpyware</TargetObject>
 			<TargetObject name="T1089,Disabling_Security_Tools" condition="begin with">HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\DisableAntiVirus</TargetObject>
@@ -924,7 +924,7 @@
 			<TargetObject name="T1089,Disabling_Security_Tools" condition="begin with">HKLM\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging</TargetObject>
 			<TargetObject name="T1089,Disabling_Security_Tools" condition="begin with">HKLM\SOFTWARE\Policies\Microsoft\Windows\PowerShell\Transcription</TargetObject>
 			<TargetObject name="T1089,Disabling_Security_Tools" condition="begin with">HKLM\SOFTWARE\Microsoft\Security Center\AllAlertsDisabled</TargetObject>
-        	<TargetObject name="T1089,Disabling_Security_Tools" condition="begin with">HKLM\SOFTWARE\Microsoft\Security Center\DisableMonitoring</TargetObject>
+			<TargetObject name="T1089,Disabling_Security_Tools" condition="begin with">HKLM\SOFTWARE\Microsoft\Security Center\DisableMonitoring</TargetObject>
 			<!--Others-->
 			<TargetObject name="T1003.002,Security_Account_Manager" condition="contains">System\CurrentControlSet\Services\VSS</TargetObject>
 			<TargetObject name="T1098,Account_Manipulation" condition="contains">\services\Netlogon\Parameters\DisablePasswordChange</TargetObject>
@@ -933,7 +933,7 @@
 			<TargetObject name="T1547.010,Port_Monitors" condition="begin with">HKLM\SYSTEM\CurrentControlSet\Control\Print\Monitors</TargetObject>
 			<TargetObject name="T1547.010,Port_Monitors" condition="begin with">HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Ports</TargetObject>
 			<TargetObject condition="contains">\Software\Microsoft\VSTO\Security\Inclusion</TargetObject>
-        	<TargetObject condition="contains">\Software\Microsoft\VSTO\SolutionMetadata</TargetObject>
+			<TargetObject condition="contains">\Software\Microsoft\VSTO\SolutionMetadata</TargetObject>
 			<TargetObject name="Outlook_Server_Identity_Keys" condition="contains">Identities</TargetObject>
 			<TargetObject condition="contains">\Software\Microsoft\Office\16.0\Outlook\Security</TargetObject>
 			<TargetObject name="T1021.001,RDP" condition="is">HKLM\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services</TargetObject>
