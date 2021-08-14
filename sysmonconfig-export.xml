@@ -6,7 +6,7 @@
   Updated: 		2021-08-13
 -->
 
-<Sysmon schemaversion="4.50">
+<Sysmon schemaversion="4.70">
 	<!-- SYSMON META CONFIG -->
 	<HashAlgorithms>md5,sha256</HashAlgorithms>
 	<!-- Both MD5 and SHA256 are the industry-standard algorithms -->

@@ -6,7 +6,7 @@
   Updated: 		2021-08-11
 -->
 
-<Sysmon schemaversion="4.50">
+<Sysmon schemaversion="4.70">
 	<EventFiltering>
 
 	<!--SYSMON EVENT ID 7 : DLL (IMAGE) LOADED BY PROCESS [ImageLoad]-->
