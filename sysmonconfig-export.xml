@@ -765,12 +765,6 @@
 			<TargetObject condition="contains">UserInitMprLogonScript</TargetObject> <!--Windows: Legacy logon script environment variable [ http://www.hexacorn.com/blog/2014/11/14/beyond-good-ol-run-key-part-18/ ] -->
 			<TargetObject name="T1112,ChangeStartupFolderPath" condition="end with">user shell folders\startup</TargetObject> <!--Monitor changes to Startup folder location for monitoring evasion | Credit @SBousseaden-->
 			<TargetObject name="T1547.001,RegistryRunKeys/StartFolder" condition="contains">Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders\Startup</TargetObject>
-			<!--Services-->
-			<TargetObject name="T1031,T1050" condition="end with">\ServiceDll</TargetObject> <!--Windows: Points to a service's DLL [ https://blog.cylance.com/windows-registry-persistence-part-1-introduction-attack-phases-and-windows-services ] -->
-			<TargetObject name="T1031,T1050" condition="end with">\ServiceManifest</TargetObject> <!--Windows: Manifest pointing to service's DLL [ https://www.geoffchappell.com/studies/windows/win32/services/svchost/index.htm ] -->
-			<TargetObject name="T1031,T1050" condition="end with">\ImagePath</TargetObject> <!--Windows: Points to a service's EXE [ https://attack.mitre.org/wiki/Technique/T1050 ] -->
-			<TargetObject name="T1031,T1050" condition="end with">\Start</TargetObject> <!--Windows: Services start mode changes (Disabled, Automatically, Manual)-->
-			<TargetObject name="T1543,Service_Creation" condition="begin with">HKLM\SYSTEM\CurrentControlSet\Services</TargetObject>
 			<!--RDP-->
 			<TargetObject name="RDP port change" condition="end with">Control\Terminal Server\WinStations\RDP-Tcp\PortNumber</TargetObject> <!--Windows: RDP port change under Control [ https://blog.menasec.net/2019/02/of-rdp-hijacking-part1-remote-desktop.html ]-->
 			<TargetObject name="RDP port change" condition="end with">Control\Terminal Server\fSingleSessionPerUser</TargetObject> <!--Windows: Allow same user to have mutliple RDP sessions, to hide from admin being impersonated-->
@@ -925,6 +919,12 @@
 			<TargetObject name="T1089,Disabling_Security_Tools" condition="begin with">HKLM\SOFTWARE\Policies\Microsoft\Windows\PowerShell\Transcription</TargetObject>
 			<TargetObject name="T1089,Disabling_Security_Tools" condition="begin with">HKLM\SOFTWARE\Microsoft\Security Center\AllAlertsDisabled</TargetObject>
 			<TargetObject name="T1089,Disabling_Security_Tools" condition="begin with">HKLM\SOFTWARE\Microsoft\Security Center\DisableMonitoring</TargetObject>
+			<!--Services-->
+			<TargetObject name="T1031,T1050" condition="end with">\ServiceDll</TargetObject> <!--Windows: Points to a service's DLL [ https://blog.cylance.com/windows-registry-persistence-part-1-introduction-attack-phases-and-windows-services ] -->
+			<TargetObject name="T1031,T1050" condition="end with">\ServiceManifest</TargetObject> <!--Windows: Manifest pointing to service's DLL [ https://www.geoffchappell.com/studies/windows/win32/services/svchost/index.htm ] -->
+			<TargetObject name="T1031,T1050" condition="end with">\ImagePath</TargetObject> <!--Windows: Points to a service's EXE [ https://attack.mitre.org/wiki/Technique/T1050 ] -->
+			<TargetObject name="T1031,T1050" condition="end with">\Start</TargetObject> <!--Windows: Services start mode changes (Disabled, Automatically, Manual)-->
+			<TargetObject name="T1543,Service_Creation" condition="begin with">HKLM\SYSTEM\CurrentControlSet\Services</TargetObject>
 			<!--Others-->
 			<TargetObject name="T1003.002,Security_Account_Manager" condition="contains">System\CurrentControlSet\Services\VSS</TargetObject>
 			<TargetObject name="T1098,Account_Manipulation" condition="contains">\services\Netlogon\Parameters\DisablePasswordChange</TargetObject>
