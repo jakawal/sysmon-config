@@ -22,8 +22,8 @@ run cmd as administrator
 
 ## Note 
 * Log Location
-  * Microsoft-Windows-Sysmon/Operational
-  * Applications and Services Logs/Microsoft/Windows/Sysmon/Operational
+  * Log File: C:\Windows\System32\winevt\Logs\Microsoft-Windows-Sysmon%4Operational.evtx
+  * Event Viewer: Applications and Services Log > Microsoft > Windows > Sysmon > Operational
 * On older systems events are written to the System event log. 
 * Event timestamps are in UTC standard time.
 
