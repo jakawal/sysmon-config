@@ -32,3 +32,4 @@ run cmd as administrator
 * https://github.com/SwiftOnSecurity/sysmon-config
 * https://github.com/olafhartong/sysmon-modular
 * https://github.com/trustedsec/SysmonCommunityGuide
+* https://github.com/Neo23x0/sysmon-config
