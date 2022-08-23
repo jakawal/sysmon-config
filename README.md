@@ -3,7 +3,7 @@ Sysmon configuration file
 
 ## Required
 * Windows OS
-* Sysmon version 13 or higher
+* Sysmon version 14 or higher
 
 ## Use
 run cmd as administrator
