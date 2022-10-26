@@ -12,104 +12,264 @@
 	<!--SYSMON EVENT ID 7 : DLL (IMAGE) LOADED BY PROCESS [ImageLoad]-->
 	<!--DATA: UtcTime, ProcessGuid, ProcessId, Image, ImageLoaded, Hashes, Signed, Signature, SignatureStatus-->
 	<!--Caution: Can cause high system load, disabled by default.-->
-	<RuleGroup groupRelation="or">
+	<RuleGroup name="ImageLoad_Include_Group" groupRelation="or">
 		<ImageLoad onmatch="include">
-			<Rule groupRelation="and">
-				<OriginalFileName name="T1059.001,PowerShell" condition="is">amsi.dll</OriginalFileName>
-				<Image condition="excludes any">powershell.exe;powershell_ise.exe</Image>
+			<Rule name="MSDT_Loading_diagnostic_library,Dogwalk/follina" groupRelation="and">
+				<Image condition="image">msdt.exe</Image>
+				<ImageLoaded condition="contains">sdiageng.dll</ImageLoaded>
 			</Rule>
-			<Rule groupRelation="and">
-				<Image name="T0137.005,Startup_Items" condition="end with">bginfo.exe</Image>
+			<Rule name="Printer_Exploit" groupRelation="and">
+				<ImageLoaded condition="contains any">\spool\drivers\x64\3\;\spool\drivers\W32X86\3\;\spool\drivers\IA64\3\</ImageLoaded>
+				<Image condition="contains any">spoolsv.exe;printisolationhost.exe</Image>
+				<SignatureStatus condition="excludes">Valid</SignatureStatus>
+				<Company condition="excludes any">Brother Industries;Canon;Sharp;Microsoft Corporation;DYMO;Euro Plus d.o.o;HP Inc;Hewlett-Packard</Company>
+			</Rule>
+			<Rule name="DLL_Image_Load_by_System_in_Suspicious_Locations" groupRelation="and">
+				<Image condition="begin with">C:\Windows\</Image>
+				<ImageLoaded condition="contains any">\Users\Public\;\Desktop\;\Downloads\;\AppData\Local\Temp\;\PerfLogs\;$Recycle;\Fonts\</ImageLoaded>
+				<ImageLoaded condition="excludes any">\Program Files</ImageLoaded>
+			</Rule>
+			<Rule name="Equation_editor_loading_itself" groupRelation="and">
+				<Image condition="image">EQNEDT32.EXE</Image>
+				<ImageLoaded condition="contains">EQNEDT32.EXE</ImageLoaded>
+			</Rule>
+			<Rule name="Windows_AD_Services_DLL_Loading_in_Susicious_Directories" groupRelation="and">
+				<ImageLoaded condition="contains any">ACTIVEDS.DLL;Adsldpc.dll;Wldap32.dll;adsldp.dll</ImageLoaded>
+				<Image condition="contains any">C:\Users;\Temp\;\ProgramData\</Image>
+			</Rule>
+			<Rule name="Windows_AD_Services_DLL_Loading_by_Suspicious_Process" groupRelation="and">
+				<ImageLoaded condition="contains any">ACTIVEDS.DLL;Adsldpc.dll;Wldap32.dll;adsldp.dll</ImageLoaded>
+				<Image condition="contains any">\wscript.exe;\cscript.exe;\powershell.exe;\powershell_ise.exe;\rundll32.exe;\msbuild.exe;\csc.exe</Image>
+			</Rule>
+			<Rule name="VBE6_Macro_Image_Loads_with_wshom" groupRelation="and">
+				<Image condition="contains any">WINWORD.exe;EXCEL.EXE</Image>
+				<ImageLoaded condition="contains all">VBEUI.DLL;VBE6.DLL;VBE6INTL.DLL;wshom.ocx</ImageLoaded>
+				<ImageLoaded condition="excludes all">wbemdisp.dll;wbemcomn.dll;wbemprox.dll;wmiutils.dll;wbemsvc.dll;fastprox.dll</ImageLoaded>
+			</Rule>
+			<Rule name="VBE7_Macro_Image_Loads_with_wshom" groupRelation="and">
+				<Image condition="contains any">WINWORD.exe;EXCEL.EXE</Image>
+				<ImageLoaded condition="contains all">VBE7.DLL;VBE7INTL.DLL;VBEUI.DLL;wshom.ocx</ImageLoaded>
+				<ImageLoaded condition="excludes all">wbemdisp.dll;wbemcomn.dll;wbemprox.dll;wmiutils.dll;wbemsvc.dll</ImageLoaded>
+			</Rule>
+			<Rule name="VBE6_Macro_Image_Loads_with_WMI" groupRelation="and">
+				<Image condition="contains any">WINWORD.exe;EXCEL.EXE</Image>
+				<ImageLoaded condition="contains all">VBEUI.DLL;VBE6.DLL;VBE6INTL.DLL;wbemdisp.dll;wbemcomn.dll;wbemprox.dll;wmiutils.dll;wbemsvc.dll</ImageLoaded>
+			</Rule>
+			<Rule name="VBE7_Macro_Image_Loads_with_WMI" groupRelation="and">
+				<Image condition="contains any">WINWORD.exe;EXCEL.EXE</Image>
+				<ImageLoaded condition="contains all">VBE7.DLL;VBE7INTL.DLL;VBEUI.DLL;wbemdisp.dll;wbemcomn.dll;wbemprox.dll;wmiutils.dll;wbemsvc.dll</ImageLoaded>
+			</Rule>
+			<Rule name="Office_taskschd.dll_Load" groupRelation="and">
+				<Image condition="contains any">WINWORD.exe;EXCEL.EXE</Image>
+				<ImageLoaded condition="end with">taskschd.dll</ImageLoaded>
+			</Rule>
+			<Rule name="Office_clr.dll_Load" groupRelation="and">
+				<Image condition="contains any">WINWORD.exe;EXCEL.EXE</Image>
+				<ImageLoaded condition="end with">clr.dll</ImageLoaded>
+			</Rule>
+			<Rule name="WScript_taskschd.dll_Load" groupRelation="and">
+				<Image condition="contains any">wscript.exe;cscript.exe</Image>
+				<ImageLoaded condition="end with">taskschd.dll</ImageLoaded>
+			</Rule>
+			<Rule name="WMI_taskschd.dll_Load" groupRelation="and">
+				<Image condition="image">wmiprvse.exe</Image>
+				<ImageLoaded condition="end with">taskschd.dll</ImageLoaded>
+			</Rule>
+			<Rule name="Powershell_Loading_MSI.dll" groupRelation="and">
+				<Image condition="image">powershell.exe</Image>
+				<ImageLoaded condition="end with">msi.dll</ImageLoaded>
+			</Rule>
+			<Rule name="Powershell_Loading_AMSI.dll" groupRelation="and">
+				<Image condition="contains">powershell</Image>
+				<ImageLoaded condition="end with">amsi.dll</ImageLoaded>
+			</Rule>
+			<Rule name="Powershell_Not_Loading_AMSI.dll" groupRelation="and">
+				<Image condition="excludes">powershell</Image>
+				<ImageLoaded condition="end with">amsi.dll</ImageLoaded>
+			</Rule>
+			<Rule name="Monitor_logoncli.dll_dll_loads_for_injection,potential_qbot_activity" groupRelation="and">
+				<ImageLoaded condition="end with">logoncli.dll</ImageLoaded>
+				<Image condition="is not">C:\Windows\System32\wbem\WmiPrvSE.exe</Image>
+			</Rule>
+			<Rule name="Wscript_Internet_Access_library_Loads" groupRelation="and">
+				<Image condition="contains any">wscript.exe;cscript.exe</Image>
+				<ImageLoaded condition="contains all">msxml;wshom.ocx</ImageLoaded>
+			</Rule>
+			<Rule name="Wscript_Internet_Access_library_Loads_2" groupRelation="and">
+				<Image condition="contains any">wscript.exe;cscript.exe</Image>
+				<ImageLoaded condition="contains all">winhttp.dll;mswsock.dll;IPHLPAPI.DLL</ImageLoaded>
+			</Rule>
+			<Rule name="Interesting_Installutil_DLL_Loads" groupRelation="and">
+				<Image condition="contains any">installutil.exe</Image>
+				<ImageLoaded condition="contains all">CustomMarshalers.dll;CustomMarshalers.ni.dll;System.Management.ni.dll;WMINet_Utils.dll;mswsock.dll</ImageLoaded>
+			</Rule>
+			<Rule name="Automation_NI_DLL_Loaded" groupRelation="and">
+				<ImageLoaded condition="end with">System.Management.Automation.ni.dll</ImageLoaded>
+				<ImageLoaded condition="begin with">C:\Windows\Microsoft.NET\assembly\GAC_MSIL\</ImageLoaded>
+			</Rule>
+			<Rule name="Automation_DLL_Loaded" groupRelation="and">
+				<ImageLoaded condition="end with">System.Management.Automation.dll</ImageLoaded>
+				<ImageLoaded condition="begin with">C:\Windows\Microsoft.NET\assembly\GAC_MSIL\</ImageLoaded>
+				<ImageLoaded condition="excludes any">Lenovo.Vantage.AddinHost;\Microsoft.Sara.exe;C:\Program Files\CONEXANT</ImageLoaded>
+			</Rule>
+			<Rule name="Credential_Manager_DLL_Loaded" groupRelation="and">
+				<ImageLoaded condition="is">C:\Windows\System32\vaultcli.dll</ImageLoaded>
+				<Image condition="excludes any">\svchost.exe;\GameBar.exe;C:\Program Files\WindowsApps;\Microsoft\Teams\current\Teams.exe</Image>
+			</Rule>
+			<Rule name="UNC_Path_Image_Loaded" groupRelation="and">
+				<ImageLoaded condition="begin with">\\</ImageLoaded>
+			</Rule>
+			<Rule name="WLL_Office_Application_Startup" groupRelation="and">
+				<ImageLoaded condition="contains">\Microsoft\Word\Startup\</ImageLoaded>
+				<ImageLoaded condition="end with">.wll</ImageLoaded>
+			</Rule>
+			<Rule name="XLL_Office_Application_Startup" groupRelation="and">
+				<ImageLoaded condition="contains">\Microsoft\Excel\Startup\</ImageLoaded>
+				<ImageLoaded condition="end with">.xll</ImageLoaded>
+			</Rule>
+			<Rule name="Office_Application_Startup_Generic" groupRelation="and">
+				<ImageLoaded condition="contains">\Microsoft\Addins\</ImageLoaded>
+				<ImageLoaded condition="contains any">.xla</ImageLoaded>
+			</Rule>
+			<Rule name="Mimikatz_Cred_Dumping" groupRelation="and">
+				<Image condition="image">rundll32.exe</Image>
+				<ImageLoaded condition="contains all">vaultcli.dll;wlanapi.dll</ImageLoaded>
+				<ImageLoaded condition="excludes">combase.dll</ImageLoaded>
+				<ImageLoaded condition="excludes">cryptdll.dll</ImageLoaded>
+				<ImageLoaded condition="excludes">imm32.dll</ImageLoaded>
+				<ImageLoaded condition="excludes">logoncli.dll</ImageLoaded>
+				<ImageLoaded condition="excludes">netapi32.dll</ImageLoaded>
+				<ImageLoaded condition="excludes">ntasn1.dll</ImageLoaded>
+				<ImageLoaded condition="excludes">ntdsapi.dll</ImageLoaded>
+				<ImageLoaded condition="excludes">samlib.dll</ImageLoaded>
+				<ImageLoaded condition="excludes">shcore.dll</ImageLoaded>
+				<ImageLoaded condition="excludes">srvcli.dll</ImageLoaded>
+			</Rule>
+			<Rule name="Explorer_Loading_Powershell_in_memory" groupRelation="and">
+				<Image condition="image">C:\Windows\Explorer.EXE</Image>
+				<ImageLoaded condition="is">C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe</ImageLoaded>
+			</Rule>
+			<Rule name="Programdata_Image_Loading_exe_Image_from_Programdata" groupRelation="and">
+				<Image condition="begin with">C:\ProgramData\</Image>
+				<ImageLoaded condition="begin with">C:\ProgramData\</ImageLoaded>
+				<ImageLoaded condition="end with">.exe</ImageLoaded>
+				<Company condition="excludes">Adobe</Company>
+				<Image condition="excludes">C:\ProgramData\Lenovo\</Image>
+				<ImageLoaded condition="excludes">C:\ProgramData\Microsoft\Windows Defender\</ImageLoaded>
+				<ImageLoaded condition="excludes">C:\ProgramData\sysmon\sysmon64.exe</ImageLoaded>
+			</Rule>
+			<Rule name="Suspicious_Image_loaded_within_Default_or_Public_Directory" groupRelation="and">
+				<ImageLoaded condition="contains any">C:\Users\Default\;C:\Users\Public\</ImageLoaded>
+				<ImageLoaded condition="end with">.exe</ImageLoaded>
+			</Rule>
+			<Rule name="Suspicious_Image_loaded_within_Default_or_Public_Directory" groupRelation="and">
+				<ImageLoaded condition="contains any">C:\Users\Default\;C:\Users\Public\</ImageLoaded>
+				<ImageLoaded condition="end with">.dll</ImageLoaded>
+			</Rule>
+			<Rule name="Sept_2022_Exchange_0day_DLL_detection" groupRelation="or">
+				<Hashes condition="contains">SHA256=074eb0e75bb2d8f59f1fd571a8c5b76f9c899834893da6f7591b68531f2b5d82</Hashes>
+				<Hashes condition="contains">SHA256=45c8233236a69a081ee390d4faa253177180b2bd45d8ed08369e07429ffbe0a9</Hashes>
+				<Hashes condition="contains">SHA256=9ceca98c2b24ee30d64184d9d2470f6f2509ed914dafb87604123057a14c57c0</Hashes>
+				<Hashes condition="contains">SHA256=29b75f0db3006440651c6342dc3c0672210cfb339141c75e12f6c84d990931c3</Hashes>
+				<Hashes condition="contains">SHA256=c8c907a67955bcdf07dd11d35f2a23498fb5ffe5c6b5d7f36870cf07da47bff2</Hashes>
+				<Hashes condition="contains">SHA256=76a2f2644cb372f540e179ca2baa110b71de3370bb560aca65dcddbd7da3701e</Hashes>
+			</Rule>
+			<Rule name="SVCHost_loading_Unsigned_DLL" groupRelation="and">
+				<Image condition="image">C:\Windows\System32\svchost.exe</Image>
+				<Signed condition="is">false</Signed>
+			</Rule>
+			<Rule name="T1170,MSHTA_with_AMSI_Bypass" groupRelation="and">
+				<ImageLoaded condition="contains any">jscript.dll;jscript9.dll</ImageLoaded>
+				<Image condition="image">mshta.exe</Image>
+			</Rule>
+			<Rule name="T1003,OS_Credential_Dumping,Wireless_Credential_Dumping" groupRelation="and">
+				<ImageLoaded condition="end with">C:\Windows\System32\wlanapi.dll</ImageLoaded>
+				<Image condition="excludes">C:\Program Files\NVIDIA Corporation\NVIDIA GeForce Experience\NVIDIA Share.exe</Image>
+				<Image condition="excludes">C:\Program Files\NVIDIA Corporation\NVIDIA GeForce Experience\NVIDIA Share.exe</Image>
+				<Image condition="excludes">C:\Program Files\WindowsApps\MicrosoftWindows.Client.WebExperience</Image>
+				<Image condition="excludes">C:\Windows\ImmersiveControlPanel\SystemSettings.exe</Image>
+				<Image condition="excludes">C:\Windows\ImmersiveControlPanel\SystemSettings.exe</Image>
+				<Image condition="excludes">C:\Windows\System32\AppHostRegistrationVerifier.exe</Image>
+				<Image condition="excludes">C:\Windows\System32\CompatTelRunner.exe</Image>
+				<Image condition="excludes">C:\Windows\System32\DeviceCensus.exe</Image>
+				<Image condition="excludes">C:\Windows\System32\DriverStore\FileRepository\</Image>
+				<Image condition="excludes">C:\Windows\System32\LogonUI.exe</Image>
+				<Image condition="excludes">C:\Windows\System32\MoNotificationUx.exe</Image>
+				<Image condition="excludes">C:\Windows\System32\SystemSettingsBroker.exe</Image>
+				<Image condition="excludes">C:\Windows\System32\dxgiadaptercache.exe</Image>
+				<Image condition="excludes">C:\Windows\System32\netsh.exe</Image>
+				<Image condition="excludes">C:\Windows\System32\wlanext.exe</Image>
+				<Image condition="excludes">C:\Windows\UUS\amd64\MoUsoCoreWorker.exe</Image>
+				<Image condition="excludes">C:\Windows\WinSxS\amd64_microsoft-windows-servicingstack_</Image>
+				<Image condition="excludes">C:\Windows\explorer.exe</Image>
+			</Rule>
+			<Rule name="Unsigned_Global_Assembly_Cache_Load" groupRelation="and">
+				<ImageLoaded condition="begin with">C:\Windows\Microsoft.NET\assembly\GAC_MSIL</ImageLoaded>
+				<Signed condition="is">false</Signed>
+			</Rule>
+			<Rule name="Signed_Global_Assembly_Cache_Load" groupRelation="and">
+				<ImageLoaded condition="begin with">C:\Windows\Microsoft.NET\assembly\GAC_MSIL</ImageLoaded>
+				<Signed condition="is">true</Signed>
+			</Rule>
+			<Rule name="T0137.005,Startup_Items" groupRelation="and">
+				<Image condition="end with">bginfo.exe</Image>
 				<ImageLoaded condition="contains any">System.ni.dll;System.Core.ni.dll</ImageLoaded>
 			</Rule>
+			<Rule name="T1055,Process_Injection" groupRelation="and">
+				<OriginalFileName condition="is any">clr.dll;clrjit.dll;mscoreei.dll;mscoree.dll;mscoreeis.dll;mscorlib.dll;mscorlib.ni.dll</OriginalFileName>
+				<Image condition="excludes">C:\Windows\Microsoft.NET\</Image>
+			</Rule>
+			<Rule name="T1175,Component_Object_Model_and_Distributed_COM" groupRelation="and">
+				<Image condition="contains all">C:\Program Files;\Microsoft Office\root\Office</Image>
+				<OriginalFileName condition="is any">combase.dll;coml2.dll;comsvcs.dll</OriginalFileName>
+			</Rule>
+			<Rule name="T1055,Process_Injection" groupRelation="and">
+				<Image condition="contains all">C:\Program Files;\Microsoft Office\root\Office</Image>
+				<ImageLoaded condition="begin with">C:\Windows\assembly\</ImageLoaded>
+			</Rule>
+			<Rule name="T1055,Process_Injection" groupRelation="and">
+				<Image condition="contains all">C:\Program Files;\Microsoft Office\root\Office</Image>
+				<ImageLoaded condition="begin with">C:\Windows\Microsoft.NET\assembly\GAC_MSIL</ImageLoaded>
+			</Rule>
+			<Rule name="T1055,Process_Injection" groupRelation="and">
+				<Image condition="contains all">C:\Program Files;\Microsoft Office\root\Office</Image>
+				<OriginalFileName condition="is">clr.dll</OriginalFileName>
+			</Rule>
+			<Rule name="T1059.005,Command_and_Scripting_Interpreter_VBScript" groupRelation="and">
+				<Image condition="contains all">C:\Program Files;\Microsoft Office\root\Office</Image>
+				<OriginalFileName condition="is any">VBE7INTL.DLL;VBE7.DLL;VBEUI.DLL</OriginalFileName>
+			</Rule>
+			<Rule name="T1137.001,Office_Template_Macros" groupRelation="and">
+				<Image condition="contains all">C:\Program Files;\Microsoft Office\root\Office</Image>
+				<OriginalFileName condition="is">OUTLVBA.DLL</OriginalFileName>
+			</Rule>
+			<Rule name="T1047,Windows_Management_Instrumentation" groupRelation="and">
+				<Image condition="contains all">C:\Program Files;\Microsoft Office\root\Office</Image>
+				<ImageLoaded condition="is">C:\Windows\SysWOW64\wbem\wbemdisp.dll</ImageLoaded>
+			</Rule>
+			<Rule name="T1003.004,LSASS_Memory" groupRelation="and">
+				<Image condition="end with">rundll32.exe</Image>
+				<OriginalFileName condition="is">comsvcs.dll</OriginalFileName>
+			</Rule>
+			<ImageLoaded name="Suspicious_Process_Loading_ntkrnlmp.exe" condition="image">ntkrnlmp.exe</ImageLoaded>
+			<ImageLoaded name="Suspicious_clr_windows_management_dll_Load" condition="contains all">clr.dll;System.Management.ni.dll;Microsoft.Build.Utilities</ImageLoaded>
+			<ImageLoaded name="Ransomware_detected_tor_library" condition="contains">tor-lib.dll</ImageLoaded>
+			<ImageLoaded name="Cred_Dumping" condition="is any">C:\Windows\System32\WinSCard.dll;C:\Windows\System32\cryptdll.dll;C:\Windows\System32\hid.dll;C:\Windows\System32\samlib.dll;C:\Windows\System32\vaultcli.dll</ImageLoaded>
+			<ImageLoaded name="Potential_C3_Framework" condition="contains all">odbc32.dll;winhttp.dll;netapi32.dll;SHLWAPI.dll</ImageLoaded>
+			<Hashes name="Solarwinds/FireEye_sunburst_image_hashes" condition="contains any">56ceb6d0011d87b6e4d7023d7ef85676;4f2eb62fa529c0283b28d05ddd311fae;b91ce2fa41029f6955bff20079468448;b91ce2fa41029f6955bff20079468448;846e27a652a5e1bfbd0ddd38a16dc865;2c4a910a1299cdae2a4e55988a2f102e</Hashes>
+			<SignatureStatus name="Revoked_Signature_Libraries_Loaded" condition="is">Revoked</SignatureStatus>
+			<SignatureStatus name="Expired_Signature_Libraries_Loaded" condition="is">Expired</SignatureStatus>
+			<ImageLoaded condition="end with">scrobj.dll</ImageLoaded>
+			<ImageLoaded condition="end with">crypt0.dll</ImageLoaded>
+			<ImageLoaded name="T1059.006,Command_and_Scripting_Interpreter,Python_DLL_Loaded" condition="contains any">python</ImageLoaded>
 			<ImageLoaded name="T1197,BITS" condition="end with">bitsproxy.dll</ImageLoaded>
-			<Rule groupRelation="and">
-				<OriginalFileName name="T1055,Process_Injection" condition="is">clr.dll</OriginalFileName>
-				<Image condition="excludes">C:\Windows\Microsoft.NET\</Image>
-			</Rule>
-			<Rule groupRelation="and">
-				<OriginalFileName name="T1055,Process_Injection" condition="is">clrjit.dll</OriginalFileName>
-				<Image condition="excludes">C:\Windows\Microsoft.NET\</Image>
-			</Rule>
-			<Rule groupRelation="and">
-				<OriginalFileName name="T1055,Process_Injection" condition="is">mscoreei.dll</OriginalFileName>
-				<Image condition="excludes">C:\Windows\Microsoft.NET\</Image>
-			</Rule>
-			<Rule groupRelation="and">
-				<OriginalFileName name="T1055,Process_Injection" condition="is">mscoree.dll</OriginalFileName>
-				<Image condition="excludes">C:\Windows\Microsoft.NET\</Image>
-			</Rule>
-			<Rule groupRelation="and">
-				<OriginalFileName name="T1055,Process_Injection" condition="is">mscoreeis.dll</OriginalFileName>
-				<Image condition="excludes">C:\Windows\Microsoft.NET\</Image>
-			</Rule>
-			<Rule groupRelation="and">
-				<OriginalFileName name="T1055,Process_Injection" condition="is">mscorlib.dll</OriginalFileName>
-				<Image condition="excludes">C:\Windows\Microsoft.NET\</Image>
-			</Rule>
-			<Rule groupRelation="and">
-				<OriginalFileName name="T1055,Process_Injection" condition="is">mscorlib.ni.dll</OriginalFileName>
-				<Image condition="excludes">C:\Windows\Microsoft.NET\</Image>
-			</Rule>
 			<ImageLoaded name="T1047,Windows_Scheduled_Tasks" condition="end with">mstask.dll</ImageLoaded>
 			<ImageLoaded name="T1064,Windows_Scripting_Host_Component" condition="end with">wshom.ocx</ImageLoaded>
 			<OriginalFileName condition="is">scrrun.dll</OriginalFileName>
 			<OriginalFileName condition="is">vbscript.dll</OriginalFileName>
-			<Rule groupRelation="and">
-				<OriginalFileName name="T1170,MSHTA_with_AMSI_Bypass" condition="is">jscript.dll</OriginalFileName>
-				<Image condition="end with">mshta.exe</Image>
-			</Rule>
-			<Rule groupRelation="and">
-				<OriginalFileName name="T1170,MSHTA_with_AMSI_Bypass" condition="is">jscript9.dll</OriginalFileName>
-				<Image condition="end with">mshta.exe</Image>
-			</Rule>
 			<ImageLoaded name="T1137,Office_Application_Startup" condition="end with">.wll</ImageLoaded>
 			<ImageLoaded name="T1137,Office_Application_Startup" condition="end with">.xll</ImageLoaded>
-			<Rule groupRelation="and">
-				<Image condition="contains all">C:\Program Files;\Microsoft Office\root\Office</Image>
-				<OriginalFileName name="T1175,Component_Object_Model_and_Distributed_COM" condition="is">combase.dll</OriginalFileName>
-			</Rule>
-			<Rule groupRelation="and">
-				<Image condition="contains all">C:\Program Files;\Microsoft Office\root\Office</Image>
-				<OriginalFileName name="T1175,Component_Object_Model_and_Distributed_COM" condition="is">coml2.dll</OriginalFileName>
-			</Rule>
-			<Rule groupRelation="and">
-				<Image condition="contains all">C:\Program Files;\Microsoft Office\root\Office</Image>
-				<OriginalFileName name="T1175,Component_Object_Model_and_Distributed_COM" condition="is">comsvcs.dll</OriginalFileName>
-			</Rule>
-			<Rule groupRelation="and" name="T1055,Process_Injection">
-				<Image condition="contains all">C:\Program Files;\Microsoft Office\root\Office</Image>
-				<ImageLoaded condition="begin with">C:\Windows\assembly\</ImageLoaded>
-			</Rule>
-			<Rule groupRelation="and" name="T1055,Process_Injection">
-				<Image condition="contains all">C:\Program Files;\Microsoft Office\root\Office</Image>
-				<ImageLoaded condition="begin with">C:\Windows\Microsoft.NET\assembly\GAC_MSIL</ImageLoaded>
-			</Rule>
-			<Rule groupRelation="and" name="T1055,Process_Injection">
-				<Image condition="contains all">C:\Program Files;\Microsoft Office\root\Office</Image>
-				<OriginalFileName condition="is">clr.dll</OriginalFileName>
-			</Rule>
-			<Rule groupRelation="and" name="T1059.005,Command_and_Scripting_Interpreter_VBScript">
-				<Image condition="contains all">C:\Program Files;\Microsoft Office\root\Office</Image>
-				<OriginalFileName condition="is">VBE7INTL.DLL</OriginalFileName>
-			</Rule>
-			<Rule groupRelation="and" name="T1059.005,Command_and_Scripting_Interpreter_VBScript">
-				<Image condition="contains all">C:\Program Files;\Microsoft Office\root\Office</Image>
-				<OriginalFileName condition="is">VBE7.DLL</OriginalFileName>
-			</Rule>
-			<Rule groupRelation="and" name="T1059.005,Command_and_Scripting_Interpreter_VBScript">
-				<Image condition="contains all">C:\Program Files;\Microsoft Office\root\Office</Image>
-				<OriginalFileName condition="is">VBEUI.DLL</OriginalFileName>
-			</Rule>
-			<Rule groupRelation="and" name="T1137.001,Office_Template_Macros">
-				<Image condition="contains all">C:\Program Files;\Microsoft Office\root\Office</Image>
-				<OriginalFileName condition="is">OUTLVBA.DLL</OriginalFileName>
-			</Rule>
 			<Image name="T1137,Office_Application_Startup" condition="end with">VSTOInstaller.exe</Image>
-			<Rule groupRelation="and">
-				<Image name="T1047,Windows_Management_Instrumentation" condition="contains all">C:\Program Files;\Microsoft Office\root\Office</Image>
-				<ImageLoaded condition="is">C:\Windows\SysWOW64\wbem\wbemdisp.dll</ImageLoaded>
-			</Rule>
 			<ImageLoaded name="T1059.001,PowerShell" condition="end with">system.management.automation.ni.dll</ImageLoaded>
 			<ImageLoaded name="T1059.001,PowerShell" condition="end with">system.management.automation.dll</ImageLoaded>
 			<ImageLoaded name="T1059.001,PowerShell" condition="end with">Microsoft.PowerShell.Commands.Diagnostics.dll</ImageLoaded>
@@ -117,53 +277,53 @@
 			<ImageLoaded name="T1059.001,PowerShell" condition="end with">Microsoft.PowerShell.Commands.Utility.dll</ImageLoaded>
 			<ImageLoaded name="T1059.001,PowerShell" condition="end with">Microsoft.PowerShell.ConsoleHost.dll</ImageLoaded>
 			<ImageLoaded name="T1059.001,PowerShell" condition="end with">Microsoft.PowerShell.Security.dll</ImageLoaded>
-			<ImageLoaded name="1210,Exploitation_of_Remote_Services" condition="begin with">C:\Windows\System32\spool\drivers\</ImageLoaded>
-			<OriginalFileName name="T1112,Modify_Registry" condition="is">regsvc.dll</OriginalFileName>
-			<Rule groupRelation="and">
-				<Image condition="end with">rundll32.exe</Image>
-				<OriginalFileName name="T1003.004,LSASS_Memory" condition="is">comsvcs.dll</OriginalFileName>
-			</Rule>
-			<OriginalFileName name="T1053,Scheduled_Task" condition="is">taskschd.dll</OriginalFileName>
-			<ImageLoaded name="T1218.010,Regsvr32" condition="end with">scrobj.dll</ImageLoaded>
-			<OriginalFileName name="T1218.010,Regsvr32" condition="is">scrobj.dll</OriginalFileName>
+			<!-- DLL Side-Loading -->
 			<ImageLoaded name="T1073,DLL_Side-Loading" condition="contains any">admin$;c$;\\;\appdata\;\temp\</ImageLoaded>
-			<ImageLoaded condition="begin with" name="T1073,DLL_Side-Loading">c:\programdata\</ImageLoaded>
-			<ImageLoaded condition="begin with" name="T1073,DLL_Side-Loading">C:\Windows\Media\</ImageLoaded>
-			<ImageLoaded condition="begin with" name="T1073,DLL_Side-Loading">C:\Windows\addins\</ImageLoaded>
-			<ImageLoaded condition="begin with" name="T1073,DLL_Side-Loading">C:\Windows\system32\config\systemprofile\</ImageLoaded>
-			<ImageLoaded condition="begin with" name="T1073,DLL_Side-Loading">C:\Windows\Debug\</ImageLoaded>
-			<ImageLoaded condition="begin with" name="T1073,DLL_Side-Loading">C:\Windows\Temp</ImageLoaded>
-			<ImageLoaded condition="begin with" name="T1073,DLL_Side-Loading">C:\PerfLogs\</ImageLoaded>
-			<ImageLoaded condition="begin with" name="T1073,DLL_Side-Loading">C:\Windows\Help\</ImageLoaded>
-			<ImageLoaded condition="begin with" name="T1073,DLL_Side-Loading">C:\Intel\Logs\</ImageLoaded>
-			<ImageLoaded condition="begin with" name="T1073,DLL_Side-Loading">C:\Temp</ImageLoaded>
-			<ImageLoaded condition="begin with" name="T1073,DLL_Side-Loading">C:\Windows\repair\</ImageLoaded>
-			<ImageLoaded condition="begin with" name="T1073,DLL_Side-Loading">C:\Windows\security\</ImageLoaded>
-			<ImageLoaded condition="begin with" name="T1073,DLL_Side-Loading">C:\Windows\Fonts\</ImageLoaded>
-			<ImageLoaded condition="contains" name="T1073,DLL_Side-Loading">Downloads</ImageLoaded>
-			<ImageLoaded condition="contains" name="T1073,DLL_Side-Loading">Public</ImageLoaded>
-			<ImageLoaded condition="contains" name="T1073,DLL_Side-Loading">Documents</ImageLoaded>
-			<ImageLoaded condition="contains" name="T1073,DLL_Side-Loading">Music</ImageLoaded>
-			<ImageLoaded condition="contains" name="T1073,DLL_Side-Loading">Video</ImageLoaded>
-			<ImageLoaded condition="begin with" name="T1073,DLL_Side-Loading">file:</ImageLoaded>
+			<ImageLoaded name="T1073,DLL_Side-Loading" condition="begin with" >c:\programdata\</ImageLoaded>
+			<ImageLoaded name="T1073,DLL_Side-Loading" condition="begin with">C:\Windows\Media\</ImageLoaded>
+			<ImageLoaded name="T1073,DLL_Side-Loading" condition="begin with">C:\Windows\addins\</ImageLoaded>
+			<ImageLoaded name="T1073,DLL_Side-Loading" condition="begin with">C:\Windows\system32\config\systemprofile\</ImageLoaded>
+			<ImageLoaded name="T1073,DLL_Side-Loading" condition="begin with">C:\Windows\Debug\</ImageLoaded>
+			<ImageLoaded name="T1073,DLL_Side-Loading" condition="begin with">C:\Windows\Temp</ImageLoaded>
+			<ImageLoaded name="T1073,DLL_Side-Loading" condition="begin with">C:\PerfLogs\</ImageLoaded>
+			<ImageLoaded name="T1073,DLL_Side-Loading" condition="begin with">C:\Windows\Help\</ImageLoaded>
+			<ImageLoaded name="T1073,DLL_Side-Loading" condition="begin with">C:\Intel\Logs\</ImageLoaded>
+			<ImageLoaded name="T1073,DLL_Side-Loading" condition="begin with">C:\Temp</ImageLoaded>
+			<ImageLoaded name="T1073,DLL_Side-Loading" condition="begin with">C:\Windows\repair\</ImageLoaded>
+			<ImageLoaded name="T1073,DLL_Side-Loading" condition="begin with">C:\Windows\security\</ImageLoaded>
+			<ImageLoaded name="T1073,DLL_Side-Loading" condition="begin with">C:\Windows\Fonts\</ImageLoaded>
+			<ImageLoaded name="T1073,DLL_Side-Loading" condition="contains">Downloads</ImageLoaded>
+			<ImageLoaded name="T1073,DLL_Side-Loading" condition="contains">Public</ImageLoaded>
+			<ImageLoaded name="T1073,DLL_Side-Loading" condition="contains">Documents</ImageLoaded>
+			<ImageLoaded name="T1073,DLL_Side-Loading" condition="contains">Music</ImageLoaded>
+			<ImageLoaded name="T1073,DLL_Side-Loading" condition="contains">Video</ImageLoaded>
+			<ImageLoaded name="T1073,DLL_Side-Loading" condition="begin with">file:</ImageLoaded>
 			<ImageLoaded name="T1073,DLL_Side-Loading" condition="contains">$Recycle.bin\</ImageLoaded>
 			<ImageLoaded name="T1073,DLL_Side-Loading" condition="contains">\Windows\IME\</ImageLoaded>
-			<Rule groupRelation="and">
-				<OriginalFileName condition="is">urlmon.dll</OriginalFileName>
-			</Rule>
-			<ImageLoaded name="T1047,Windows_Management_Instrumentation" condition="end with">wmiutils.dll</ImageLoaded>
 		</ImageLoad>
 	</RuleGroup>
 
-	<RuleGroup groupRelation="or">
+	<RuleGroup name="ImageLoad_Exclude_Group" groupRelation="or">
 		<ImageLoad onmatch="exclude">
+			<Rule name="XLL_Office_Application_Startup_removal" groupRelation="and">
+				<Image condition="contains">\Microsoft Office\</Image>
+				<ImageLoaded condition="end with">\mscorlib.ni.dll</ImageLoaded>
+			</Rule>
+			<Rule name="XLL_Office_Application_Startup_removal" groupRelation="and">
+				<Image condition="contains">\Microsoft Office\</Image>
+				<ImageLoaded condition="end with">\sppc.dll</ImageLoaded>
+			</Rule>
+			<Rule name="T1137,Office_Application_Startup" groupRelation="and">
+				<Image condition="end with">VSTOInstaller.exe</Image>
+				<ImageLoaded condition="begin with">C:\Windows\</ImageLoaded>
+			</Rule>
+			<Rule name="SVCHost_Signed_DLL" groupRelation="and">
+				<Image condition="image">C:\Windows\System32\svchost.exe</Image>
+				<Signed condition="is">true</Signed>
+			</Rule>
 			<Rule groupRelation="and">
 				<Image condition="is">C:\Windows\System32\cscript.exe</Image>
 				<OriginalFileName condition="is">scrobj.dll</OriginalFileName>
-			</Rule>
-			<Rule groupRelation="and">
-				<Image name="T1137,Office_Application_Startup" condition="end with">VSTOInstaller.exe</Image>
-				<ImageLoaded condition="begin with">C:\Windows\</ImageLoaded>
 			</Rule>
 			<Rule groupRelation="and">
 				<Image condition="contains all"> C:\Users\;\AppData\Local\Microsoft\OneDrive;\FileCoAuth.exe</Image>
@@ -193,6 +353,47 @@
 				<Image condition="contains all"> C:\Users\;\AppData\Local\Microsoft\OneDrive;\FileCoAuth.exe</Image>
 				<ImageLoaded condition="contains all">C:\Users\;\AppData\Local\Microsoft\OneDrive\;\FileCoAuth.exe</ImageLoaded>
 			</Rule>
+			<!--Universal Exclusions: Be Careful-->
+			<Rule name="Antivirus Exclusions" groupRelation="or"> 
+				<Image condition="begin with">C:\Program Files (x86)\Kaspersky Lab</Image> 
+				<Image condition="begin with">C:\Program Files\Kaspersky Lab</Image>
+				<Image condition="begin with">C:\Program Files (x86)\ESET</Image>
+				<Image condition="begin with">C:\Program Files\ESET</Image>
+				<Image condition="begin with">C:\ProgramData\Microsoft\Windows Defender\</Image>
+			</Rule>
+			<Company condition="contains">Fortinet</Company>
+			<Company condition="contains">Lenovo</Company>
+			<Company condition="contains">Sophos</Company>
+			<Image condition="end with">mscorsvw.exe</Image>
+			<Image condition="image">C:\Program Files (x86)\Microsoft Office\root\Office15\officebackgroundtaskhandler.exe</Image>
+			<Image condition="image">C:\Program Files (x86)\Microsoft Office\root\Office16\officebackgroundtaskhandler.exe</Image>
+			<Image condition="image">C:\Program Files\Microsoft Office\root\Office15\officebackgroundtaskhandler.exe</Image>
+			<Image condition="image">C:\Program Files\Microsoft Office\root\Office16\officebackgroundtaskhandler.exe</Image>
+			<Image condition="image">C:\Windows\SysWOW64\SearchProtocolHost.exe</Image>
+			<Image condition="image">C:\Windows\System32\InstallAgentUserBroker.exe</Image>
+			<Image condition="image">C:\Windows\System32\RuntimeBroker.exe</Image>
+			<Image condition="image">C:\Windows\System32\SearchIndexer.exe</Image>
+			<Image condition="image">C:\Windows\System32\SettingSyncHost.exe</Image>
+			<Image condition="image">C:\Windows\System32\backgroundTaskHost.exe</Image>
+			<Image condition="image">C:\Windows\System32\sppsvc.exe</Image>
+			<Image condition="image">C:\Windows\System32\taskhost.exe</Image>
+			<Image condition="image">C:\Windows\System32\taskhostw.exe</Image>
+			<Image condition="image">C:\Windows\SystemApps\Microsoft.AAD.BrokerPlugin_cw5n1h2txyewy\Microsoft.AAD.BrokerPlugin.exe</Image>
+			<Image condition="image">C:\Windows\SystemApps\Microsoft.Windows.Cortana_cw5n1h2txyewy\SearchUI.exe</Image>
+			<Image condition="image">HxTsr.exe</Image>
+			<Image condition="image">SearchUI.exe</Image>
+			<ImageLoaded condition="contains">C:\Program Files (x86)\Common Files\BIExcelFunctions1.1\32bit\Sage.</ImageLoaded>
+			<ImageLoaded condition="contains">C:\Windows\Microsoft.NET\assembly\GAC_MSIL\Pfx.</ImageLoaded>
+			<ImageLoaded condition="is">C:\Program Files (x86)\Adobe\Acrobat 10.0\Acrobat\Adist64.dll</ImageLoaded>
+			<ImageLoaded condition="is">C:\Program Files (x86)\Microsoft Office\Office15\Library\Analysis\ANALYS32.XLL</ImageLoaded>
+			<ImageLoaded condition="is">C:\Program Files (x86)\Microsoft Office\Office16\Library\Analysis\ANALYS32.XLL</ImageLoaded>
+			<ImageLoaded condition="is">C:\Program Files\Microsoft Office\Office15\Library\Analysis\ANALYS32.XLL</ImageLoaded>
+			<ImageLoaded condition="is">C:\Program Files\Microsoft Office\Office16\Library\Analysis\ANALYS32.XLL</ImageLoaded>
+			<ImageLoaded condition="is">C:\Windows\SysWOW64\sppc.dll</ImageLoaded>
+			<ImageLoaded condition="end with">Microsoft.Office.Interop.VisOcx.dll</ImageLoaded>
+			<ImageLoaded condition="end with">Microsoft.Office.Interop.Word.dll</ImageLoaded>
+			<ImageLoaded condition="end with">Microsoft.Vbe.Interop.dll</ImageLoaded>
+			<ImageLoaded condition="end with">OFFICE.DLL</ImageLoaded>
 		</ImageLoad>
 	</RuleGroup>
 

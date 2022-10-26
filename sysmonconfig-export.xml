@@ -25,7 +25,7 @@
 	<!--SYSMON EVENT ID 1 : PROCESS CREATION [ProcessCreate]-->
 	<!--DATA: UtcTime, ProcessGuid, ProcessID, Image, FileVersion, Description, Product, Company, CommandLine, CurrentDirectory, User, LogonGuid, LogonId, TerminalSessionId, IntegrityLevel, Hashes, ParentProcessGuid, ParentProcessId, ParentImage, ParentCommandLine, RuleName-->
 	<!--No Includes-->
-	<RuleGroup name="" groupRelation="or">
+	<RuleGroup name="ProcessCreate_Exclude_Group" groupRelation="or">
 		<ProcessCreate onmatch="exclude">
 			<!--Microsoft Windows-->
 			<CommandLine condition="begin with"> "C:\Windows\system32\wermgr.exe" "-queuereporting_svc" </CommandLine> <!--Windows:Windows error reporting/telemetry-->
@@ -257,23 +257,29 @@
 			<ParentImage condition="is">C:\Program Files (x86)\RES Software\Workspace Manager\ResPesvc64.exe</ParentImage>
 			<ParentImage condition="is">C:\Program Files\RES Software\Workspace Manager\respesvc.exe</ParentImage>
 			<ParentImage condition="is">C:\Program Files\Ivanti\Workspace Control\ResPesvc.exe</ParentImage>
+			<Rule name="Exclude WerFault from WMI" groupRelation="and">
+				<Image condition="image">C:\Windows\System32\WerFault.exe</Image>
+				<ParentImage condition="image">C:\Windows\System32\wbem\WmiPrvSE.exe</ParentImage>
+			</Rule>
 		</ProcessCreate>
 	</RuleGroup>
 	
 	<!--SYSMON EVENT ID 2 : FILE CREATION TIME RETROACTIVELY CHANGED IN THE FILESYSTEM [FileCreateTime]-->
 	<!--DATA: UtcTime, ProcessGuid, ProcessId, Image, TargetFilename, CreationUtcTime, PreviousCreationUtcTime-->
-	<RuleGroup name="" groupRelation="or">
+	<RuleGroup name="FileCreateTime_Include_Group" groupRelation="or">
 		<FileCreateTime onmatch="include">
 			<Image name="T1099,Timestomp" condition="begin with">C:\Users</Image> <!--Look for timestomping in user area, usually nothing should be doing that here-->
+			<Image name="T1099,Timestomp" condition="begin with">C:\ProgramData</Image>
 			<TargetFilename name="T1099,Timestomp" condition="end with">.exe</TargetFilename> <!--Look for backdated executables anywhere-->
 			<Image name="T1099,Timestomp" condition="begin with">\Device\HarddiskVolumeShadowCopy</Image> <!--Nothing should be written here | Credit: @SBousseaden [ https://twitter.com/SBousseaden/status/1133030955407630336 ] -->
-			<Image name="T1099,Timestomp" condition="begin with">C:\Temp</Image>
-			<Image name="T1099,Timestomp" condition="begin with">C:\Tmp</Image>
-			<Image name="T1099,Timestomp" condition="begin with">C:\Windows\Temp</Image>
+			<Image name="T1099,Timestomp" condition="contains">\Temp\</Image>
+			<Image name="T1099,Timestomp" condition="contains">\tmp\</Image>
+			<Image name="T1099,Timestomp" condition="contains">\drivers\</Image>
+			<Image name="T1099,Timestomp" condition="contains">\Download</Image>
 		</FileCreateTime>
 	</RuleGroup>
 
-	<RuleGroup name="" groupRelation="or">
+	<RuleGroup name="FileCreateTime_Exclude_Group" groupRelation="or">
 		<FileCreateTime onmatch="exclude">
 			<Image condition="image">OneDrive.exe</Image> <!--OneDrive constantly changes file times-->
 			<Image condition="image">C:\Windows\system32\backgroundTaskHost.exe</Image>
@@ -281,19 +287,21 @@
 			<Image condition="contains">install</Image> <!--Ignore setups-->
 			<Image condition="contains">Update\</Image> <!--Ignore setups-->
 			<Image condition="end with">redist.exe</Image> <!--Ignore setups-->
-			<Image condition="is">msiexec.exe</Image> <!--Ignore setups-->
-			<Image condition="is">TrustedInstaller.exe</Image> <!--Ignore setups-->
+			<Image condition="image">msiexec.exe</Image> <!--Ignore setups-->
+			<Image condition="image">TrustedInstaller.exe</Image> <!--Ignore setups-->
 			<TargetFilename condition="contains">\NVIDIA\NvBackend\ApplicationOntology\</TargetFilename> <!--NVIDIA GeForce Experience Application Ontology, 1000's of events in user profile-->
 			<Image condition="end with">AppData\Local\Google\Chrome\Application\chrome.exe</Image>
         	<Image condition="end with">Root\VFS\ProgramFilesX86\Google\Chrome\Application\chrome.exe</Image>
-			<Image condition="end with">slack.exe</Image>
+			<Image condition="end with">\AppData\Local\Microsoft\Edge SxS\Application\msedge.exe</Image>
 			<Image condition="end with">AppData\Local\Microsoft\Teams\current\Teams.exe</Image>
+			<Image condition="end with">slack.exe</Image>
+			<Image condition="image">vivaldi.exe</Image>
 		</FileCreateTime>
 	</RuleGroup>
 
 	<!--SYSMON EVENT ID 3 : NETWORK CONNECTION INITIATED [NetworkConnect]-->
 	<!--DATA: UtcTime, ProcessGuid, ProcessId, Image, User, Protocol, Initiated, SourceIsIpv6, SourceIp, SourceHostname, SourcePort, SourcePortName, DestinationIsIpV6, DestinationIp, DestinationHostname, DestinationPort, DestinationPortName-->
-	<RuleGroup name="" groupRelation="or">
+	<RuleGroup name="NetworkConnect_Include_Group" groupRelation="or">
 		<NetworkConnect onmatch="include">
 			<!--Suspicious sources for network-connecting binaries-->
 			<Image name="T1036,Masquerading" condition="begin with">C:\Users</Image> <!--Tools downloaded by users can use other processes for networking, but this is a very valuable indicator.-->
@@ -306,7 +314,6 @@
 			<Image name="T1036,Masquerading" condition="begin with">C:\Windows\Fonts</Image> <!-- Credit @blu3_team [ https://blu3-team.blogspot.com/2019/05/netconn-from-suspicious-directories.html ] -->
 			<Image name="T1036,Masquerading" condition="begin with">C:\Windows\system32\config</Image> <!-- Credit @blu3_team [ https://blu3-team.blogspot.com/2019/05/netconn-from-suspicious-directories.html ] -->
 			<Image name="T1036,Masquerading" condition="begin with">C:\Temp</Image>
-			<Image name="T1036,Masquerading" condition="begin with">C:\$Recycle.bin\</Image>
 			<Image name="T1036,Masquerading" condition="begin with">C:\Intel\Logs\</Image>
 			<Image name="T1036,Masquerading" condition="begin with">C:\Users\Default\</Image>
 			<Image name="T1036,Masquerading" condition="begin with">C:\Users\Public\</Image>
@@ -325,6 +332,12 @@
 			<Image name="T1036,Masquerading" condition="contains">\AppData\Roaming\</Image>
 			<Image name="T1036,Masquerading" condition="contains">\AppData\LocalLow\</Image>
 			<Image name="T1036,Masquerading" condition="contains">C:\Windows\SysWOW64</Image>
+			<Image name="T1036,Masquerading" condition="contains">\Windows\IME\</Image>
+			<Image name="T1036,Masquerading" condition="contains">$Recycle.bin</Image>
+			<Rule name="T1036,Masquerading" groupRelation="and">
+				<Image condition="contains">\temp\</Image>
+				<DestinationIp condition="excludes any">127.0.0.1</DestinationIp>		
+			</Rule>
 			<!--Suspicious Windows tools-->
 			<Image name="T1053,Scheduled_Task" condition="image">at.exe</Image> <!--Windows: Remote task scheduling, removed in Win10 | Credit @ion-storm -->
 			<Image name="T1218,Signed_Binary_Proxy_Execution" condition="image">certutil.exe</Image> <!--Windows: Certificate tool can contact outbound | Credit @ion-storm @FVT [ https://twitter.com/FVT/status/834433734602530817 ] -->
@@ -351,7 +364,7 @@
 			<Image name="T1057,Process_Discovery" condition="image">qprocess.exe</Image> <!--Windows: [ https://www.first.org/resources/papers/conf2017/APT-Log-Analysis-Tracking-Attack-Tools-by-Audit-Policy-and-Sysmon.pdf ] -->
 			<Image name="T1057,Process_Discovery" condition="image">qwinsta.exe</Image> <!--Windows: Remotely query login sessions on a server or workstation | Credit @ion-storm -->
 			<Image name="T1112,Modify_Registry" condition="image">reg.exe</Image> <!--Windows: Remote Registry editing ability | Credit @ion-storm -->
-			<Image name="T1218.009,Regsvcs/Regasm" condition="image">regsvcs.exe</Image> <!--Windows: [ https://www.hybrid-analysis.com/sample/3f94d7080e6c5b8f59eeecc3d44f7e817b31562caeba21d02ad705a0bfc63d67?environmentId=100 ] -->
+			<Image name="T1218.009,Regsvcs/Regasm" condition="contains any">regasm.exe;regsvcs.exe</Image>
 			<Image name="T1218.010,Regsvr32" condition="image">regsvr32.exe</Image> <!--Windows: [ https://subt0x10.blogspot.com/2016/04/bypass-application-whitelisting-script.html ] -->
 			<Image name="T1218.011,Rundll32" condition="image">rundll32.exe</Image> <!--Windows: [ https://blog.cobaltstrike.com/2016/07/22/why-is-rundll32-exe-connecting-to-the-internet/ ] -->
 			<Image name="T1057,Process_Discovery" condition="image">rwinsta.exe</Image> <!--Windows: Disconnect remote sessions | Credit @ion-storm -->
@@ -389,22 +402,14 @@
 			<Image condition="image">Powerpnt.exe</Image> <!-- Windows Office: PowerPoint - Can download from URLs -->
 			<Image condition="image">Winword.exe</Image> <!-- Windows Office: Word - Can download from URLs -->
 			<Image condition="image">squirrel.exe</Image> <!-- Windows: Update the Nuget/Squirrel packages. Part of Teams. - Can download from URLs -->
+			<Image condition="image">CSC.exe</Image>
 			<!--Relevant 3rd Party Tools-->
-			<Image condition="image">netcat.exe</Image> <!-- Compiled netcat.c file if naming convention is kept https://github.com/DarrenRainey/netcat -->
-			<Image condition="image">nc.exe</Image> <!-- Nmap's modern version of netcat [ https://nmap.org/ncat/guide/index.html#ncat-overview ] [ https://securityblog.gr/1517/create-backdoor-in-windows-with-ncat/ ] -->
-			<Image condition="image">nc64.exe</Image> <!-- 64-bit version of nc that can be used on 64-bit Windows Architectures https://github.com/DarrenRainey/netcat-->
-			<Image condition="image">ncat.exe</Image> <!-- Nmap's modern version of netcat [ https://nmap.org/ncat/guide/index.html#ncat-overview ] [ https://securityblog.gr/1517/create-backdoor-in-windows-with-ncat/ ] -->
-			<Image condition="image">procdump.exe</Image> <!-- Sysinternals Suite client side that can be used to dump clear text passwords from memory -->
-			<Image condition="image">procdump64.exe</Image> <!-- Sysinternals Suite client side 64-bit version that can be used to dump clear text passwords from memory -->
-			<Image name="T1569.002,Service_Execution" condition="image">psexec.exe</Image> <!--Sysinternals:PsExec client side | Credit @Cyb3rOps -->
-			<Image name="T1569.002,Service_Execution" condition="image">psexec64.exe</Image> <!-- Sysinernals:PsExec64 client side | 64-bit version of psexec.exe -->
-			<Image name="T1569.002,Service_Execution" condition="image">psexesvc.exe</Image> <!--Sysinternals:PsExec server side | Credit @Cyb3rOps -->
-			<Image condition="image">tor.exe</Image> <!--Tor [ https://www.hybrid-analysis.com/sample/800bf028a23440134fc834efc5c1e02cc70f05b2e800bbc285d7c92a4b126b1c?environmentId=100 ] -->
-			<Image name="T1021,Remote_Services" condition="image">vnc.exe</Image> <!-- VNC client | Credit @Cyb3rOps -->
-			<Image name="T1021,Remote_Services" condition="image">vncservice.exe</Image> <!-- VNC server | Credit @Cyb3rOps -->
-			<Image name="T1021,Remote_Services" condition="image">vncviewer.exe</Image> <!-- VNC client | Credit @Cyb3rOps -->
-			<Image name="T1569.002,Service_Execution" condition="image">winexesvc.exe</Image> <!-- Winexe service executable | Credit @Cyb3rOps -->
-			<Image condition="image">nmap.exe</Image>
+			<Image name="Netcat_Detected" condition="contains any">netcat.exe;nc.exe;nc64.exe;ncat.exe</Image>
+			<Image name="Procdump_Detected" condition="contains any">procdump</Image>
+			<Image name="PSExec_Network_Connection" condition="contains any">psexe</Image>
+			<Image name="VNC_Network_Connection" condition="contains any">vnc;vncs;vncv</Image>
+			<Image name="T1569.002,Service_Execution" condition="image">winexesvc.exe</Image>
+			<Image name="T1595.002,Vulnerability_Scanning,Port_Scan_Tool_Detected" condition="contains any">rcpping;tcpping;tcping;routerscan;grabff;Port-Scan;netscan;\nmap;ipscan;nacmdline.exe;advanced_port_scanner.exe;nmap.exe;zenmap.exe;advanced_ip_scanner.exe</Image>
 			<Image condition="image">psinfo.exe</Image>
 			<Image name="T1021,Remote_Services" condition="image">omniinet.exe</Image>
 			<Image name="T1021,Remote_Services" condition="image">hpsmhd.exe</Image>
@@ -423,6 +428,11 @@
 			<Image name="T1202,Indirect_Command_Execution" condition="image">desktopimgdownldr.exe</Image>
 			<Image name="T1069,Permission_Groups_Discovery" condition="image">AdFind.exe</Image>
 			<Image name="T1218,Signed_Binary_Proxy_Execution" condition="image">SyncAppvPublishingServer.exe</Image>
+			<Image name="T1218.004,InstallUtil" condition="image">InstallUtil.exe</Image>
+			<Image name="T1021,Remote_Services" condition="contains any">putty.exe;kitty.exe;kitty_portable.exe;psftp.exe;ssh.exe;tftp.exe;telnet.exe;mstsc.exe</Image>
+			<Image name="T1021,Remote_Services" condition="contains any">psshutdown;PsPasswd;psservice;pskill</Image>
+			<Image name="T1028,Windows_Remote_Management" condition="image">wsmprovhost.exe</Image>
+			<Image name="T1105,Ingress_Tool_Transfer" condition="image">plink.exe</Image>
 			<!--Ports: Suspicious-->
 			<DestinationPort name="T1021,Remote_Services,SSH" condition="is">22</DestinationPort> <!--SSH protocol, monitor admin connections-->
 			<DestinationPort name="T1021,Remote_Services,Telnet" condition="is">23</DestinationPort> <!--Telnet protocol, monitor admin connections, insecure-->
@@ -432,7 +442,7 @@
 			<DestinationPort name="T1021,Remote_Services,VNC" condition="is">5800</DestinationPort> <!--VNC protocol: Monitor admin connections, often insecure, using hard-coded admin password-->
 			<DestinationPort name="T1021,Remote_Services,VNC" condition="is">5900</DestinationPort> <!--VNC protocol: Monitor admin connections, often insecure, using hard-coded admin password-->
 			<DestinationPort name="T1021.006,WinRM" condition="is">5985</DestinationPort> <!-- WinRM protocol used for remote connections to execute commands -->
-			<DestinationPort name="T1021.006,WinRM over HTTPS" condition="is">5986</DestinationPort> <!-- WinRM over HTTPS when set up in an environment can be used for remote connections to execute commands -->
+			<DestinationPort name="T1021.006,WinRM_over_HTTPS" condition="is">5986</DestinationPort> <!-- WinRM over HTTPS when set up in an environment can be used for remote connections to execute commands -->
 			<DestinationPort name="Alert,Metasploit" condition="is">4444</DestinationPort>
 			<DestinationPort name="T1021,Remote_Services" condition="is">88</DestinationPort>
 			<!--Ports: Proxy-->
@@ -444,10 +454,100 @@
 			<DestinationPort name="T1043,Commonly_Used_Port,Tor" condition="is">9001</DestinationPort> <!--Tor protocol [ http://www.computerworlduk.com/tutorial/security/tor-enterprise-2016-blocking-malware-darknet-use-rogue-nodes-3633907/ ] -->
 			<DestinationPort name="T1043,Commonly_Used_Port,Tor" condition="is">9030</DestinationPort> <!--Tor protocol [ http://www.computerworlduk.com/tutorial/security/tor-enterprise-2016-blocking-malware-darknet-use-rogue-nodes-3633907/ ] -->
 			<DestinationPort name="T1043,Commonly_Used_Port,Tor" condition="is">4500</DestinationPort>
+			<!--Command and Control-->
+			<Rule name="Cobalt_Strike_Team_Server_port" groupRelation="and">
+				<DestinationPort condition="is">50050</DestinationPort>
+				<Initiated>true</Initiated>
+			</Rule>
+			<Rule name="Outbound_SMTP_Email_Sending" groupRelation="and">
+				<DestinationPort condition="is">25</DestinationPort>
+				<Image condition="excludes any">\Bin\EdgeTransport.exe;Bin\MSExchangeFrontendTransport.exe</Image>
+				<Initiated>true</Initiated>
+			</Rule>
+			<!--Proxy: Multi-hop Proxy-->
+			<Image name="T1090.003,Multi-hop_Proxy,Tor_Connection" condition="image">tor.exe</Image>
+			<DestinationHostname name="T1090.003,Multi-hop_Proxy,Tor2Web" condition="contains any">hiddenservice.net;onion.city;onion.direct;onion.direct;onion.link;onion.nu;onion.pet;onion.plus;onion.rip;onion.sh;onion.sh;onion.si;onion.to;onion.top;onion.ws;tor-gateways.de;tor2net.com;tor2web.blutmagie.de;tor2web.fi;tor2web.info;tor2web.io;tor2web.org;onion.to</DestinationHostname>
+			<!--Exfiltration Over Alternative Protocol-->
+			<DestinationHostname name="T1048,Exfiltration_Over_Alternative_Protocol,DNS_Over_HTTPS" condition="contains any">dns.google;cloudflare-dns.com;mozilla.cloudflare-dns.com;dns.233py.com;dns.aaflalo.me;doh.opendns.com;.quad9.net;dns.cleanbrowsing.org;dns-family.adguard.com;dns.adguard.com;.233py.com;dnscrypt;dnscrypt-cert.oszx.co;dns.oszx.co;doh.dns.sb;doh.defaultroutes.de;doh.tiarap.org;doh.tiar.app;doh.captnemo.in;.aaflalo.me;doh.appliedprivacy.net;doh.dnswarden.com;commons.host;dns.twnic.tw;ibuki.cgnat.net;doh.xfinity.com;dns.nextdns.io;dns.dnsoverhttps.net;doh.crypto.sx;doh.powerdns.org;.blahdns.com;dns.rubyfish.cn;dns.containerpi.com;.seby.io;rdns.faelix.net;doh.li;.armadillodns.net;doh.netweaver.uk;doh.42l.fr;dns.aa.net.uk;adblock.mydns.network;ibksturm.synology.me;jcdns.fun</DestinationHostname>
+			<!--Transfer_Data_to_Cloud_Account-->
+			<DestinationHostname name="T1048,Exfiltration_Over_Alternative_Protocol" condition="contains all">privatlab.com</DestinationHostname>
+			<DestinationHostname name="T1048,Exfiltration_Over_Alternative_Protocol" condition="contains any">mega.nz;mega.co.nz</DestinationHostname>
+			<DestinationHostname name="T1048,Exfiltration_Over_Alternative_Protocol" condition="contains any">.pcloud.com</DestinationHostname>
+			<DestinationHostname name="T1567.002,Exfiltration_to_Cloud_Storage" condition="contains all">.box.com;upload</DestinationHostname>
+			<!--Resource Hijacking-->
+			<DestinationHostname name="T1496,Resource_Hijacking,Crypto_Currency_Miner_Detected" condition="contains any">0x1f4b0.com;1q2w3.life;1q2w3.website;31.187.64.216;185.193.38.148;aalbbh84.info;adfreetv.ch;adless.io;adplusplus.fr;adrenali.gq;ajcryptominer.com;ajplugins.com;allfontshere.press;altavista.ovh;amhixwqagiz.ru;analytics.blue;appelamule.com;arizona-miner.tk;aster18cdn.nl;aster18prx.nl;avero.xyz;averoconnector.com;bauersagtnein.myeffect.net;bhzejltg.info;blazepool;blockmasters;blockmasterscoins;bmnr.pw;bmst.pw;bohemianpool;carry.myeffect.net;cashbeet.com;cdn-code.host;cfceu.duckdns.org;cfcnet.gdn;cfcnet.top;cfcs1.duckdns.org;chainblock.science;cieh.mx;coin-hive.com;coin-service.com;coin-services.info;coiner.site;coinpirate.cf;coinrail.io;coinwebmining.com;cpu2cash.link;cryptaloot.pro;cryptmonero;crypto-loot.com;crypto-pool;crypto-webminer.com;cryptoloot.pro;d-ns.ga;dataservices.download;directprimal.com;dwarfpool;encoding.ovh;estream.to;eth-pocket.com;eth-pocket.de;eth-pocket.eu;ethereum-pocket.de;ethereum-pocket.eu;ethtrader.de;eu.sushipool.com;f1tbit.com;flnqmin.org;freecontent.bid;freecontent.date;freecontent.loan;freecontent.racing;freecontent.stream;freecontent.win;gnrdomimplementation.com;graftpool.ovh;greenindex.dynamic-dns.net;gustaver.ddns.net;hashrefinery;hashvault.pro;herphemiste.com;hide.ovh;hk.rs;hlpidkr.ru;hodlers.party;hodling.faith;hostingcloud.win;hrfziiddxa.ru;ihdvilappuxpgiv.ru;imhvlhaelvvbrq.ru;insdrbot.com;irrrymucwxjl.ru;istlandoll.com;ivuovhsn.ru;iwanttoearn.money;ixvenhgwukn.ru;jqassets.download;jqr-cdn.download;jqrcdn.download;jquerrycdn.download;jqwww.download;jqxrrygqnagn.ru;jscoinminer.com;jwduahujge.ru;ksimdw.ru;l33tsite.info;laferia.cr;ledhenone.com;ltstyov.ru;mepirtedic.com;mine.bz;minercircle.com;minercry.pt;minergate;minero.cc;miners.pro;minescripts.info;mininghub.club;miningpoolhubcoins;minr.pw;mixpools.org;mmc.center;mollnia.com;monerise.com;monero.lindon-pool.win;monero;moriaxmr.com;munero.me;mxcdn1.now.sh;mxcdn2.now.sh;myadstats.com;mypool.online;nablabee.com;nanopool.org;nathetsof.com;nicehash;nimiqpool.com;nimpool.io;node.philpool.com;npcdn1.now.sh;nunu-001.now.sh;ogondkskyahxa.ru;ogrid.org;oinkinns.tk;olecintri.com;omine.org;onvid.club;open-hive-server-1.pp.ua;oxwwoeukjispema.ru;pcejuyhjucmkiny.ru;pool.nimiq.watch;pool.nimiqchain.info;pool.porkypool.com;pool.xmr;poolto.be;prohash.net;prohash;proj2018.xyz;pzoifaum.info;ratchetmining.com;realnetwrk.com;reauthenticator.com;rove.cl;ruvuryua.ru;s7ven.com;scaleway.ovh;sentemanactri.com;sickrage.ca/ch;sighash.info;slushpool;soodatmish.com;sparechange.io;statdynamic.com;stati.bid;staticsfs.host;streamplay.to;supportxmr;suprnova.cc;svivqrhrh.ru;sxcdn02.now.sh;sxcdn3.now.sh;sxcdn4.now.sh;sxcdn6.now.sh;synconnector.com;teracycle.net;tercabilis.info;thelifeisbinary.ddns.net;thersprens.com;torrent.pw;ulnawoyyzbljc.ru;unrummaged.com;uoldid.ru;usxmrpool;viaxmr.com;vpzccwpyilvoyg.ru;vzzexalcirfgrf.ru;wbmwss.beetv.net;webmine.cz;webmine.pro;webminepool.tk;webminerpool.com;webwidgetz.duckdns.org;wmemsnhgldd.ru;wmtech.website;wmwmwwfmkvucbln.ru;wrxgandsfcz.ru;xmrm.pw;xmrminingproxy.com;xmrpool;yiimp;yuyyio.com;zavzlen.ru;zergpool;zergpoolcoins;ziykrgc.ru;zlx.com.br;zpool</DestinationHostname>
+			<!--UEBA Rules-->
+			<!-- <Rule name="Inbound_Windows_SVCHost_Network_Connection" groupRelation="and">
+				<Image condition="image">C:\Windows\system32\svchost.exe</Image>
+				<DestinationPort condition="is not">3389</DestinationPort>
+				<DestinationPort condition="is not">22</DestinationPort>
+				<DestinationPort condition="is not">21</DestinationPort>
+				<DestinationPort condition="is not">5985</DestinationPort>
+				<Initiated>false</Initiated>
+			</Rule> -->
+			<!-- <Rule name="Outbound_Windows_SVCHost_Network_Connection" groupRelation="and">
+				<Image condition="image">C:\Windows\system32\svchost.exe</Image>
+				<Initiated>true</Initiated>
+				<SourcePort condition="is not">135</SourcePort>
+				<SourcePort condition="is not">445</SourcePort>
+				<DestinationPort condition="is not">5985</DestinationPort>
+			</Rule> -->
+			<!-- <Rule name="Outbound_Non-System_port_445_SMB_connections" groupRelation="and">
+				<Image condition="is not">System</Image>
+				<Image condition="excludes">svchost.exe</Image>
+				<DestinationPort condition="is">445</DestinationPort>
+			</Rule> -->
+			<!-- <Rule name="Outbound_Non-System_port_389_LDAP_connections" groupRelation="and">
+				<Image condition="is not">System</Image>
+				<Image condition="excludes any">svchost.exe;lsass.exe</Image>
+				<DestinationPort condition="is">389</DestinationPort>
+			</Rule> -->
+			<!-- <Rule name="Inbound_LDAP_Connections" groupRelation="and">
+				<Image condition="image">C:\Windows\System32\lsass.exe</Image>
+				<DestinationPort condition="is">389</DestinationPort>
+				<DestinationIp condition="excludes any">127.0.0.1;0:0:0:0:0:0:0:1;fe80:0</DestinationIp>
+				<SourceHostname condition="excludes any">EXCH</SourceHostname>
+				<SourceIp condition="excludes any">127.0.0.1;0:0:0:0:0:0:0:1;fe80:0</SourceIp>
+				<Initiated>false</Initiated>
+			</Rule> -->
+			<Rule name="Notepad_connecting_to_the_internet" groupRelation="and">
+				<Image condition="image">notepad.exe</Image>
+				<DestinationIp condition="excludes">127.0.0.1</DestinationIp>
+			</Rule>
+			<Rule name="Browsers_accessing_non-standard_ports" groupRelation="and">
+				<Image condition="contains any">\iexplore.exe;\chrome.exe;\firefox.exe;\MicrosoftEdge;browser_broker.exe;\vivaldi.exe;\brave.exe;\opera.exe</Image>
+				<DestinationPort condition="is not">80</DestinationPort>
+				<DestinationPort condition="is not">443</DestinationPort>
+				<Initiated>true</Initiated>
+			</Rule>
+			<!-- <DestinationHostname name="Connection_to_Github" condition="contains">github</DestinationHostname>  -->
+			<DestinationHostname name="Connection_to_Github" condition="contains">githubusercontent.com</DestinationHostname>
+			<Rule name="T1567.002,Exfiltration_to_Cloud_Storage,Dropbox_Cloud_Exfiltration" groupRelation="and">
+				<DestinationHostname condition="end with">dropboxapi.com</DestinationHostname>
+				<Image condition="excludes any">\Dropbox\Client\Dropbox.exe;\Dropbox\bin\Dropbox.exe;\Oracle\Java\</Image>
+			</Rule>
+			<Rule name="T1567.002,Exfiltration_to_Cloud_Storage,OneDrive_Cloud_Exfiltration" groupRelation="and">
+				<DestinationHostname condition="contains">1drv</DestinationHostname>
+				<Image condition="excludes any">C:\Program Files\Microsoft OneDrive\OneDrive.exe;\AppData\Local\Microsoft\OneDrive\OneDrive.exe;C:\Program Files (x86)\Google\Chrome\Application\chrome.exe;\Internet Explorer\iexplore.exe;C:\Windows\System32\AppHostRegistrationVerifier.exe;C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe;C:\Program Files (x86)\BraveSoftware\Brave-Browser\Application\brave.exe;C:\Program Files (x86)\Microsoft OneDrive\OneDrive.exe;C:\Program Files\Mozilla Firefox\firefox.exe</Image>
+			</Rule>
+			<!-- <DestinationHostname name="Social_Networking" condition="contains any">tiktok;parler.com;gab.com;mewe.com;4chan;8chan;facebook;fbcdn;twitter;instagram;snapchat</DestinationHostname> -->
+			<DestinationHostname name="Internet_Relay_Chat" condition="contains any">efnet;undernet;freenode;ircnet;.rizon;quakenet;oftc.net;dalnet</DestinationHostname>
+			<!-- <DestinationHostname name="Internet_Chat" condition="contains any">.slack.com;discord.;telegram.;rocketchat.;mattermost.;flock.com</DestinationHostname> -->
+			<!-- <Image name="Apache_Webserver" condition="image">apache.exe</Image> -->
+			<!-- <Image name="MS_IIS_Webserver" condition="image">w3wp.exe</Image> -->
+			<!-- <Image name="PHP_Webserver" condition="contains any">\php-cgi.exe;\php.exe</Image> -->
+			<!-- <Image name="Tomcat_Webserver" condition="contains">tomcat</Image> -->
+			<!-- <Image name="Setup_Network_connectivity" condition="contains">setup</Image> -->
+			<Image name="Uninstaller_Network_connectivity" condition="contains">unins</Image>
+			<Image name="Unknown_Process_Connecting_to_network" condition="contains">unknown process</Image>
+			<Image name="Windows_Explorer_Network_Connection" condition="image">explorer.exe</Image>
+			<Image name="Windows_SMTP_Server" condition="image">inetinfo.exe</Image>
+			<!--Other suspicious network connections-->
+			<DestinationHostname name="T1311,Dynamic_DNS" condition="contains any">afraid.org;duckdns.org;changeip.com;ddns.net;hopto.org;zapto.org;servehttp.com;sytes.net;whoer.net;bravica.net;ip.webmasterhome.cn;whatsmyip.us;myip.kz;ip-addr.es;curlmyip;anysrc.net;anysrc.net;dlinkddns.com;no-ip.com;no-ip.org;no-ip.biz;no-ip.info;noip.com</DestinationHostname>
 		</NetworkConnect>
 	</RuleGroup>
 
-	<RuleGroup name="" groupRelation="or">
+	<RuleGroup name="NetworkConnect_Exclude_Group" groupRelation="or">
 		<NetworkConnect onmatch="exclude">
 			<!--Microsoft-->
 			<Image condition="begin with">C:\ProgramData\Microsoft\Windows Defender\Platform\</Image>
@@ -456,19 +556,45 @@
 			<DestinationHostname condition="end with">.microsoft.com</DestinationHostname> <!--Microsoft:Update delivery-->
 			<DestinationHostname condition="end with">microsoft.com.akadns.net</DestinationHostname> <!--Microsoft:Update delivery-->
 			<DestinationHostname condition="end with">microsoft.com.nsatc.net</DestinationHostname> <!--Microsoft:Update delivery-->
-			<DestinationHostname condition="end with">.windowsupdate.com</DestinationHostname>
+			<DestinationHostname condition="end with">windowsupdate.com</DestinationHostname>
 			<DestinationHostname condition="end with">wustat.windows.com</DestinationHostname>
+			<DestinationHostname condition="end with">.bing.com</DestinationHostname>
+			<DestinationHostname condition="end with">.cloudapp.net</DestinationHostname>
+			<DestinationHostname condition="end with">.lync.com</DestinationHostname>
+			<DestinationHostname condition="end with">.outlook.com</DestinationHostname>
+			<DestinationHostname condition="end with">.wns.windows.com</DestinationHostname>
+			<DestinationHostname condition="end with">aps.windows.com</DestinationHostname>
+			<DestinationHostname condition="end with">msn.com.nsatc.net</DestinationHostname>
+			<DestinationHostname condition="end with">msn.com</DestinationHostname>
+			<DestinationHostname condition="end with">b.akamaiedge.net</DestinationHostname>
+			<DestinationHostname condition="end with">bingforbusiness.com</DestinationHostname>
+			<DestinationHostname condition="end with">config.edge.skype.com</DestinationHostname>
+			<DestinationHostname condition="end with">csp.digicert.com</DestinationHostname>
+			<DestinationHostname condition="end with">ocsp.digicert.com</DestinationHostname>
+			<DestinationHostname condition="end with">g.akamaiedge.net</DestinationHostname>
+			<DestinationHostname condition="end with">g.live.com</DestinationHostname>
+			<DestinationHostname condition="end with">msedge.net</DestinationHostname>
+			<DestinationHostname condition="end with">windows.com.akadns.net</DestinationHostname>
+			<DestinationHostname condition="end with">ip5.afdorigin-prod-am02.afdogw.com</DestinationHostname>
+			<DestinationHostname condition="end with">ip5.afdorigin-prod-ch02.afdogw.com</DestinationHostname>
+			<DestinationHostname condition="end with">login.msa.akadns6.net</DestinationHostname>
+			<DestinationHostname condition="end with">oneclient.sfx.ms</DestinationHostname>
+			<DestinationHostname condition="end with">virtualearth.net</DestinationHostname>
+			<DestinationHostname condition="end with">windows.net</DestinationHostname>
+			<Image condition="image">EdgeTransport.exe</Image>
+			<Image condition="image">MSExchangeDelivery.exe</Image>
+			<Image condition="image">MSExchangeFrontendTransport.exe</Image>
+			<Image condition="image">MSExchangeHMWorker.exe</Image>
+			<Image condition="image">MSExchangeSubmission.exe</Image>
 			<!--Antivirus-->
-			<Image condition="is">C:\Program Files\ESET\ESET Nod32 Antivirus\ekrn.exe</Image>
-			<Image condition="is">C:\Program Files\Palo Alto Networks\Traps\cyserver.exe</Image>
-			<Image condition="is">C:\Program Files (x86)\Sophos\Sophos Anti-Virus\Web Intelligence\swi_service.exe</Image>
-			<Image condition="is">C:\Program Files (x86)\Sophos\AutoUpdate\ALsvc.exe</Image>
-			<Image condition="is">C:\Program Files (x86)\Sophos\Remote Management System\RouterNT.exe</Image>
-			<Image condition="is">C:\Program Files (x86)\Sophos\Sophos Anti-Virus\Web Control\swc_service.exe</Image>
-			<Image condition="is">C:\Program Files (x86)\Sophos\Sophos Anti-Virus\Web Intelligence\swi_service.exe</Image>
-			<Image condition="is">C:\Program Files\Sophos\Sophos Network Threat Protection\bin\SntpService.exe</Image>
-			<Image condition="is">C:\Program files (x86)\Trend Micro\OfficeScan Client\tmlisten.exe</Image>
-			<Image condition="is">C:\Program Files (x86)\Trend Micro\BM\TMBMSRV.exe</Image>
+			<Image condition="begin with">C:\Program Files (x86)\Kaspersky Lab</Image> 
+			<Image condition="begin with">C:\Program Files\Kaspersky Lab</Image>
+			<Image condition="begin with">C:\Program Files (x86)\ESET</Image>
+			<Image condition="begin with">C:\Program Files\ESET</Image>
+			<Image condition="begin with">C:\Program Files\Palo Alto Networks</Image>
+			<Image condition="begin with">C:\Program Files (x86)\Sophos</Image>
+			<Image condition="begin with">C:\Program Files\Sophos</Image>
+			<Image condition="begin with">C:\Program files (x86)\Trend Micro</Image>
 			<!--Cloud Storage-->
 			<Image condition="image">OneDrive.exe</Image> <!--Microsoft: OneDrive-->
 			<Image condition="image">OneDriveStandaloneUpdater.exe</Image> <!--Microsoft: OneDrive-->
@@ -504,23 +630,27 @@
 
 	<!--SYSMON EVENT ID 5 : PROCESS ENDED [ProcessTerminate]-->
 	<!--DATA: UtcTime, ProcessGuid, ProcessId, Image-->
-	<RuleGroup name="" groupRelation="or">
+	<RuleGroup name="ProcessTerminate_Include_Group" groupRelation="or">
 		<ProcessTerminate onmatch="include">
 			<Image condition="begin with">C:\Users</Image> <!--Process terminations by user binaries-->
 			<Image condition="begin with">\</Image> <!--Devices and VSC shouldn't be executing changes | Credit: @SBousseaden @ionstorm @neu5ron @PerchedSystems [ https://twitter.com/SwiftOnSecurity/status/1133167323991486464 ] -->
-			<Image condition="begin with">C:\Temp</Image>
-        	<Image condition="begin with">C:\Windows\Temp</Image>
+			<Image condition="contains">\Temp\</Image>
+			<Image condition="begin with">C:\inetpub\</Image>
+			<Image condition="contains">$RECYCLE.BIN</Image>
+			<Image condition="contains any">packetbeat.exe;metricbeat.exe;filebeat.exe;winlogbeat.exe;o365beat.exe;graylog-sidecar.exe;graylog-collector-sidecar.exe;splunkd.exe;splunk.exe;syslogng.exe;syslog-ng.exe;nxlog-processor.exe;snarecore.exe;fluentd;td-agent</Image>
+			<Image condition="begin with">C:\Windows\system32\config\systemprofile\</Image>
+			<Image condition="begin with">C:\Windows\sysWOW64\config\systemprofile\</Image>
 		</ProcessTerminate>
 	</RuleGroup>
 
-	<RuleGroup name="" groupRelation="or">
+	<RuleGroup name="ProcessTerminate_Exclude_Group" groupRelation="or">
 		<ProcessTerminate onmatch="exclude">
 		</ProcessTerminate>
 	</RuleGroup>
 
 	<!--SYSMON EVENT ID 6 : DRIVER LOADED INTO KERNEL [DriverLoad]-->
 	<!--DATA: UtcTime, ImageLoaded, Hashes, Signed, Signature, SignatureStatus-->
-	<RuleGroup name="" groupRelation="or">
+	<RuleGroup name="DriverLoad_Exclude_Group" groupRelation="or">
 		<!--Default to log all and exclude only valid signed Microsoft or Intel drivers-->
 		<DriverLoad onmatch="exclude">
 			<Rule groupRelation="and">
@@ -541,16 +671,15 @@
 	<!--SYSMON EVENT ID 7 : DLL (IMAGE) LOADED BY PROCESS [ImageLoad]-->
 	<!--DATA: UtcTime, ProcessGuid, ProcessId, Image, ImageLoaded, Hashes, Signed, Signature, SignatureStatus-->
 	<!--Caution: Can cause high system load, disabled by default.-->
-	<RuleGroup name="" groupRelation="or">
+	<RuleGroup name="ImageLoad_Include_Group" groupRelation="or">
 		<ImageLoad onmatch="include">
 			<!--NOTE: Using "include" with no rules means nothing in this section will be logged-->
 		</ImageLoad>
 	</RuleGroup>
 	
-
 	<!--SYSMON EVENT ID 8 : REMOTE THREAD CREATED [CreateRemoteThread]-->
 	<!--DATA: UtcTime, SourceProcessGuid, SourceProcessId, SourceImage, TargetProcessId, TargetImage, NewThreadId, StartAddress, StartModule, StartFunction-->
-	<RuleGroup groupRelation="or">
+	<RuleGroup name="" groupRelation="or">
 		<CreateRemoteThread onmatch="include">
 			<SourceImage name="T1055,Process_Injection" condition="begin with">C:\</SourceImage>
 			<SourceImage name="T1055,Process_Injection" condition="begin with">\\</SourceImage>
