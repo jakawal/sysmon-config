@@ -3,7 +3,7 @@ Sysmon configuration file
 
 ## Required
 * Windows OS
-* Sysmon version 14 or higher
+* Sysmon version 14.1 or higher
 
 ## Use
 run cmd as administrator
@@ -33,3 +33,4 @@ run cmd as administrator
 * https://github.com/olafhartong/sysmon-modular
 * https://github.com/trustedsec/SysmonCommunityGuide
 * https://github.com/Neo23x0/sysmon-config
+* https://github.com/ion-storm/sysmon-config
