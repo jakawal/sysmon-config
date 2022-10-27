@@ -676,31 +676,73 @@
 			<!--NOTE: Using "include" with no rules means nothing in this section will be logged-->
 		</ImageLoad>
 	</RuleGroup>
-	
+
 	<!--SYSMON EVENT ID 8 : REMOTE THREAD CREATED [CreateRemoteThread]-->
 	<!--DATA: UtcTime, SourceProcessGuid, SourceProcessId, SourceImage, TargetProcessId, TargetImage, NewThreadId, StartAddress, StartModule, StartFunction-->
-	<RuleGroup name="" groupRelation="or">
+	<RuleGroup name="CreateRemoteThread_Include_Group" groupRelation="or">
 		<CreateRemoteThread onmatch="include">
+			<Rule name="T1003,OS_Credential_Dumping,Credential_Dumping_from_lsass" groupRelation="and">
+				<StartAddress condition="is">0x001A0000</StartAddress>
+				<TargetImage condition="image">c:\windows\system32\lsass.exe</TargetImage>
+			</Rule>
+			<Rule name="T1003,OS_Credential_Dumping,Rundll32_LSASS_Credential_dumping" groupRelation="and">
+				<TargetImage condition="image">c:\windows\system32\lsass.exe</TargetImage>
+				<SourceImage condition="image">c:\windows\system32\rundll32.exe</SourceImage>
+			</Rule>
+			<Rule name="T1546.012,Image_File_Execution_Options_Injection,Remote_Thread_Process_debugging_detected" groupRelation="and">
+				<StartFunction condition="contains">DbgUiRemoteBreakin</StartFunction>
+				<TargetImage condition="excludes">nacl64.exe</TargetImage>
+			</Rule>
+			<Rule name="T1546.012,Image_File_Execution_Options_Injection,Remote_Query_Debug_info" groupRelation="and">
+				<StartFunction condition="contains">QueryProcessDebugInformationRemote</StartFunction>
+				<TargetImage condition="excludes">nacl64.exe</TargetImage>
+			</Rule>
+			<Rule name="T1546.012,Image_File_Execution_Options_Injection,Remote_Query_Debug_info_2" groupRelation="and">
+				<StartFunction condition="contains">isdebuggerpresent</StartFunction>
+				<TargetImage condition="excludes">nacl64.exe</TargetImage>
+			</Rule>
+			<Rule name="T1546.012,Process_Debugging_Detected,Process_Debug_of_active_Process" groupRelation="and">
+				<StartFunction condition="contains">DebugActiveProcess</StartFunction>
+				<TargetImage condition="excludes">nacl64.exe</TargetImage>
+			</Rule>
+			<Rule name="T1115,Clipboard_Data,Clipboard_Usage_Detected" groupRelation="and">
+				<SourceImage condition="image">c:\windows\system32\csrss.exe</SourceImage>
+				<StartFunction condition="contains">CrtlRoutine</StartFunction>
+			</Rule>
+			<Rule name="Potentially_Detect_EtwEventWrite_Tampering_with_remote_threads" groupRelation="and">
+				<StartModule condition="is">C:\WINDOWS\SYSTEM32\ntdll.dll</StartModule>
+				<StartFunction condition="contains">EtwEventWrite</StartFunction>
+			</Rule>
+			<TargetImage name="Remote_Thread_Injection_Targetting_Web_Browser" condition="contains any">chrome.exe;firefox.exe;edge.exe;browser_broker.exe;iexplore.exe;opera.exe</TargetImage>
+			<SourceImage name="CreateRemoteThread_with_msiexec" condition="contains any">msiexec.exe</SourceImage>
+			<StartFunction name="CreateFileMapping" condition="contains any">CreateFileMapping;MapViewOfFile</StartFunction>
+			<StartFunction name="LdrLoadDll_DLL_Injection" condition="contains any">LdrLoadDll</StartFunction>
+			<StartFunction name="Crypt_API_Usage" condition="contains any">CryptAcquireContextA;CryptDecodeObjectEx;CryptImportPublicKeyInfo;CryptEncrypt;CryptGenKey;CryptDecrypt;CryptStringToBinary;CryptBinaryToString;CryptImportKey</StartFunction>
+			<StartAddress name="T1055,Process_Injection,Cobalt_Strike_Detected" condition="end with">0B80</StartAddress>
+			<StartAddress name="T1055,Process_Injection,Cobalt_Strike_Detected" condition="end with">0C7C</StartAddress>
+			<StartAddress name="T1055,Process_Injection,Cobalt_Strike_Detected" condition="end with">0C88</StartAddress>
+			<TargetImage name="T1055,Process_Injection,Remote_Desktop_injection" condition="image">c:\windows\system32\mstsc.exe</TargetImage>
 			<SourceImage name="T1055,Process_Injection" condition="begin with">C:\</SourceImage>
 			<SourceImage name="T1055,Process_Injection" condition="begin with">\\</SourceImage>
 		</CreateRemoteThread>
 	</RuleGroup>
 	
-	<RuleGroup name="" groupRelation="or">
+	<RuleGroup name="CreateRemoteThread_Exclude_Group" groupRelation="or">
 		<CreateRemoteThread onmatch="exclude">
 			<!--COMMENT: Exclude mostly-safe sources and log anything else.-->
-			<SourceImage condition="is">C:\Windows\system32\wbem\WmiPrvSE.exe</SourceImage>
-			<SourceImage condition="is">C:\Windows\system32\svchost.exe</SourceImage>
-			<SourceImage condition="is">C:\Windows\system32\wininit.exe</SourceImage>
-			<SourceImage condition="is">C:\Windows\system32\csrss.exe</SourceImage>
-			<SourceImage condition="is">C:\Windows\system32\services.exe</SourceImage>
-			<SourceImage condition="is">C:\Windows\system32\winlogon.exe</SourceImage>
-			<SourceImage condition="is">C:\Windows\system32\audiodg.exe</SourceImage>
-			<StartModule condition="is">C:\Windows\system32\kernel32.dll</StartModule>
+			<SourceImage condition="image">C:\Windows\system32\wbem\WmiPrvSE.exe</SourceImage>
+			<SourceImage condition="image">C:\Windows\SysWOW64\wbem\WmiPrvSE.exe</SourceImage>
+			<SourceImage condition="image">C:\Windows\system32\svchost.exe</SourceImage>
+			<SourceImage condition="image">C:\Windows\system32\wininit.exe</SourceImage>
+			<SourceImage condition="image">C:\Windows\system32\csrss.exe</SourceImage>
+			<SourceImage condition="image">C:\Windows\system32\services.exe</SourceImage>
+			<SourceImage condition="image">C:\Windows\system32\winlogon.exe</SourceImage>
+			<SourceImage condition="image">C:\Windows\system32\audiodg.exe</SourceImage>
+			<StartModule condition="image">C:\Windows\system32\kernel32.dll</StartModule>
 			<TargetImage condition="end with">Google\Chrome\Application\chrome.exe</TargetImage>
 			<Rule groupRelation="and">
-				<SourceImage condition="is">C:\Windows\System32\dwm.exe</SourceImage>
-				<TargetImage condition="is">C:\Windows\System32\csrss.exe</TargetImage>
+				<SourceImage condition="image">C:\Windows\System32\dwm.exe</SourceImage>
+				<TargetImage condition="image">C:\Windows\System32\csrss.exe</TargetImage>
 			</Rule>
 		</CreateRemoteThread>
 	</RuleGroup>
@@ -709,7 +751,7 @@
 	<!--COMMENT:	Can cause high system load, disabled by default.-->
 	<!--COMMENT:	You will likely want to set this to a full capture on domain controllers, where no process should be doing raw reads.-->
 	<!--DATA: UtcTime, ProcessGuid, ProcessId, Image, Device-->
-	<RuleGroup name="" groupRelation="or">
+	<RuleGroup name="RawAccessRead_Include_Group" groupRelation="or">
 		<RawAccessRead onmatch="include">
 			<!--NOTE: Using "include" with no rules means nothing in this section will be logged-->
 		</RawAccessRead>
@@ -718,32 +760,9 @@
 	<!--SYSMON EVENT ID 10 : INTER-PROCESS ACCESS [ProcessAccess]-->
 	<!--COMMENT:	Can cause high system load, disabled by default.-->
 	<!--DATA: UtcTime, SourceProcessGuid, SourceProcessId, SourceThreadId, SourceImage, TargetProcessGuid, TargetProcessId, TargetImage, GrantedAccess, CallTrace-->
-	<RuleGroup name="" groupRelation="or">
+	<RuleGroup name="ProcessAccess_Include_Group" groupRelation="or">
 		<ProcessAccess onmatch="include">
-			<!-- CobaltStrike BOF using OpenProcess/NtOpenProcess Ref: https://medium.com/falconforce/falconfriday-direct-system-calls-and-cobalt-strike-bofs-0xff14-741fa8e1bdd6 -->
-			<CallTrace condition="begin with">UNKNOWN</CallTrace>
-			<!-- Typical ProcessAccess Pattern of CobaltStrike BOF Ref: e.g. https://github.com/boku7/injectAmsiBypass -->
-			<Rule groupRelation="and">
-				<CallTrace condition="contains">UNKNOWN</CallTrace>
-				<GrantedAccess condition="contains any">0x1028;0x1fffff</GrantedAccess>
-			</Rule>
-			<!-- lsass.exe access with critical permission -->
-			<Rule groupRelation="and">
-				<TargetImage condition="end with">lsass.exe</TargetImage>
-				<GrantedAccess condition="contains any">0x40;0x1000;0x1010;0x1038;0x1410;0x1418;0x1438;0x143a;0x100000;0x1f0fff;0x1f1fff;0x1f2fff;0x1f3fff;0x1fffff</GrantedAccess> <!--0x1400 too noisy-->
-			</Rule>
-			<!-- LittleCorporal generated MalDoc Ref: https://github.com/connormcgarr/LittleCorporal -->
-			<Rule groupRelation="and">
-				<SourceImage condition="contains">winword.exe</SourceImage>
-				<CallTrace condition="contains">:\Windows\Microsoft.NET\Framework64\v2.</CallTrace>
-				<CallTrace condition="contains">UNKNOWN</CallTrace>
-			</Rule>
-		</ProcessAccess>
-	</RuleGroup>
-
-	<RuleGroup name="" groupRelation="or">
-		<ProcessAccess onmatch="exclude">
-			<!-- NOTE: Potentially noisy ProcessAccess Events in your environment can be excluded here -->
+			<!--NOTE: Using "include" with no rules means nothing in this section will be logged-->
 		</ProcessAccess>
 	</RuleGroup>
 
