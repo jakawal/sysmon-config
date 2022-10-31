@@ -3,7 +3,7 @@
   Author: 		Jakawal Ongthongkum
   Version:		1.1
   Created:		2021-08-09
-  Updated: 		2021-10-26
+  Updated: 		2021-10-31
 -->
 
 <Sysmon schemaversion="4.83">
@@ -570,16 +570,16 @@
 			<CallTrace name="T1548.002,Abuse_Elevation_Control_Mechanism,CMSTP_UAC_Bypass" condition="contains">cmlua.dll</CallTrace>
 			<CallTrace name="T1059,Scripting,Office_Macro_Execution_VBE7" condition="contains any">VBE7.dll;VBEUI.DLL;VBE7INTL.DLL</CallTrace>
 			<CallTrace name="T1059,Scripting,Office_Macro_Execution_VBE6" condition="contains any">VBE6.dll;VBEUI.DLL;VBE6INTL.DLL</CallTrace>
-			<!-- PROCESS_SUSPEND_RESUME + PROCESS_VM_WRITE: possible memory injection -->
+			<!--PROCESS_SUSPEND_RESUME + PROCESS_VM_WRITE: possible memory injection-->
 			<GrantedAccess name="T1093,Process_Hollowing">0x0800</GrantedAccess>
 			<GrantedAccess name="T1093,Process_Hollowing">0x800</GrantedAccess>
-			<!-- PROCESS_SUSPEND_RESUME -->
+			<!--PROCESS_SUSPEND_RESUME-->
 			<GrantedAccess name="T1003,OS_Credential_Dumping,Credential_Dumping_from_Memory_indicator">0x0810</GrantedAccess>
 			<GrantedAccess name="T1003,OS_Credential_Dumping,Credential_Dumping_from_Memory_indicator">0x810</GrantedAccess>
-			<!-- PROCESS_SUSPEND_RESUME + PROCESS_VM_READ: possible memory dump to extract sensitive information -->
+			<!--PROCESS_SUSPEND_RESUME + PROCESS_VM_READ: possible memory dump to extract sensitive information-->
 			<GrantedAccess name="T1055,Process_Injection,Possible_Memory_Dump">0x0820</GrantedAccess>
 			<GrantedAccess name="T1055,Process_Injection,Possible_Memory_Dump">0x820</GrantedAccess>
-			<!-- Others -->
+			<!--Others-->
 			<GrantedAccess name="T1093,Process Hollowing">0x21410</GrantedAccess>
 			<SourceImage name="CScript_accessing_another_process_memory" condition="end with">cscript.exe</SourceImage>
 			<SourceImage name="WScript_accessing_another_process_memory" condition="end with">wscript.exe</SourceImage>
@@ -616,15 +616,15 @@
 				<SourceImage condition="begin with">C:\Program Files\ESET</SourceImage>
 				<SourceImage condition="begin with">C:\ProgramData\Microsoft\Windows Defender\</SourceImage>
 			</Rule>
-			<!-- These binaries get or access processes running .NET -->
+			<!--These binaries get or access processes running .NET-->
 			<SourceImage condition="end with">:\Windows\system32\sppsvc.exe</SourceImage>
 			<SourceImage condition="end with">:\Windows\system32\sdiagnhost.exe</SourceImage>
-			<!-- These binaries appear to access lsass legitimately -->
+			<!--These binaries appear to access lsass legitimately-->
 			<Rule name="legitimate lsass access" groupRelation="and">
 				<TargetImage condition="image">lsass.exe</TargetImage>
 				<SourceImage condition="excludes any">C:\Windows\system32\w32tm.exe;C:\Windows\System32\ping.exe;C:\Windows\System32\net.exe;C:\Windows\System32\net1.exe;C:\Windows\SYSTEM32\HOSTNAME.EXE;C:\Programdata\sysmon\sysmon.exe;C:\Programdata\sysmon\sysmon64.exe;C:\Program Files\Windows Defender\MsMpEng.exe;C:\Program Files (x86)\BeAnywhere Support Express\;C:\Program Files (x86)\CheckPoint\;C:\Program Files (x86)\Common Files\Intuit\QuickBooks\;C:\Program Files (x86)\Fortinet\;C:\Program Files (x86)\Trend Micro\;C:\Program Files\Adobe\Adobe Creative Cloud Experience\;C:\Program Files\CheckPoint\;C:\Program Files\Fortinet\;C:\Program Files\Realtek;C:\Program Files\Trend Micro\;C:\ProgramData\Microsoft\Windows Defender\platform\;C:\Program Files (x86)\Lenovo\;snmpd.exe;taskmgr;:\Windows\System32\smss.exe;:\Windows\system32\wininit.exe;\Bin\FMS.exe;\EMET_GUI.exe;\EMET_Service.exe;\Google\Update\GoogleUpdate.exe;\RAAGTAPP.EXE;\controls\cef\ConnectWise.exe;C:\Program Files (x86)\Sophos\Sophos Anti-Virus\SavService.exe;C:\Program Files\Hewlett-Packard\AMS\service\hpqams.exe;C:\Program Files\Intel\SUR\WILLAMETTE\ESRV\esrv_svc.exe;C:\Program Files\VMware\VMware Tools\vmtoolsd.exe;C:\Program Files\Windows Defender\MsMpEng.exe;C:\WINDOWS\system32\WerFault.exe;C:\WINDOWS\system32\taskkill.exe;C:\Windows\SysWOW64\WerFault.exe;C:\Windows\System32\snmp.exe;C:\Windows\system32\msiexec.exe;C:\Windows\system32\spoolsv.exe;C:\Windows\system32\svchost.exe</SourceImage>
 			</Rule>
-			<!-- Exclude legitimate software -->
+			<!--Exclude legitimate software-->
 			<SourceImage condition="is">C:\Program Files\Adobe\Adobe Creative Cloud Experience\libs\node.exe</SourceImage>
 			<SourceImage condition="contains all">C:\Program Files;\Common Files\Adobe\AdobeGCClient\AGMService.exe</SourceImage>
 			<SourceImage condition="is">C:\Program Files (x86)\Adobe\Acrobat DC\Acrobat\Acrobat.exe</SourceImage>
@@ -668,7 +668,7 @@
 			<SourceImage condition="is">C:\Program Files (x86)\VMware\VMWare Player\vmware-authd.exe</SourceImage>
 			<SourceImage condition="is">C:\Program Files (x86)\VMware\VMware Workstation\vmware-authd.exe</SourceImage>
 			<SourceImage condition="is">C:\Program Files\WinZip\FAHWindow64.exe</SourceImage>
-			<!-- Others -->
+			<!--Others-->
 			<GrantedAccess>0x1000</GrantedAccess>
 			<GrantedAccess>0x1400</GrantedAccess>
 			<GrantedAccess>0x101400</GrantedAccess>

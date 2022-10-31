@@ -3,7 +3,7 @@
   Author: 		Jakawal Ongthongkum
   Version:		1.3
   Created:		2021-08-09
-  Updated: 		2022-10-26
+  Updated: 		2022-10-31
   Required:		Sysmon version 14.1 or higher (due to new event id and changes in syntax)
 -->
 
@@ -768,138 +768,557 @@
 
 	<!--SYSMON EVENT ID 11 : FILE CREATED [FileCreate]-->
 	<!--DATA: UtcTime, ProcessGuid, ProcessId, Image, TargetFilename, CreationUtcTime-->
-	<RuleGroup name="" groupRelation="or">
+	<RuleGroup name="FileCreate_Include_Group" groupRelation="or">
 		<FileCreate onmatch="include">
-			<TargetFilename name="T1023" condition="contains">\Start Menu</TargetFilename> <!--Windows: Startup links and shortcut modification [ https://attack.mitre.org/wiki/Technique/T1023 ] -->
-			<TargetFilename name="T1165" condition="contains">\Startup\</TargetFilename> <!--Microsoft:Changes to user's auto-launched files and shortcuts-->
-			<TargetFilename name="OutlookAttachment" condition="contains">\Content.Outlook\</TargetFilename> <!--Microsoft:Outlook: attachments-->
-			<TargetFilename name="Downloads" condition="contains">\Downloads\</TargetFilename> <!--Downloaded files. Does not include "Run" files in IE-->
-			<TargetFilename name="Desktop" condition="contains">Desktop</TargetFilename>
-			<TargetFilename condition="end with">.application</TargetFilename> <!--Microsoft:ClickOnce: [ https://blog.netspi.com/all-you-need-is-one-a-clickonce-love-story/ ] -->
-			<TargetFilename condition="end with">.appref-ms</TargetFilename> <!--Microsoft:ClickOnce application | Credit @ion-storm -->
-			<TargetFilename condition="end with">.bat</TargetFilename> <!--Batch scripting-->
-			<TargetFilename name="T1064,Scripting" condition="end with">.chm</TargetFilename>
-			<TargetFilename condition="end with">.cmd</TargetFilename> <!--Batch scripting: Batch scripts can also use the .cmd extension | Credit: @mmazanec -->
-			<TargetFilename condition="end with">.cmdline</TargetFilename> <!--Microsoft:dotNet: Executed by cvtres.exe-->
-			<TargetFilename name="T1176" condition="end with">.crx</TargetFilename> <!--Chrome extension-->
-			<TargetFilename condition="end with">.dmp</TargetFilename> <!--Process dumps [ (fr) http://blog.gentilkiwi.com/securite/mimikatz/minidump ] -->
-			<TargetFilename condition="end with">.docm</TargetFilename> <!--Microsoft:Office:Word: Macro-->
-			<TargetFilename name="DLL" condition="end with">.dll</TargetFilename> <!--Microsoft:Office:Word: Macro-->
-			<TargetFilename name="EXE" condition="end with">.exe</TargetFilename> <!--Executable-->
-			<TargetFilename name="ProcessHostingdotNETCode" condition="end with">.exe.log</TargetFilename> <!-- [ https://github.com/bitsadmin/nopowershell ] | Credit: @SBousseaden [ https://twitter.com/SBousseaden/status/1137493597769687040 ]  -->
-			<TargetFilename condition="end with">.jar</TargetFilename> <!--Java applets-->
-			<TargetFilename condition="end with">.jnlp</TargetFilename> <!--Java applets-->
-			<TargetFilename condition="end with">.jse</TargetFilename> <!--Scripting [ Example: https://www.sophos.com/en-us/threat-center/threat-analyses/viruses-and-spyware/Mal~Phires-C/detailed-analysis.aspx ] -->
-			<TargetFilename condition="end with">.hta</TargetFilename> <!--Scripting-->
-			<TargetFilename condition="end with">.job</TargetFilename> <!--Scheduled task-->
-			<TargetFilename name="T1059.001,PowerShell" condition="end with">.ps1</TargetFilename> <!--PowerShell [ More information: http://www.hexacorn.com/blog/2014/08/27/beyond-good-ol-run-key-part-16/ ] -->
-			<TargetFilename name="T1059.001,PowerShell" condition="end with">.ps2</TargetFilename>
-			<TargetFilename condition="end with">.sct</TargetFilename> <!--Scripting | Credit @bartblaze -->
-			<TargetFilename condition="end with">.sys</TargetFilename> <!--System driver files-->
-			<TargetFilename condition="end with">.scr</TargetFilename> <!--System driver files-->
-			<TargetFilename condition="end with">.vb</TargetFilename>
-			<TargetFilename condition="end with">.vbe</TargetFilename> <!--VisualBasicScripting-->
-			<TargetFilename condition="end with">.vbs</TargetFilename> <!--VisualBasicScripting-->
-			<TargetFilename condition="end with">.wsc</TargetFilename> <!--Scripting | Credit @bartblaze -->
-			<TargetFilename condition="end with">.wsf</TargetFilename> <!--Scripting | Credit @bartblaze -->
-			<TargetFilename condition="end with">.ocx</TargetFilename> <!--Microsoft:ActiveX-->
-			<TargetFilename condition="end with">proj</TargetFilename> <!--Microsoft:MSBuild:Script: [ https://twitter.com/subTee/status/885919612969394177 ] -->
-			<TargetFilename condition="end with">.*proj</TargetFilename> <!--Microsoft:MSBuild:Script: [ https://twitter.com/subTee/status/885919612969394177 ] -->
-			<TargetFilename condition="end with">.sln</TargetFilename> <!--Microsoft:MSBuild:Script: [ https://twitter.com/subTee/status/885919612969394177 ] -->
-			<TargetFilename name="DefaultUserModified" condition="begin with">C:\Users\Default</TargetFilename> <!--Windows: Changes to default user profile-->
-			<TargetFilename condition="begin with">C:\Windows\system32\Drivers</TargetFilename> <!--Microsoft: Drivers dropped here-->
-			<TargetFilename condition="begin with">C:\Windows\SysWOW64\Drivers</TargetFilename> <!--Microsoft: Drivers dropped here-->
-			<TargetFilename name="T1003" condition="end with">\Windows\System32\mimilsa.log</TargetFilename> <!--Detects usage of Mimikatz Security Package (mimilib.dll) to dump security passwords in clear text https://pentestlab.blog/2019/10/21/persistence-security-support-provider/ -->
-			<TargetFilename name="T1003" condition="end with">\Windows\System32\kiwissp.log</TargetFilename> <!--Detects usage of old Mimikatz Security Package (mimilib.dll) to dump security passwords in clear text https://pentestlab.blog/2019/10/21/persistence-security-support-provider/ -->
-			<TargetFilename name="T1037,T1484" condition="begin with">C:\Windows\system32\GroupPolicy\Machine\Scripts</TargetFilename> <!--Group policy [ More information: http://www.hexacorn.com/blog/2017/01/07/beyond-good-ol-run-key-part-52/ ] -->
-			<TargetFilename name="T1037,T1484" condition="begin with">C:\Windows\system32\GroupPolicy\User\Scripts</TargetFilename> <!--Group policy [ More information: http://www.hexacorn.com/blog/2017/01/07/beyond-good-ol-run-key-part-52/ ] -->
-			<TargetFilename name="T1047,Windows_Management_Instrumentation" condition="begin with">C:\Windows\system32\Wbem</TargetFilename> <!--Microsoft:WMI: [ More information: http://2014.hackitoergosum.org/slides/day1_WMI_Shell_Andrei_Dumitrescu.pdf ] -->
-			<TargetFilename name="T1047,Windows_Management_Instrumentation" condition="begin with">C:\Windows\SysWOW64\Wbem</TargetFilename> <!--Microsoft:WMI: [ More information: http://2014.hackitoergosum.org/slides/day1_WMI_Shell_Andrei_Dumitrescu.pdf ] -->
-			<Image name="T1047,Windows_Management_Instrumentation" condition="begin with">C:\WINDOWS\system32\wbem\scrcons.exe</Image>
-			<TargetFilename name="T1059.001,PowerShell" condition="begin with">C:\Windows\system32\WindowsPowerShell</TargetFilename> <!--Microsoft:Powershell: Look for modifications for persistence [ https://www.malwarearchaeology.com/cheat-sheets ] -->
-			<TargetFilename name="T1059.001,PowerShell" condition="begin with">C:\Windows\SysWOW64\WindowsPowerShell</TargetFilename> <!--Microsoft:Powershell: Look for modifications for persistence [ https://www.malwarearchaeology.com/cheat-sheets ] -->
-			<TargetFilename name="T1053" condition="begin with">C:\Windows\Tasks\</TargetFilename> <!--Microsoft:ScheduledTasks [ https://attack.mitre.org/wiki/Technique/T1053 ] -->
-			<TargetFilename name="T1053" condition="begin with">C:\Windows\system32\Tasks</TargetFilename> <!--Microsoft:ScheduledTasks [ https://attack.mitre.org/wiki/Technique/T1053 ] -->
-			<TargetFilename name="T1053" condition="begin with">C:\Windows\SysWOW64\Tasks</TargetFilename> <!--Microsoft:ScheduledTasks [ https://attack.mitre.org/wiki/Technique/T1053 ] -->
-			<Image condition="begin with">\Device\HarddiskVolumeShadowCopy</Image> <!--Nothing should be executing from VSC | Credit: @SBousseaden [ https://twitter.com/SBousseaden/status/1133030955407630336 ] -->
-			<Image condition="image">rundll32.exe</Image>
-			<Image condition="image">taskmgr.exe</Image>
-			<TargetFilename name="T1044,File_System_Permissions_Weakness" condition="begin with">C:\Windows\SysWoW64</TargetFilename>
-			<TargetFilename name="T1044,File_System_Permissions_Weakness" condition="begin with">C:\Windows\System32</TargetFilename>
-			<TargetFilename name="T1044,File_System_Permissions_Weakness" condition="begin with">C:\Windows\</TargetFilename>
-			<TargetFilename name="T1546.008,Services_File_Permissions_Weakness" condition="begin with">C:\Windows\Temp\</TargetFilename>
-			<TargetFilename name="T1546.008,Services_File_Permissions_Weakness" condition="begin with">C:\Program\</TargetFilename>
-			<TargetFilename name="T1047,File_System_Permissions_Weakness" condition="begin with">C:\Temp\</TargetFilename>
-			<TargetFilename name="T1047,File_System_Permissions_Weakness" condition="begin with">C:\PerfLogs\</TargetFilename>
-			<TargetFilename name="T1047,File_System_Permissions_Weakness" condition="begin with">C:\Users\Public\</TargetFilename>
-			<TargetFilename name="T1047,File_System_Permissions_Weakness" condition="contains">\AppData\Temp\</TargetFilename>
+			<!--Supply Chain Compromise-->
+			<Rule name="T1195,Supply_Chain_Compromise,Solarwinds_sunburst_suspicious_file_writes" groupRelation="and">
+				<Image condition="contains any">solarwinds.businesslayerhost</Image>
+				<TargetFilename condition="contains any">.exe;.dll;.ps1;.mz;.jpg;.png</TargetFilename>
+			</Rule>
+			<Rule name="T1195,Supply_Chain_Compromise,Solarwinds_sunburst_malware_dll" groupRelation="and">
+				<TargetFilename condition="is">C:\WINDOWS\SysWOW64\netsetupsvc.dll</TargetFilename>
+			</Rule>
+			<Rule name="T1195,Supply_Chain_Compromise,Dark_Halo_Software_location" groupRelation="and">
+				<TargetFilename condition="begin with">C:\Windows\SoftwareDistribution</TargetFilename>
+				<TargetFilename condition="is not">C:\Windows\SoftwareDistribution\Download\Install\AM_Delta.exe</TargetFilename>
+				<TargetFilename condition="end with">.exe</TargetFilename>
+			</Rule>
+			<Rule name="T1195,Supply_Chain_Compromise,MSBuild_Source_Files_created" groupRelation="or">
+				<TargetFilename condition="end with">proj</TargetFilename>
+				<TargetFilename condition="end with">.targets</TargetFilename>
+				<TargetFilename condition="end with">.build</TargetFilename>
+				<TargetFilename condition="end with">.props</TargetFilename>
+				<TargetFilename condition="end with">.tasks</TargetFilename>
+				<TargetFilename condition="end with">.sln</TargetFilename>
+				<TargetFilename condition="end with">.cs</TargetFilename>
+			</Rule>
+			<!--Exploitation for Client Execution-->
+			<Rule name="T1203,Exploitation_for_Client_Execution,CVE-2019-1315" groupRelation="and">
+				<TargetFilename condition="end with">Report.wer.tmp</TargetFilename>
+				<TargetFilename condition="excludes">\WER\</TargetFilename>
+				<Image condition="image">C:\Windows\system32\wermgr.exe</Image>
+			</Rule>
+			<Rule name="T1203,Exploitation_for_Client_Execution,Office_App_Creating_Exe_File" groupRelation="and">
+				<Image condition="contains any">winword.exe;excel.exe;powerpnt.exe;outlook.exe;msaccess.exe;mspub.exe;visio.exe;notepad.exe;wordpad.exe;eqnedt32.exe;wordview.exe</Image>
+				<TargetFilename condition="end with">.exe</TargetFilename>
+				<TargetFilename condition="begin with">C:\Users</TargetFilename>
+			</Rule>
+			<Rule name="T1203,Exploitation_for_Client_Execution,Office_App_Creating_DLL_File" groupRelation="and">
+				<Image condition="contains any">winword.exe;excel.exe;powerpnt.exe;outlook.exe;msaccess.exe;mspub.exe;visio.exe;notepad.exe;wordpad.exe;eqnedt32.exe;wordview.exe</Image>
+				<TargetFilename condition="end with">.dll</TargetFilename>
+				<TargetFilename condition="begin with">C:\Users</TargetFilename>
+			</Rule>
+			<!--Exploitation for Privilege Escalation-->
+			<Rule name="T1068,Exploitation_for_Privilege_Escalation,Printer_Exploitation_Detected" groupRelation="and">
+				<TargetFilename condition="end with">.SPL</TargetFilename>
+				<Image condition="excludes any">spoolsv.exe;printfilterpipelinesvc.exe;printisolationhost.exe;splwow64.exe;msiexec.exe;poqexec.exe</Image>
+			</Rule>
+			<Rule name="T1068,Exploitation_for_Privilege_Escalation,Printer_Spooler_Created_exe_file" groupRelation="and">
+				<Image condition="image">spoolsv.exe</Image>
+				<TargetFilename condition="end with">.exe</TargetFilename>
+				<TargetFilename condition="excludes">C\:\Windows\System32\spool\;C\:\Windows\Temp\;C\:\Users\</TargetFilename>
+			</Rule>
+			<Rule name="T1068,Exploitation_for_Privilege_Escalation,InstallerFileTakeOver_CVE-2021-41379" groupRelation="and">
+				<Image condition="image">msiexec.exe</Image>
+				<TargetFilename condition="contains">\Microsoft\Edge\Application</TargetFilename>
+				<TargetFilename condition="end with">elevation_service.exe</TargetFilename>
+			</Rule>
+			<!--Exploitation of Remote Services-->
+			<Rule name="T1203,Exploitation_of_Remote_Services,Exchange_Exploitation_UM_Service_File_Creation_CVE-2021-26858" groupRelation="and">
+				<Image condition="contains any">UMWorkerProcess.exe;UMService.exe</Image>
+				<TargetFilename condition="contains any">.</TargetFilename>
+				<TargetFilename condition="excludes any">.log;.cfg;.txt;cleanup;.HealthCheck;\wp.active;.db</TargetFilename>
+			</Rule>
+			<!--Data Encoding-->
+			<Rule name="T1132,Data_Encoding,Cyrillic_Letter_obfuscation" groupRelation="and">
+				<TargetFilename condition="contains any">Г;И;К;П;д;и;к;л;л;н;н;о;ф;ե;թ;յ;ն;ն;ն;ն;տ;ւ;ք</TargetFilename>
+			</Rule>
+			<!-- Side Loading -->
+			<Rule name="Sideload_Detection" groupRelation="or">
+				<TargetFilename condition="end with">.hlp</TargetFilename>
+				<TargetFilename condition="end with">ACLUI.DLL.UI</TargetFilename>
+				<TargetFilename condition="end with">ACLUI.DLL</TargetFilename>
+				<TargetFilename condition="end with">AFLogVw.exe</TargetFilename>
+				<TargetFilename condition="end with">AShld.exe</TargetFilename>
+				<TargetFilename condition="end with">AShldRes.DLL.asr</TargetFilename>
+				<TargetFilename condition="end with">AShldRes.DLL</TargetFilename>
+				<TargetFilename condition="end with">AhnI2.dll</TargetFilename>
+				<TargetFilename condition="end with">CamMute.exe</TargetFilename>
+				<TargetFilename condition="end with">CommFunc.dll</TargetFilename>
+				<TargetFilename condition="end with">CommFunc.jax</TargetFilename>
+				<TargetFilename condition="end with">DESqmWrapper.dll</TargetFilename>
+				<TargetFilename condition="end with">DESqmWrapper.wrapper</TargetFilename>
+				<TargetFilename condition="end with">FSPMAPI.dll.fsp</TargetFilename>
+				<TargetFilename condition="end with">FSPMAPI.dll</TargetFilename>
+				<TargetFilename condition="end with">Gadget.exe</TargetFilename>
+				<TargetFilename condition="end with">LoLTWLauncher.exe</TargetFilename>
+				<TargetFilename condition="end with">Mc.exe</TargetFilename>
+				<TargetFilename condition="end with">McUtil.dll.ping</TargetFilename>
+				<TargetFilename condition="end with">McUtil.dll.url</TargetFilename>
+				<TargetFilename condition="end with">McUtil.dll</TargetFilename>
+				<TargetFilename condition="end with">MpSvc.dll</TargetFilename>
+				<TargetFilename condition="end with">MsMpEng.exe</TargetFilename>
+				<TargetFilename condition="end with">NtUserEx.dat</TargetFilename>
+				<TargetFilename condition="end with">NtUserEx.dat</TargetFilename>
+				<TargetFilename condition="end with">NtUserEx.dll</TargetFilename>
+				<TargetFilename condition="end with">NtUserEx.dll</TargetFilename>
+				<TargetFilename condition="end with">NvSmart.exe</TargetFilename>
+				<TargetFilename condition="end with">NvSmartMax.dll</TargetFilename>
+				<TargetFilename condition="end with">NvSmartMax.dll</TargetFilename>
+				<TargetFilename condition="end with">NvSmartMaxapp.dll</TargetFilename>
+				<TargetFilename condition="end with">OInfo11.ISO</TargetFilename>
+				<TargetFilename condition="end with">OInfo11.ocx</TargetFilename>
+				<TargetFilename condition="end with">OInfoP11.exe</TargetFilename>
+				<TargetFilename condition="end with">OleView.exe</TargetFilename>
+				<TargetFilename condition="end with">OleView.exe</TargetFilename>
+				<TargetFilename condition="end with">POETWLauncher.exe</TargetFilename>
+				<TargetFilename condition="end with">RasTls.dll.config</TargetFilename>
+				<TargetFilename condition="end with">RasTls.dll.msc</TargetFilename>
+				<TargetFilename condition="end with">RasTls.dll</TargetFilename>
+				<TargetFilename condition="end with">RasTls.exe</TargetFilename>
+				<TargetFilename condition="end with">RunHelp.exe</TargetFilename>
+				<TargetFilename condition="end with">Sidebar.dll.doc</TargetFilename>
+				<TargetFilename condition="end with">Sidebar.dll</TargetFilename>
+				<TargetFilename condition="end with">Ushata.dll</TargetFilename>
+				<TargetFilename condition="end with">Ushata.exe</TargetFilename>
+				<TargetFilename condition="end with">Ushata.fox</TargetFilename>
+				<TargetFilename condition="end with">VeetlePlayer.exe</TargetFilename>
+				<TargetFilename condition="end with">boot.ldr</TargetFilename>
+				<TargetFilename condition="end with">chrome_frame_helper.dll.rom</TargetFilename>
+				<TargetFilename condition="end with">chrome_frame_helper.dll</TargetFilename>
+				<TargetFilename condition="end with">chrome_frame_helper.exe</TargetFilename>
+				<TargetFilename condition="end with">dvcemumanager.exe</TargetFilename>
+				<TargetFilename condition="end with">fsguidll.exe</TargetFilename>
+				<TargetFilename condition="end with">fslapi.dll.gui</TargetFilename>
+				<TargetFilename condition="end with">fslapi.dll</TargetFilename>
+				<TargetFilename condition="end with">fsstm.exe</TargetFilename>
+				<TargetFilename condition="end with">hccutils.dll.res</TargetFilename>
+				<TargetFilename condition="end with">hccutils.dll</TargetFilename>
+				<TargetFilename condition="end with">hha.dll.bak</TargetFilename>
+				<TargetFilename condition="end with">hha.dll</TargetFilename>
+				<TargetFilename condition="end with">hhc.exe</TargetFilename>
+				<TargetFilename condition="end with">hkcmd.exe</TargetFilename>
+				<TargetFilename condition="end with">iviewers.dll</TargetFilename>
+				<TargetFilename condition="end with">jli.dll</TargetFilename>
+				<TargetFilename condition="end with">libvlc.dll</TargetFilename>
+				<TargetFilename condition="end with">mPclient.dll</TargetFilename>
+				<TargetFilename condition="end with">mcf.ep</TargetFilename>
+				<TargetFilename condition="end with">mcf.exe</TargetFilename>
+				<TargetFilename condition="end with">mcupdui.exe</TargetFilename>
+				<TargetFilename condition="end with">mcut.exe</TargetFilename>
+				<TargetFilename condition="end with">mcutil.dll.bbc</TargetFilename>
+				<TargetFilename condition="end with">mcvsmap.exe</TargetFilename>
+				<TargetFilename condition="end with">msi.dll.dat</TargetFilename>
+				<TargetFilename condition="end with">msi.dll</TargetFilename>
+				<TargetFilename condition="end with">msseces.asm</TargetFilename>
+				<TargetFilename condition="end with">msseces.exe</TargetFilename>
+				<TargetFilename condition="end with">mtcReport.ktc</TargetFilename>
+				<TargetFilename condition="end with">rc.dll</TargetFilename>
+				<TargetFilename condition="end with">rc.exe</TargetFilename>
+				<TargetFilename condition="end with">rc.hlp</TargetFilename>
+				<TargetFilename condition="end with">sep_NE.exe</TargetFilename>
+				<TargetFilename condition="end with">sep_NE.slf</TargetFilename>
+				<TargetFilename condition="end with">tplcdclr.exe</TargetFilename>
+				<TargetFilename condition="end with">winmm.dll</TargetFilename>
+				<TargetFilename condition="end with">wts.chm</TargetFilename>
+				<TargetFilename condition="end with">credwiz.exe</TargetFilename>
+			</Rule>
+			<TargetFilename name="T1574.002,Hijack_Execution_Flow,Finfisher_DLL_Sideload_Detection" condition="end with">aepic.dll</TargetFilename>
+			<TargetFilename name="T1574.002,Hijack_Execution_Flow,Finfisher_DLL_Sideload_Detection" condition="end with">ftllib.dll</TargetFilename>
+			<TargetFilename name="T1574.002,Hijack_Execution_Flow,Finfisher_DLL_Sideload_Detection" condition="end with">userenv.dll</TargetFilename>
+			<!--User Execution: Malicious File-->
+			<Rule name="T1204.002,Malicious_File,Generic_Ransomware_Detection" groupRelation="and">
+				<TargetFilename condition="contains any">!!!-WARNING-!!!.html;!!!-WARNING-!!!.txt;!!! HOW TO DECRYPT FILES !!!;!!!README!!!;!!!READ_TO_UNLOCK!!!.TXT;!!!_READ_ME_;!Recovery_;!Where_are_my_files!.html;!_HOW_TO_RESTORE_;!_RECOVERY_HELP_!.txt;!recover!;# DECRYPT MY FILES #.html;# DECRYPT MY FILES #.txt;# DECRYPT MY FILES #.vbs;# SATAN CRYPTOR #;+recover+;.8lock8;.31392E30362E32303136_;.ABCDEF;.CIop;.CR1;.CRAB;.CRYPTOSHIELD;.Cl0p;.Contact_Here_To_Recover_Your_Files.txt;.CryptoTorLocker2015!;.HERMES;.HakunaMatata;.How_To_Decrypt.txt;.How_To_Get_Back.txt;.KEYZ.KEYH0LES;.L0CKED;.LOL!;.MATRIX;.OMG!;.R.i.P;.RMCM1;.RSplited;.SUPERCRYPT;.SecureCrypted;.TheTrumpLocker;.VBRANSOM;.VforVendetta;.Where_my_files.txt;.XBTL;._AiraCropEncrypted!;.airacropencrypted!;.areyoulovemyrans;.berkshire;.bitpy;.bitx;.blocatto;.bomber;.braincrypt;.breakingbad;.breeding123;.cerber;.cifgksaffsfyghd;.country82000;.crypt;.crypted;.crypton;.cryptotorlocker;.decrypt2017;.deria;.dglnl;.disposed2017;.doomed;.encrypted.locked;.encrypted;.encryptedyourfiles;.enjey;.evillock;.filegofprencrp;.fileiscryptedhard;.firecrypt;.fuckyourdata;.gangbang;.gefickt;.googl;.happydayzz;.hceem;.helpdecrypt;.helpmeencedfiles;.hnumkhotep;.hydracrypt_ID;.iaufkakfhsaraf;.info.txt;.jimm;.kharma;.killedXXX;.lambda_l0cked;.letmetrydecfiles;.locked;.locker16;.loveransisgood;.lovewindows;.magic_software_syndicate;.mention9823;.moments2900;.myrandsext2017;.newlock;.no_more_ransom;.nochance;.noproblemwedecfiles;.notfoundrans;.ohwqg;.one-we_can-help_you;.oops;.osiris;.otherinformation;.paytounlock;.powerfulldecrypt;.powned;.pr0lock;.prolock;.prosperous666;.pwnd;.ransom;.readme2unlock;.righ;.roger;.ryk;.satan;.savethequeen;.sigaint.org;.skjdthghh;.skynet;.snatch;.stubbin;.supported2017;.suppose666;.theworldisyours;.txd0t;.warn_wallet;.weapologize;.weareyourfriends;.weencedufiles;.wowreadfordecryp;.wowwhereismyfiles;.wvtr0;.yourransom;.zzzzz ;.{CRYPTENDBLACKDC};-DECRYPT.txt;000-IF-YOU-WANT-DEC-FILES;000-No-PROBLEM-WE-DEC-FILES;000-PLEASE-READ-WE-HELP;001-READ-FOR-DECRYPT-FILES;1025-7152.exe;:\windows\update_collector.exe;=READ=THIS=PLEASE=;@cock.li;@countermail.com;@firemail.cc;@india.com;@mail.ru;@ukr.net;ASSISTANCE_IN_RECOVERY;ATTENTION!!!.txt;ATTENTION.url;Aescrypt.exe;AllFilesAreLocked;BTC_DECRYPT_FILES;BUYUNLOCKCODE.txt;BUYUNLOCKCODE;BitCryptorFileList.txt;C:\ProgramData\dtb.dat;C:\Programdata\WinMgr;C:\Programdata\clean.bat;C:\Programdata\run.bat;C:\Windows\svchost.exe;CEBER3;CHECK-IT-HELP-FILES;COME_RIPRISTINARE_I_FILE.;COMO_ABRIR_ARQUIVOS.txt;COMO_RESTAURAR_ARCHIVOS;Coin.Locker.txt;Comment débloquer mes fichiers.txt;Como descriptografar seus arquivos.txt;Corona-virus-Map;Corona.bat;Corona.sfx;CryptoRansomware;Crytp0l0cker;Cyber SpLiTTer Vbs.exe;Cyborg_DECRYPT;DALE_FILES.TXT;DECRYPT-FILES;DECRYPTION INSTRUCTIONS.;DECRYPTION_HOWTO.Notepad;DECRYPT_INFORMATION;DECRYPT_INSTRUCTION.HTML;DECRYPT_INSTRUCTION.URL;DECRYPT_INSTRUCTIONS.html;DECRYPT_INSTRUCTIONS;DECRYPT_ReadMe1.TXT;DECRYPT_Readme.TXT.ReadMe;DECRYPT_YOUR_FILES;DESIFROVANI_POKYNY.html;Decrypt All Files;DecryptAllFiles;DecryptFile;Decrypt_readme.txt;DesktopOsiris;ENTSCHLUSSELN_HINWEISE.html;EdgeLocker;FILESAREGONE.txt;FILES_BACK.txt;File Decrypt Help.html;GJENOPPRETTING_AV_FILER;GetYouFiles.txt;HAPPEN-ENCED-FILES;HELLOTHERE.TXT;HELP-ME-ENCED-FILES;HELPDECRYPT_YOUR_FILES.HTML;HELP_DECRYPT.HTML;HELP_DECRYPT.PNG;HELP_DECRYPT.URL;HELP_DECRYPT.lnk;HELP_ME_PLEASE.txt;HELP_RESTORE_FILES_;HELP_TO_SAVE_FILES.bmp;HELP_TO_SAVE_FILES;HELP_YOURFILES.HTML;HELP_YOUR_FILES.PNG;HELP_YOUR_FILES.html;HELP_YOUR_FILES;HOW-TO-DECRYPT-FILES.HTML;HOW-TO-RESTORE-FILES;HOW TO BACK YOUR FILES;HOW TO DECRYPT FILES.HTML;HOW TO DECRYPT FILES.txt;HOW TO RECOVER;HOWTO_RECOVER_FILES_;HOWTO_RESTORE_FILES;HOWTO_RESTORE_FILES_;HOW_DECRYPT.HTML;HOW_DECRYPT.TXT;HOW_DECRYPT.URL;HOW_OPEN_FILES;HOW_TO_DECRYPT.HTML;HOW_TO_DECRYPT_;HOW_TO_PAY_THE_RANSOM;HOW_TO_RESTORE_FILES.html;HOW_TO_RESTORE_FILES;HOW_TO_RESTORE_YOUR_DATA;HOW_TO_UNLOCK_FILES_README_;HWID Lock.exe;Hacked_Read_me_to_decrypt_files.html;Help Decrypt.html;How decrypt files.hta;How to decrypt LeChiffre files.html;How to decrypt your data.txt;HowDecrypt.gif;HowDecrypt.txt;How_to_decrypt_your_files.jpg;How_to_restore_files.hta;HowtoRestore_File;HowtoRestore_Files;Howto_RESTORE_FILES.html;Howto_Restore_FILES.TXT;IAMREADYTOPAY.TXT;IF-YOU-WANT-DEC-FILES;IF_WANT_FILES_BACK_PLS_READ.html;IHAVEYOURSECRET.KEY;IMPORTANT READ ME.txt;IMPORTANT.README;INSTALL_TOR.URL;INSTRUCCIONES;INSTRUCCIONES_DESCIFRADO.html;INSTRUCTION RESTORE FILE;INSTRUCTIONS_DE_DECRYPTAGE.html;INSTUCCIONES_DESCRIFRADO;ISTRUZIONI_DECRITTAZIONE.html;Important!.txt;Instructionaga.txt;KryptoLocker_README.txt;LEER_INMEDIATAMENTE;LET-ME-TRY-DEC-FILES;Locked-by-Mafia;MENSAGEM.txt;MERRY_I_LOVE_YOU_BRUCE.hta;No-PROBLEM-WE-DEC-FILES;OKSOWATHAPPENDTOYOURFILES.TXT;ONTSLEUTELINGS_INSTRUCTIES.html;OSIRIS-;PAYLOADBIN;PINGY@INDIA.COM;PLEASE-READ-WE-HELP.;PLEASE-READIT-IF_YOU-WANT.html;PLEASE-READIT-IF_YOU-WANT;PLEASE-README-AFFECTED-FILES;PLS-DEC-MY-FILES;PURELOCKER;Payment_Instructions.jpg;Please Read Me!!!;READ-FOR-DECCCC-FILESSS;READ-FOR-DECRYPT-FILES;READ-READ-READ;READ IF YOU WANT YOUR FILES BACK.html;READ ME FOR DECRYPT.txt;README HOW TO DECRYPT YOUR FILES.HTML;README!!!;README_DECRYPT_HYDRA_ID_;README_DECRYPT_HYRDA_ID_;README_DECRYPT_UMBRE_ID_;README_DONT_DELETE;README_HOW_TO_UNLOCK.HTML;README_HOW_TO_UNLOCK.TXT;README_RECOVER_FILES_;README_TO_RECURE_YOUR_FILES;READTHISNOW!!!.txt;READ_IT.txt;READ_ME_!.txt;READ_ME_TO_DECRYPT_YOU_INFORMA;READ_THIS_TO_DECRYPT.html;RECOVER-FILES;RECOVERY_FILE.;RECOVERY_FILES.TXT;RECOVER_MY_FILE;RESTORE_CORUPTED_FILES;RESTORE_FILES_;RETURN FILES.txt;RETURN YOUR FILES;RETURNFILES_.txt;RETURN_FILES.txt;RETURN_FILES_.txt;Rans0m_N0te_Read_ME;Read Me (How Decrypt) !!!!.txt;ReadDecryptFilesHere;Read_this_file.txt;Receipt.exe;RecoveryManual.html;Recovery_File_;Recovery_file_;Rooster865qq;SECRET.KEY;SECRETIDHERE.KEY;SHTODELATVAM.txt;SIFRE_COZME_TALIMATI.html;SORRY-FOR-FILES;Survey Locker.exe;TRY-READ-ME-TO-DEC;Temp\satan\satan;ThxForYurTyme;UNLOCK_FILES_INSTRUCTIONS.html;UNLOCK_FILES_INSTRUCTIONS.txt;UnblockFiles.vbs;VIP72.exe;Vape Launcher.exe;WANT_FILES_BACK;WE-MUST-DEC-FILES;WHERE-YOUR-FILES;WORMKILLER@INDIA.COM.XTBL;What happen to my files.txt;Whereisyourfiles;WindowsApplication1.exe;YOUGOTHACKED.TXT;YOUR_FILES.txt;YOUR_FILES.url;YOUR_FILES_ARE_DEAD;YOUR_FILES_ARE_ENCRYPTED.HTML;YOUR_FILES_ARE_ENCRYPTED.TXT;YOUR_FILES_ARE_LOCKED.txt;Your files are locked !!!!.txt;Your files are locked !!!.txt;Your files are locked !!.txt;Your files are locked !.txt;Your files encrypted by our friends !!! txt;Your files encrypted by our friends !!!.txt;[KASISKI];_Adatok_visszaallitasahoz_utasitasok;_DECRYPT_ASSISTANCE_;_DECRYPT_INFO_;_DECRYPT_INFO_szesnl;_DEC_FILES.;_FILES_WERE_ENCRYPTED_@.TXT;_HELP_HELP_HELP_;_HELP_Recover_Files_;_HELP_instructions.bmp;_HELP_instructions.txt;_HOWDO_text.bmp;_HOWDO_text.html;_HOW_TO_Decrypt;_H_e_l_p_RECOVER_INSTRUCTIONS+;_H_e_l_p_RECOVER_INSTRUCTIONS;_Locky_recover;_Locky_recover_instructions.bmp;_Locky_recover_instructions.txt;_README.hta;_README.jpg;_READ_ME!;_RECOVER_INSTRUCTIONS;_ReCoVeRy_+;_USE_TO_FIX_;_WHAT_is.html;_help_instruct;_how_recover.txt;_how_recover;_how_recover_;_recover_;_secret_code.txt;_steaveiwalker@india.com_;aeroware;confirmation.key;contains(to_string($message.file_created), "howrecover+;crjoker.html;cryptinfo.txt;cryptolocker.;cryptopp;de_crypt_readme.;de_crypt_readme.bmp;de_crypt_readme.html;de_crypt_readme.txt;decipher_ne;decrypt-instruct;decrypt explanations.;decrypt my file;decrypt your file;decrypt_Globe;decrypt_instruct;decrypted_files.dat;decryptional;decryptmyfiles;decypt_your_files.html;default32643264.bmp;default432643264.jpg;email-salazar_slytherin10;enc_files.txt;encryptor_raas_readme_liesmich;enigma.hta;enigma_encr.txt;exit.hhr.obleep;fattura_;file0locked;files_are_encrypted.;-filesencrypted;firemail.cc;firstransomware.exe;gmx.de;hacks.at.sigaint.org;help-file-decrypt.enc;help_decrypt;help_file_;help_instructions.;help_my_files;help_recover;help_recover_instructions;help_restore;help_restore_files;help_your_file;helpmeencedfiles;how to decrypt aes files.lnk;how to decrypt;how to get data.txt;how_decrypt.gif;how_recover;how_to_decrypt;how_to_recover;howrecover+ recoveryfile_;howrecover+;howto_recover_file;howto_restore;howtodecrypt;howtodecryptaesfiles.txt;inbox.ru;info@kraken.cc_worldcza@email.cz;install_tor;iran.ir;last_chance.txt;maestro@pizzacrypts.info;maxcrypt.bmp;only-we_can-help_you;openforyou@india.com;opensourcemail.org;padcrypt;paycrypt.bmp;popcorn_time.exe;powerfulldecrypt;protonmail.ch;qbmail.biz;randomname;readme_decrypt;readme_for_decrypt;readme_liesmich_encryptor_raas;recover_file;recover_file_;recover_instruction;recoverfile;recoverfile_;recovery+;recovery_file.txt;recovery_key.txt;recoveryfile;recover}-;restore_files.txt;restorefiles;restorefiles_;ryukreadme.html;tuta.io;tutanota.com;tutanota.de;unCrypte;vault.hta;vault.key;vault.txt;want your files back.;warning-!!;wie_zum_Wiederherstellen_von_Dateien.txt;wowreadfordecryp;wowwhereismyfiles;zXz.html;zycrypt.;zzzzzzzzzzzzzzzzzyyy</TargetFilename>
+				<TargetFilename condition="excludes all">C:\Users\;\Google\Chrome Beta\User Data\;\IndexedDB\</TargetFilename>
+				<TargetFilename condition="excludes any">C:\Program Files\WindowsApps\Microsoft.YourPhone_;C:\Program Files\dotnet\shared\Microsoft.NETCore.App\;\Microsoft.NET\assembly\GAC_MSIL</TargetFilename>
+			</Rule>
+			<TargetFilename name="T1204.002,Malicious_File,Common_Files_of_CrackMapExec" condition="contains">crackmapexec</TargetFilename>
+			<TargetFilename name="T1204.002,Malicious_File,Common_Files_of_CrackMapExec" condition="end with">\Crypto.Cipher._AES.pyd</TargetFilename>
+			<TargetFilename name="T1204.002,Malicious_File,Common_Files_of_CrackMapExec" condition="end with">\Crypto.Cipher._DES.pyd</TargetFilename>
+			<TargetFilename name="T1204.002,Malicious_File,Common_Files_of_CrackMapExec" condition="end with">\Crypto.Hash._SHA256.pyd</TargetFilename>
+			<TargetFilename name="T1204.002,Malicious_File,Common_Files_of_CrackMapExec" condition="end with">\Crypto.Random.OSRNG.winrandom.pyd</TargetFilename>
+			<TargetFilename name="T1204.002,Malicious_File,Common_Files_of_CrackMapExec" condition="end with">\Crypto.Util.strxor.pyd</TargetFilename>
+			<TargetFilename name="T1204.002,Malicious_File,Common_Files_of_CrackMapExec" condition="end with">\crackmapexec.exe.manifest</TargetFilename>
+			<TargetFilename name="T1204.002,Malicious_File,Common_Files_of_CrackMapExec" condition="end with">\greenlet.pyd</TargetFilename>
+			<TargetFilename name="T1204.002,Malicious_File,KeeFarce.exe_default_injected_DLL_name" condition="end with">BootStrapDLL.dll</TargetFilename>
+			<TargetFilename name="T1204.002,Malicious_File,MegaCortex_Ransomware" condition="begin with">C:\windows\temp\wininit.exe</TargetFilename>
+			<TargetFilename name="T1204.002,Malicious_File,Mimikatz_Files" condition="contains any">lazycat;powerkatz;mimikatz;mimidrv;mimilove;mimilib;mimikittenz;mimiauth;invoke-mimi</TargetFilename>
+			<TargetFilename name="T1204.002,Malicious_File,RDP_Wrapper" condition="end with">rdpwrap.dll</TargetFilename>
+			<TargetFilename name="T1204.002,Malicious_File,winspool.drv_dropped" condition="end with">winspool.drv</TargetFilename>
+			<!--Data Encrypted for Impact-->
+			<Rule name="T1486,Data_Encrypted_for_Impact,Snatch_Ransomware_Detected" groupRelation="and">
+				<TargetFilename condition="contains all">RESTORE_;_FILES.txt</TargetFilename>
+			</Rule>
+			<Rule name="T1486,Data_Encrypted_for_Impact,Snatch_Ransomware_Detected" groupRelation="and">
+				<TargetFilename condition="contains all">DECRYPT_;_FILES.txt</TargetFilename>
+			</Rule>
+			<Rule name="T1486,Data_Encrypted_for_Impact,Nanocore_Detected" groupRelation="and">
+				<TargetFilename condition="contains any">\run.dat;\task.dat;\storage.dat</TargetFilename>
+				<TargetFilename condition="contains">AppData</TargetFilename>
+				<TargetFilename condition="excludes any">Symantec</TargetFilename>
+				<TargetFilename condition="excludes any">BlueJeans</TargetFilename>
+			</Rule>
+			<Rule name="T1486,Data_Encrypted_for_Impact,RagnarLocker_Virtualbox_files" groupRelation="and">
+				<TargetFilename condition="contains any">VBoxRT.dll;VboxC.dll</TargetFilename>
+			</Rule>
+			<!--Proxy: Multi-hop Proxy-->
+			<TargetFilename name="T1090.003,Multi-hop_Proxy,Potential_Tor_Hidden_Service" condition="contains">HiddenService</TargetFilename>
+			<TargetFilename name="T1090.003,Multi-hop_Proxy,Potential_Tor_File" condition="end with">torrc</TargetFilename>
+			<TargetFilename name="T1090.003,Multi-hop_Proxy,Potential_Tor_File" condition="contains">\tor.exe</TargetFilename>
+			<TargetFilename name="T1090.003,Multi-hop_Proxy,Potential_Tor_File" condition="contains">tor-gencert</TargetFilename>
+			<!--Transfer Data to Cloud Account-->
+			<TargetFilename name="T1114,Email_Collection,Possible_rclone_Exfiltration" condition="contains">rclone</TargetFilename>
+			<TargetFilename name="T1114,Email_Collection,Possible_s3browser_Exfiltration" condition="contains">s3browser</TargetFilename>
+			<TargetFilename name="T1114,Email_Collection,Browser_Credential_Exfiltration" condition="contains">grabff.exe</TargetFilename>
+			<TargetFilename name="T1114,Email_Collection,Browser_Credential_Exfiltration" condition="contains">grabff.exe</TargetFilename>
+			<!--Indirect Command Execution-->
+			<TargetFilename name="WSL_Locations" condition="contains">\LocalState\rootfs\</TargetFilename>
+			<!--Windows Management Instrumentation-->
+			<TargetFilename name="T1047,WMI" condition="begin with">C:\Windows\System32\Wbem</TargetFilename>
+			<TargetFilename name="T1047,WMI" condition="begin with">C:\Windows\SysWOW64\Wbem</TargetFilename>
+			<Image name="T1047,WMI" condition="begin with">C:\WINDOWS\system32\wbem\scrcons.exe</Image>
 			<!--Windows application compatibility-->
-			<TargetFilename name="T1546.011,Application_Shimming" condition="contains">C:\Windows\AppPatch\Custom</TargetFilename> <!--Windows: Application compatibility shims [ https://www.fireeye.com/blog/threat-research/2017/05/fin7-shim-databases-persistence.html ] -->
-			<TargetFilename condition="contains">VirtualStore</TargetFilename> <!--Windows: UAC virtualization [ https://blogs.msdn.microsoft.com/oldnewthing/20150902-00/?p=91681 ] -->
-			<!--Exploitable file names-->
-			<TargetFilename condition="end with">.xls</TargetFilename> <!--Legacy Office files are often used for attacks-->
-			<TargetFilename condition="end with">.ppt</TargetFilename> <!--Legacy Office files are often used for attacks-->
-			<TargetFilename condition="end with">.rtf</TargetFilename> <!--RTF files often 0day malware vectors when opened by Office-->
-			<TargetFilename condition="end with">.pptm</TargetFilename>
-			<TargetFilename condition="end with">.xlsm</TargetFilename>
-			<TargetFilename condition="end with">.xlm</TargetFilename>
-			<TargetFilename condition="end with">.dotm</TargetFilename>
-			<TargetFilename condition="end with">.xltm</TargetFilename>
-			<TargetFilename condition="end with">.potm</TargetFilename>
-			<TargetFilename condition="end with">.ppsm</TargetFilename>
-			<TargetFilename condition="end with">.sldm</TargetFilename>
-			<TargetFilename condition="end with">.xlam</TargetFilename>
-			<TargetFilename condition="end with">.xla</TargetFilename>
-			<TargetFilename condition="end with">.iqy</TargetFilename>
-			<TargetFilename condition="end with">.slk</TargetFilename>
-			<!--Web Shell-->
-			<TargetFilename condition="end with">.php</TargetFilename>
-			<TargetFilename condition="end with">.jsp</TargetFilename>
-			<TargetFilename condition="end with">.jspx</TargetFilename>
-			<TargetFilename condition="end with">.asp</TargetFilename>
-			<TargetFilename condition="end with">.aspx</TargetFilename>
-			<TargetFilename condition="end with">.ashx</TargetFilename>
-			<TargetFilename condition="end with">.war</TargetFilename>
-			<TargetFilename condition="end with">.pl</TargetFilename> <!-- possible dropped webshell -->
-			<TargetFilename condition="contains">\SAM-20</TargetFilename> <!-- Default output of HiveNightmare / SeriousSAM tools -->
-			<TargetFilename condition="contains">\SAM-haxx</TargetFilename> <!-- Default output of HiveNightmare / SeriousSAM tools -->
-			<TargetFilename condition="contains">\Sam.save</TargetFilename> <!-- Default output of HiveNightmare / SeriousSAM tools -->
-			<TargetFilename condition="contains">\hive_sam_</TargetFilename> <!-- Default output of HiveNightmare / SeriousSAM tools -->
-			<TargetFilename condition="is">C:\windows\temp\sam</TargetFilename> <!-- Default output of HiveNightmare / SeriousSAM tools -->
-			<TargetFilename condition="begin with">C:\Windows\System32\spool\drivers\x64</TargetFilename> <!-- PrinterNightmare -->
-			<Rule groupRelation="and"> <!-- CVE-2021-40444 https://twitter.com/RonnyTNL/status/1436334640617373699 -->
+			<TargetFilename name="T1546.011,Application_Shimming" condition="contains">C:\Windows\AppPatch\Custom</TargetFilename>
+			<TargetFilename name="Windows_UAC_virtualization" condition="contains">VirtualStore</TargetFilename>
+			<!--Office Application Startup-->
+			<TargetFilename name="T1137,Office_Application_Startup" condition="contains">\Word\STARTUP\</TargetFilename>
+			<TargetFilename name="T1137,Office_Application_Startup" condition="contains">\Excel\STARTUP\</TargetFilename>
+			<TargetFilename name="T1137,Office_Application_Startup" condition="contains">\Excel\XLSTART\</TargetFilename>
+			<!--Boot or Logon Autostart Execution-->
+			<TargetFilename name="T1547.001,Registry_Startup_Folder,Autorun_Folder_Entries" condition="contains">\Startup\</TargetFilename>
+			<!--Scheduled Task/Job-->
+			<TargetFilename name="T1053,Scheduled_Task_Modified" condition="begin with">C:\Windows\Tasks\</TargetFilename>
+			<TargetFilename name="T1053,Scheduled_Task_Modified" condition="begin with">C:\Windows\system32\Tasks</TargetFilename>
+			<TargetFilename name="T1053,Scheduled_Task_Modified" condition="begin with">C:\Windows\SysWOW64\Tasks</TargetFilename>
+			<TargetFilename name="T1053,Scheduled_Task_Modified" condition="end with">.job</TargetFilename>
+			<!--Server Software Component: Web Shells-->
+			<Rule name="T1505.003,Server_Software_Component,Web_Shells_Dropped" groupRelation="and">
+				<Image condition="contains any">w3wp.exe;httpd.exe;java.exe;nginx.exe</Image>
+				<TargetFilename condition="contains any">.aspx;.asp;.ashx;.php;.jspx;.jsp</TargetFilename>
+			</Rule>
+			<Rule name="T1505.003,Server_Software_Component,Web_Shells_Dropped" groupRelation="and">
+				<TargetFilename condition="contains any">\wwwroot\aspnet_client\;\FrontEnd\HttpProxy\owa\auth</TargetFilename>
+				<TargetFilename condition="contains any">.aspx;.asp;.ashx;.php</TargetFilename>
+			</Rule>
+			<Rule name="T1505.003,Server_Software_Component,Exchange_0day_from_September_2022_overwriting_legit_file" groupRelation="and">
+				<TargetFilename condition="end with">RedirSuiteServiceProxy.aspx</TargetFilename>
+			</Rule>
+			<Rule name="T1505.003,Server_Software_Component,Webserver_Dropping_Malicious_File" groupRelation="and">
+				<Image condition="contains any">w3wp.exe;httpd.exe;java.exe;nginx.exe</Image>
+				<TargetFilename condition="contains any">.ps1;.bat;.exe;.dll;.vbs;.hta</TargetFilename>
+			</Rule>
+			<TargetFilename name="Files_dropped_in_Exchange_ECP_directory" condition="contains">\ecp\auth\</TargetFilename>
+			<TargetFilename name="Files_dropped_in_Exchange_OAB_directory" condition="contains">\oab\auth\</TargetFilename>
+			<TargetFilename name="Files_dropped_in_Exchange_OWA_directory" condition="contains">ClientAccess\Owa\</TargetFilename>
+			<TargetFilename name="Files_dropped_in_Exchange_OWA_directory" condition="contains">\owa\auth\</TargetFilename>
+			<TargetFilename name="Files_dropped_in_Exchange_RPC_directory" condition="contains">httpproxy\rpc\</TargetFilename>
+			<TargetFilename name="Files_dropped_in_Exchange_ecp_directory" condition="contains">ClientAccess\ecp\</TargetFilename>
+			<TargetFilename name="Files_dropped_in_wwwroot_htdocs_directory" condition="contains">\htdocs\</TargetFilename>
+			<Rule name="CVE-2021-40444" groupRelation="and">
 				<Image condition="end with">\WINWORD.EXE</Image>
 				<TargetFilename condition="contains any">.cab;.inf</TargetFilename>
 			</Rule>
-			<!--Other File type-->
-			<TargetFilename condition="end with">.iso</TargetFilename>
-			<TargetFilename condition="end with">.img</TargetFilename>
-			<TargetFilename condition="end with">.kirbi</TargetFilename> <!--Mimikatz Kerberos Ticket Files-->
-			<TargetFilename name="T1187,Forced_Authentication" condition="end with">.lnk</TargetFilename>
-			<TargetFilename name="T1187,Forced_Authentication" condition="end with">.scf</TargetFilename>
-			<TargetFilename condition="end with">.settingcontent-ms</TargetFilename>
-			<TargetFilename condition="end with">.rwz</TargetFilename>
+			<Rule name="Default_output_of_HiveNightmare_or_SeriousSAM_tools" groupRelation="or">
+				<TargetFilename condition="contains">\SAM-20</TargetFilename>
+				<TargetFilename condition="contains">\SAM-haxx</TargetFilename>
+				<TargetFilename condition="contains">\Sam.save</TargetFilename>
+				<TargetFilename condition="contains">\hive_sam_</TargetFilename>
+				<TargetFilename condition="is">C:\windows\temp\sam</TargetFilename>
+			</Rule>
+			<!--Execution: Command and Scripting Interpreter-->
+			<TargetFilename name="T1059,Command_and_Scripting_Interpreter,Batch_File_scripting_Batch_scripts" condition="end with">.bat</TargetFilename>
+			<TargetFilename name="T1059,Command_and_Scripting_Interpreter,Batch_scripting_Legacy_btm_Extension" condition="end with">.btm</TargetFilename>
+			<TargetFilename name="T1059,Command_and_Scripting_Interpreter,Batch_scripting_Legacy_cmd_Extension" condition="end with">.cmd</TargetFilename>
+			<TargetFilename name="T1059,Command_and_Scripting_Interpreter,Batch_scripting_Legacy_com_Extension" condition="end with">.com</TargetFilename>
+			<TargetFilename name="T1059,Command_and_Scripting_Interpreter,CMDLine_File_Created" condition="end with">.cmdline</TargetFilename>
+			<TargetFilename name="T1059,Command_and_Scripting_Interpreter,Batch_File_Created" condition="end with">.bas</TargetFilename>
+			<TargetFilename name="T1059,Command_and_Scripting_Interpreter,BIN_file_created" condition="end with">.bin</TargetFilename>
+			<TargetFilename name="T1059,Command_and_Scripting_Interpreter,WS_Scripting" condition="end with">.ws</TargetFilename>
+			<TargetFilename name="T1059,Command_and_Scripting_Interpreter,WSC_Scripting" condition="end with">.wsc</TargetFilename>
+			<TargetFilename name="T1059,Command_and_Scripting_Interpreter,WSF_Scripting" condition="end with">.wsf</TargetFilename>
+			<TargetFilename name="T1059,Command_and_Scripting_Interpreter,WSH_Scripting" condition="end with">.wsh</TargetFilename>
+			<TargetFilename name="T1059,Command_and_Scripting_Interpreter,PIF_Scripting" condition="end with">.pif</TargetFilename>
+			<TargetFilename name="T1059,Command_and_Scripting_Interpreter,MSHTA_Scripting" condition="end with">.hta</TargetFilename>
+			<!--Execution: Command and Scripting Interpreter: Python-->
+			<TargetFilename name="T1059.006,Command_and_Scripting_Interpreter,Python" condition="contains">IronPython</TargetFilename>
+			<TargetFilename name="T1059.006,Command_and_Scripting_Interpreter,Python" condition="end with">.py</TargetFilename>
+			<TargetFilename name="T1059.006,Command_and_Scripting_Interpreter,Python" condition="end with">.pyc</TargetFilename>
+			<TargetFilename name="T1059.006,Command_and_Scripting_Interpreter,Python" condition="end with">.pyd</TargetFilename>
+			<TargetFilename name="T1059.006,Command_and_Scripting_Interpreter,Python" condition="end with">.pyw</TargetFilename>
+			<!--Execution: Command and Scripting Interpreter: Suspicious ManagedCode Host Process-->
+			<Rule name="T1059,Command_and_Scripting_Interpreter,Execution_Susp_ManagedCode_Host_Process" groupRelation="or">
+				<TargetFilename condition="end with">\UsageLogs\cscript.exe.log</TargetFilename>
+				<TargetFilename condition="end with">\UsageLogs\mshta.exe.log</TargetFilename>
+				<TargetFilename condition="end with">\UsageLogs\msiexec.exe.log</TargetFilename>
+				<TargetFilename condition="end with">\UsageLogs\regsvr32.exe.log</TargetFilename>
+				<TargetFilename condition="end with">\UsageLogs\rundll32.exe.log</TargetFilename>
+				<TargetFilename condition="end with">\UsageLogs\svchost.exe.log</TargetFilename>
+				<TargetFilename condition="end with">\UsageLogs\wmic.exe.log</TargetFilename>
+				<TargetFilename condition="end with">\UsageLogs\wscript.exe.log</TargetFilename>
+				<TargetFilename condition="end with">\regsvr32.exe.log</TargetFilename>
+				<TargetFilename condition="end with">\UsageLogs\wsmprovhost.exe.log</TargetFilename>
+			</Rule>
+			<!--Execution: Command and Scripting Interpreter: PowerShell-->
+			<Rule name="T1059.006,Command_and_Scripting_Interpreter,PowerShell" groupRelation="or">
+				<TargetFilename condition="end with">.cdxml</TargetFilename>
+				<TargetFilename condition="end with">.ps1</TargetFilename>
+				<TargetFilename condition="end with">.ps2</TargetFilename>
+				<TargetFilename condition="end with">.ps1xml</TargetFilename>
+				<TargetFilename condition="end with">.psc1</TargetFilename>
+				<TargetFilename condition="end with">.psd1</TargetFilename>
+				<TargetFilename condition="end with">.psm1</TargetFilename>
+				<TargetFilename condition="end with">.pssc</TargetFilename>
+			</Rule>
+			<Rule name="T1059.006,Command_and_Scripting_Interpreter,PowerShell_Creating_Files" groupRelation="and">
+				<Image condition="contains any">powershell.exe;powershell_ise.exe</Image>
+				<TargetFilename condition="excludes">\Recent\CustomDestinations\</TargetFilename>
+			</Rule>
+			<TargetFilename name="T1059.006,Command_and_Scripting_Interpreter,Powershell_directory_modifications" condition="begin with">C:\Windows\SysWOW64\WindowsPowerShell</TargetFilename>
+			<TargetFilename name="T1059.006,Command_and_Scripting_Interpreter,Powershell_directory_modifications" condition="begin with">C:\Windows\System32\WindowsPowerShell</TargetFilename>
+			<TargetFilename name="T1059.006,Command_and_Scripting_Interpreter,Execution_Susp_ManagedCode_Host_Process" condition="end with">\UsageLogs\powershell.exe.log</TargetFilename>
+			<TargetFilename name="T1059.006,Command_and_Scripting_Interpreter,Powershell_Console_History" condition="end with">PSReadLine\ConsoleHost_history.txt</TargetFilename>
+			<!--Execution: Command and Scripting Interpreter: Javascript-->
+			<TargetFilename name="T1059.007,Command_and_Scripting_Interpreter,vbs_script_created" condition="end with">.vbs</TargetFilename>
+			<TargetFilename name="T1059.007,Command_and_Scripting_Interpreter,Java_JRE_Timestamp_usage_for_DFIR" condition="contains">.oracle_jre_usage\</TargetFilename>
+			<TargetFilename name="T1059.007,Command_and_Scripting_Interpreter,JavaScript" condition="end with">.js</TargetFilename>
+			<TargetFilename name="T1059.007,Command_and_Scripting_Interpreter,JavaScript" condition="end with">.jse</TargetFilename>
+			<TargetFilename name="T1059.005,Command_and_Scripting_Interpreter,VisualBasicScripting" condition="end with">.vb</TargetFilename>
+			<TargetFilename name="T1059.005,Command_and_Scripting_Interpreter,VisualBasicScripting" condition="end with">.vbe</TargetFilename>
+			<TargetFilename name="T1059.005,Command_and_Scripting_Interpreter,VisualBasicScripting" condition="end with">.vbsript</TargetFilename>
+			<!--Microsoft Office File Monitoring-->
+			<TargetFilename name="Excel_Macro" condition="end with">.xlam</TargetFilename>
+			<TargetFilename name="Excel_Macro" condition="end with">.xlsm</TargetFilename>
+			<TargetFilename name="Excel" condition="end with">.xla</TargetFilename>
+			<TargetFilename name="Excel" condition="end with">.xll</TargetFilename>
+			<TargetFilename name="Excel" condition="end with">.xls</TargetFilename>
+			<TargetFilename name="Excel" condition="end with">.xlsb</TargetFilename>
+			<TargetFilename name="Excel" condition="end with">.xlsx</TargetFilename>
+			<TargetFilename name="Excel" condition="end with">.xlt</TargetFilename>
+			<TargetFilename name="Excel" condition="end with">.xltm</TargetFilename>
+			<TargetFilename name="Excel" condition="end with">.xlw</TargetFilename>
+			<TargetFilename name="Office_Template_created" condition="contains">\Microsoft\Templates\</TargetFilename>
+			<TargetFilename name="Outlook_EML" condition="end with">.eml</TargetFilename>
+			<TargetFilename name="Outlook_MSG" condition="end with">.msg</TargetFilename>
+			<TargetFilename name="Powerpoint_Macro" condition="end with">.pptm</TargetFilename>
+			<TargetFilename name="Powerpoint_Macro" condition="end with">.potm</TargetFilename>
+			<TargetFilename name="Powerpoint_Macro" condition="end with">.pptm</TargetFilename>
+			<TargetFilename name="Powerpoint_Macro" condition="end with">.pptm</TargetFilename>
+			<TargetFilename name="Powerpoint_OpenXML_Filetype" condition="end with">.sldm</TargetFilename>
+			<TargetFilename name="Recent_Office_History" condition="contains">oleObject</TargetFilename>
+			<TargetFilename name="Recent_Office_Files" condition="contains">\Microsoft\Office\Recent</TargetFilename>
+			<TargetFilename name="Recent_Jumplist_Custom_Destinations" condition="contains">\Recent\CustomDestinations\</TargetFilename>
+			<TargetFilename name="User_Downloaded_Files" condition="contains">\Downloads\</TargetFilename>
+			<TargetFilename name="User_Outlook_Attachments" condition="contains">\Content.Outlook\</TargetFilename>
+			<TargetFilename name="Word_Macro" condition="end with">.docb</TargetFilename>
+			<TargetFilename name="Word_Macro" condition="end with">.wbk</TargetFilename>
+			<TargetFilename name="Word_Perfect" condition="end with">.ped</TargetFilename>
+			<TargetFilename name="Word_Template" condition="end with">.dot</TargetFilename>
+			<TargetFilename name="Word_Template" condition="end with">.dotx</TargetFilename>
+			<TargetFilename name="Word_Template" condition="end with">.dotm</TargetFilename>
+			<TargetFilename name="Word" condition="end with">.doc</TargetFilename>
+			<TargetFilename name="Word" condition="end with">.docm</TargetFilename>
+			<TargetFilename name="Word" condition="end with">.docx</TargetFilename>
+			<TargetFilename name="RTF_files_often_0day_malware_vectors_when_opened_by_Office" condition="end with">.rtf</TargetFilename>
+			<Rule name="Legacy_Office_files" groupRelation="or">
+				<TargetFilename condition="end with">.accdb</TargetFilename>
+				<TargetFilename condition="end with">.accde</TargetFilename>
+				<TargetFilename condition="end with">.accdr</TargetFilename>
+				<TargetFilename condition="end with">.accdt</TargetFilename>
+				<TargetFilename condition="end with">.mdb</TargetFilename>
+				<TargetFilename condition="end with">.mde</TargetFilename>
+				<TargetFilename condition="end with">.msc</TargetFilename>
+				<TargetFilename condition="end with">.mst</TargetFilename>
+				<TargetFilename condition="end with">.potx</TargetFilename>
+				<TargetFilename condition="end with">.ppam</TargetFilename>
+				<TargetFilename condition="end with">.ppsm</TargetFilename>
+				<TargetFilename condition="end with">.ppsx</TargetFilename>
+				<TargetFilename condition="end with">.ppt</TargetFilename>
+				<TargetFilename condition="end with">.pptm</TargetFilename>
+				<TargetFilename condition="end with">.pptx</TargetFilename>
+				<TargetFilename condition="end with">.pub</TargetFilename>
+				<TargetFilename condition="end with">.sldm</TargetFilename>
+				<TargetFilename condition="end with">.sldx</TargetFilename>
+				<TargetFilename condition="end with">.xlm</TargetFilename>
+				<TargetFilename condition="end with">.xls</TargetFilename>
+				<TargetFilename condition="end with">.xps</TargetFilename>
+			</Rule>
+			<!--Archive Collected Data-->
+			<TargetFilename name="T1560,Archive_Collected_Data,7zip_Archive" condition="end with">.7z</TargetFilename>
+			<TargetFilename name="T1560,Archive_Collected_Data,7zip_Archive" condition="end with">.7zip</TargetFilename>
+			<TargetFilename name="T1560,Archive_Collected_Data,7zip_Archive" condition="end with">.arj</TargetFilename>
+			<TargetFilename name="T1560,Archive_Collected_Data,7zip_Archive" condition="end with">.s7z</TargetFilename>
+			<TargetFilename name="T1560,Archive_Collected_Data,.A_Archive" condition="end with">.a</TargetFilename>
+			<TargetFilename name="T1560,Archive_Collected_Data,ACE_Archive" condition="end with">.ace</TargetFilename>
+			<TargetFilename name="T1560,Archive_Collected_Data,AR_Archive" condition="end with">.ar</TargetFilename>
+			<TargetFilename name="T1560,Archive_Collected_Data,ARC_Archive" condition="end with">.arc</TargetFilename>
+			<TargetFilename name="T1560,Archive_Collected_Data,BIN" condition="end with">.bin</TargetFilename>
+			<TargetFilename name="T1560,Archive_Collected_Data,CAB_Archive" condition="end with">.cab</TargetFilename>
+			<TargetFilename name="T1560,Archive_Collected_Data,Game_PAK_Archive" condition="end with">.pak</TargetFilename>
+			<TargetFilename name="T1560,Archive_Collected_Data,Gzip_Archive" condition="end with">.gz</TargetFilename>
+			<TargetFilename name="T1560,Archive_Collected_Data,IMG_Archive" condition="end with">.img</TargetFilename>
+			<TargetFilename name="T1560,Archive_Collected_Data,ISO_Archive" condition="end with">.iso</TargetFilename>
+			<TargetFilename name="T1560,Archive_Collected_Data,LZM_Archive" condition="end with">.lzm</TargetFilename>
+			<TargetFilename name="T1560,Archive_Collected_Data,LZMA_Archive" condition="end with">.lzma</TargetFilename>
+			<TargetFilename name="T1560,Archive_Collected_Data,RAR_Archive" condition="end with">.rar</TargetFilename>
+			<TargetFilename name="RAR_Archive_Extraction" condition="contains">Temp\Rar$</TargetFilename>
+			<TargetFilename name="RAR SFX_Archive_Extraction" condition="contains">RarSFX</TargetFilename>
+			<TargetFilename name="T1560,Archive_Collected_Data,SFX_Archive" condition="end with">.sfx</TargetFilename>
+			<TargetFilename name="T1560,Archive_Collected_Data,SZ_Archive" condition="end with">.sz</TargetFilename>
+			<TargetFilename name="T1560,Archive_Collected_Data,TAR_Archive" condition="end with">.tar</TargetFilename>
+			<TargetFilename name="T1560,Archive_Collected_Data,TAR.GZ_Archive" condition="end with">.tar.gz</TargetFilename>
+			<TargetFilename name="T1560,Archive_Collected_Data,TAR.GZ_Archive" condition="end with">.tgz</TargetFilename>
+			<TargetFilename name="T1560,Archive_Collected_Data,XZ_Archive" condition="end with">.xz</TargetFilename>
+			<TargetFilename name="T1560,Archive_Collected_Data,ZIP_Archive" condition="end with">.zip</TargetFilename>
+			<!--Email Collection-->
+			<TargetFilename name="T1114,Email_Collection,Possible_Email_Collection/Exfiltration" condition="end with">.ost</TargetFilename>
+			<TargetFilename name="T1114,Email_Collection,Possible_Email_Collection/Exfiltration" condition="end with">.eml</TargetFilename>
+			<TargetFilename name="T1114,Email_Collection,Possible_Email_Collection/Exfiltration" condition="end with">.msg</TargetFilename>
+			<TargetFilename name="T1114,Email_Collection,Possible_Email_Collection/Exfiltration" condition="end with">.pst</TargetFilename>
+			<!--Drivers dropped-->
+			<TargetFilename name="Driver_File_Dropped" condition="end with">.sys</TargetFilename>
+			<TargetFilename name="Driver_File_Dropped" condition="end with">.drv</TargetFilename> 
+			<TargetFilename name="Driver_File_Dropped" condition="end with">.inf</TargetFilename>
+			<TargetFilename name="Driver_File_Dropped" condition="begin with">C:\Windows\SysWOW64\Drivers</TargetFilename>
+			<TargetFilename name="Driver_File_Dropped" condition="begin with">C:\Windows\System32\Drivers</TargetFilename>
+			<TargetFilename name="Driver_File_Dropped" condition="contains">\Drivers\</TargetFilename>
+			<!--Ingress Tool Transfer-->
+			<Image name="T1105,Ingress_Tool_Transfer,File_Created_by_Teamviewer" condition="image">Teamviewer.exe</Image>
+			<Image name="T1105,Ingress_Tool_Transfer,File_Created_by_rundll32" condition="image">rundll32.exe</Image>
+			<Image name="T1105,Ingress_Tool_Transfer,File_Created_by_Remote_Desktop_Client" condition="image">mstsc.exe</Image>
+			<Image name="T1105,Ingress_Tool_Transfer,File_Created_by_command_shell" condition="image">cmd.exe</Image>
+			<Image name="T1105,Ingress_Tool_Transfer,File_Created_by_IronPython.exe" condition="image">ipy.exe</Image>
+			<Image name="T1105,Ingress_Tool_Transfer,File_Created_by_WScript.exe" condition="image">WScript.exe</Image>
+			<Image name="T1105,Ingress_Tool_Transfer,File_Created_by_cscript.exe" condition="image">cscript.exe</Image>
+			<Image name="T1105,Ingress_Tool_Transfer,File_Created_by_mshta.exe" condition="image">mshta.exe</Image>
+			<Image name="T1105,Ingress_Tool_Transfer,File_Created_by_python.exe" condition="image">python.exe</Image>
+			<Image name="T1105,Ingress_Tool_Transfer,File_Created_by_wmic.exe" condition="image">wmic.exe</Image>
+			<!--Certificates-->
+			<Rule name="Certificate_File_Created" groupRelation="or">
+				<TargetFilename condition="end with">.pem</TargetFilename>
+				<TargetFilename condition="end with">.crt</TargetFilename>
+				<TargetFilename condition="end with">.ca-bundle</TargetFilename>
+				<TargetFilename condition="end with">.cer</TargetFilename>
+				<TargetFilename condition="end with">.csr</TargetFilename>
+				<TargetFilename condition="end with">.der</TargetFilename>
+				<TargetFilename condition="end with">.p7b</TargetFilename>
+				<TargetFilename condition="end with">.p7r</TargetFilename>
+				<TargetFilename condition="end with">.p7s</TargetFilename>
+				<TargetFilename condition="end with">.pfx</TargetFilename>
+				<TargetFilename condition="end with">.sto</TargetFilename>
+				<TargetFilename condition="end with">.p12</TargetFilename>
+				<TargetFilename condition="end with">.crl</TargetFilename>
+				<TargetFilename condition="end with">.sst</TargetFilename>
+				<TargetFilename condition="end with">.key</TargetFilename>
+			</Rule>
+			<!--Masquerading-->
+			<Rule name="T1036,Masquerading,Monitor_Common_Masquarading_Locations" groupRelation="or">
+				<TargetFilename condition="begin with">C:\PerfLogs\</TargetFilename> 
+				<TargetFilename condition="begin with">C:\Temp\</TargetFilename> 
+				<TargetFilename condition="begin with">C:\Users\Default\</TargetFilename> 
+				<TargetFilename condition="begin with">C:\Users\Public\</TargetFilename> 
+				<TargetFilename condition="begin with">C:\Windows\Temp\</TargetFilename> 
+				<TargetFilename condition="contains">\AppData\Temp\</TargetFilename>
+			</Rule>
+			<TargetFilename name="Recycle_bin_files_created" condition="contains">$Recycle.Bin</TargetFilename>
+			<Image name="Recycle_bin_files_created" condition="contains">$Recycle.Bin</Image>
+			<Rule name="T1036,Masquerading,Files_Created_within_System_Profile" groupRelation="and">
+				<TargetFilename condition="begin with">C:\Windows\</TargetFilename>
+				<TargetFilename condition="contains">\config\systemprofile\</TargetFilename>
+			</Rule>
+			<Rule name="T1036,Masquerading,Files_Created_within_System_Profile" groupRelation="and">
+				<Image condition="begin with">C:\Windows\</Image>
+				<Image condition="contains">\config\systemprofile\</Image>
+			</Rule>
+			<Rule name="T1036.007,Masquerading,Double_File_Extension" groupRelation="or">
+				<TargetFilename condition="end with">      .exe</TargetFilename>
+				<TargetFilename condition="end with">.7z.exe</TargetFilename>
+				<TargetFilename condition="end with">.doc.exe</TargetFilename>
+				<TargetFilename condition="end with">.docx.exe</TargetFilename>
+				<TargetFilename condition="end with">.ico.exe</TargetFilename>
+				<TargetFilename condition="end with">.iso.exe</TargetFilename>
+				<TargetFilename condition="end with">.lnk.exe</TargetFilename>
+				<TargetFilename condition="end with">.pdf.exe</TargetFilename>
+				<TargetFilename condition="end with">.ppt.exe</TargetFilename>
+				<TargetFilename condition="end with">.pptx.exe</TargetFilename>
+				<TargetFilename condition="end with">.rar.exe</TargetFilename>
+				<TargetFilename condition="end with">.rtf.exe</TargetFilename>
+				<TargetFilename condition="end with">.txt.exe</TargetFilename>
+				<TargetFilename condition="end with">.xls.exe</TargetFilename>
+				<TargetFilename condition="end with">.xlsx.exe</TargetFilename>
+				<TargetFilename condition="end with">.zip.exe</TargetFilename>
+				<TargetFilename condition="end with">______.exe</TargetFilename>
+			</Rule>
+			<!--Executable Files in Suspicious Location-->
+			<Rule name="Executable_Files_Created" groupRelation="and">
+				<TargetFilename condition="contains any">\Downloads\;\Desktop\;C:\Windows\;C:\Program\</TargetFilename>
+				<TargetFilename condition="contains any">.exe;.dll</TargetFilename>
+			</Rule>
+			<!--Uncategorized-->
+			<Image name="Virtualbox_VM_Escape" condition="image">VirtualboxVM.exe</Image>
+			<Image name="File_Dropped_to_shadow_copy" condition="begin with">\Device\HarddiskVolumeShadowCopy</Image>
+			<Image name="File_Created_by_TaskManager" condition="image">taskmgr.exe</Image>
+			<TargetFilename name="T1003,OS_Credential_Dumping" condition="contains">\*lsass*.dmp\</TargetFilename>
+			<TargetFilename name="T1003,OS_Credential_Dumping" condition="end with">\Windows\System32\mimilsa.log</TargetFilename>
+			<TargetFilename name="T1003,OS_Credential_Dumping" condition="end with">\Windows\System32\kiwissp.log</TargetFilename>
+			<TargetFilename name="Minidump_Crash_dump_created" condition="begin with">C:\Windows\Minidump</TargetFilename>
+			<TargetFilename name="Unusual_OLE_ActiveX_execution_from_Microsoft_Office" condition="contains any">MSForms.exd</TargetFilename>
+			<TargetFilename name="Windows_Defender_Application_Control_changes" condition="begin with">C:\windows\system32\CodeIntegrity\</TargetFilename>
+			<TargetFilename name="Outlook_Macro_Execution" condition="end with">\Microsoft\Outlook\VbaProject.OTM</TargetFilename>
+			<TargetFilename name="New_Theme_Credential_Harvesting" condition="end with">.theme</TargetFilename>
+			<TargetFilename name="Microsoft_Office_Isolated_Conversion_Environment" condition="contains">\Packages\oice_</TargetFilename>
+			<TargetFilename name="T1023,Shortcut_Modification,Potential_LNK_Malware_File_Downloaded">.lnk:Zone.Identifier</TargetFilename>
+			<TargetFilename name="T1087,Account_Discovery,SharpDump_bin" condition="end with">\Temp\debug.bin</TargetFilename>
+			<TargetFilename name="IQY_file_used_to_pull_down_dropper" condition="end with">.iqy</TargetFilename>
+			<TargetFilename name="Internet_settings" condition="end with">.isp</TargetFilename>
+			<TargetFilename name="Screensaver" condition="end with">.scr</TargetFilename>
+			<TargetFilename name="Registry_file" condition="end with">.reg</TargetFilename>
+			<TargetFilename name="SHS_Office_File_for_copy_pastes" condition="end with">.shs</TargetFilename>
+			<TargetFilename name="SLK_file_used_for_command_execution" condition="end with">.slk</TargetFilename>
+			<TargetFilename name="Windows_Registry_Database" condition="end with">.sdb</TargetFilename>
+			<TargetFilename name="Windows_Script_File_Component_File" condition="end with">.sct</TargetFilename>
+			<TargetFilename name="Windows_Shell_Scrap_Object_Handler_File" condition="end with">.shb</TargetFilename>
+			<TargetFilename name="Suspicious_TSClient_share_file_creation" condition="begin with">\\tsclient</TargetFilename>
+			<TargetFilename name="WebDav_Cache_Files_Created" condition="begin with">C:\Windows\ServiceProfiles\LocalService\AppData\Local\Temp\TfsStore\</TargetFilename>
+			<TargetFilename name="T1484,Domain_Policy_Modification" condition="begin with">C:\Windows\system32\GroupPolicy\Machine\Scripts</TargetFilename>
+			<TargetFilename name="T1484,Domain_Policy_Modification" condition="begin with">C:\Windows\system32\GroupPolicy\User\Scripts</TargetFilename>
+			<TargetFilename name="OutlookAttachment" condition="contains">\Content.Outlook\</TargetFilename>
+			<TargetFilename name="T1176,Browser_Extensions" condition="end with">.crx</TargetFilename>
+			<TargetFilename name="T1176,Browser_Extensions" condition="contains">\Chrome\User Data\Default\Extensions\</TargetFilename>
+			<TargetFilename name="T1223,Compiled_HTML_File" condition="end with">.chm</TargetFilename>
+			<TargetFilename name="CIA_Vault7" condition="end with">.cpl</TargetFilename>
+			<TargetFilename name="CIA_Vault7" condition="contains">.mht</TargetFilename>
+			<TargetFilename name="CIA_Vault7" condition="end with">HammerDrillStatus.dll</TargetFilename>
+			<TargetFilename name="Explorer_Command" condition="end with">.scf</TargetFilename>
+			<TargetFilename condition="contains all">\Microsoft\;CLR_v;\UsageLogs\</TargetFilename>
 			<TargetFilename condition="end with">.ace</TargetFilename>
-			<TargetFilename condition="end with">.py</TargetFilename>
-			<TargetFilename condition="end with">.pyc</TargetFilename>
-			<TargetFilename condition="end with">.pyw</TargetFilename>
-			<TargetFilename condition="contains">\*lsass*.dmp\</TargetFilename>
+			<TargetFilename condition="end with">.ade</TargetFilename>
+			<TargetFilename condition="end with">.adp</TargetFilename>
+			<TargetFilename condition="end with">.application</TargetFilename>
+			<TargetFilename condition="end with">.appref-ms</TargetFilename>
+			<TargetFilename condition="end with">.asc</TargetFilename>
+			<TargetFilename condition="end with">.bmf</TargetFilename>
+			<TargetFilename condition="end with">.dmp</TargetFilename>
+			<TargetFilename condition="end with">.gpg</TargetFilename>
+			<TargetFilename condition="end with">.jar</TargetFilename>
+			<TargetFilename condition="end with">.jnlp</TargetFilename>
+			<TargetFilename condition="end with">.json</TargetFilename>
+			<TargetFilename condition="end with">.kirbi</TargetFilename>
+			<TargetFilename condition="end with">.lnk</TargetFilename>
+			<TargetFilename condition="end with">.mof</TargetFilename>
+			<TargetFilename condition="end with">.ocx</TargetFilename>
+			<TargetFilename condition="end with">.paf</TargetFilename>
+			<TargetFilename condition="end with">.pgp</TargetFilename>
+			<TargetFilename condition="end with">.ppk</TargetFilename>
+			<TargetFilename condition="end with">.rwz</TargetFilename>
+			<TargetFilename condition="end with">.set</TargetFilename>
+			<TargetFilename condition="end with">.settingcontent-ms</TargetFilename>
 			<TargetFilename condition="end with">.url</TargetFilename>
-			<!--Others-->
-			<TargetFilename name="T1218,Office_Signed_Binary_Proxy_Execution" condition="contains">AppData\Local\Microsoft\CLR_v2.0\UsageLogs\</TargetFilename>
-			<TargetFilename name="T1218,Office_Signed_Binary_Proxy_Execution" condition="end with">\UsageLogs\cscript.exe.log</TargetFilename>
-			<TargetFilename name="T1218,Office_Signed_Binary_Proxy_Execution" condition="end with">\UsageLogs\wscript.exe.log</TargetFilename>
-			<TargetFilename name="T1218,Office_Signed_Binary_Proxy_Execution" condition="end with">\UsageLogs\wmic.exe.log</TargetFilename>
-			<TargetFilename name="T1218,Office_Signed_Binary_Proxy_Execution" condition="end with">\UsageLogs\mshta.exe.log</TargetFilename>
-			<TargetFilename name="T1218,Office_Signed_Binary_Proxy_Execution" condition="end with">\UsageLogs\svchost.exe.log</TargetFilename>
-			<TargetFilename name="T1218,Office_Signed_Binary_Proxy_Execution" condition="end with">\UsageLogs\regsvr32.exe.log</TargetFilename>
-			<TargetFilename name="T1218,Office_Signed_Binary_Proxy_Execution" condition="end with">\UsageLogs\rundll32.exe.log</TargetFilename>
-			<TargetFilename condition="contains">Roaming\Microsoft\Outlook\VbaProject.OTM</TargetFilename>
-			<TargetFilename condition="contains">Roaming\Microsoft\Outlook\Outlook.xml</TargetFilename>
+			<TargetFilename condition="end with">.vsto</TargetFilename>
+			<TargetFilename condition="end with">.war</TargetFilename>
 		</FileCreate>
 	</RuleGroup>
 
-	<RuleGroup name="" groupRelation="or">
+	<RuleGroup name="FileCreate_Exclude_Group" groupRelation="or">
 		<FileCreate onmatch="exclude">
 			<!--Microsoft-->
 			<Image condition="is">C:\Program Files (x86)\EMET 5.5\EMET_Service.exe</Image> <!--Microsoft:EMET: Writes to C:\Windows\AppPatch\-->
