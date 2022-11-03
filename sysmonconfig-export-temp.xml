@@ -3,7 +3,7 @@
   Author: 		Jakawal Ongthongkum
   Version:		1.1
   Created:		2021-08-09
-  Updated: 		2021-10-31
+  Updated: 		2021-11-03
 -->
 
 <Sysmon schemaversion="4.83">
@@ -675,17 +675,6 @@
 			<GrantedAccess>0x101000</GrantedAccess>
 			<CallTrace condition="contains">UNKNOWN(00007F</CallTrace>
 		</ProcessAccess>
-	</RuleGroup>
-
-	<!--SYSMON EVENT ID 19 & 20 & 21 : WMI EVENT MONITORING [WmiEvent]-->
-	<!--EVENT 19: "WmiEventFilter activity detected"-->
-	<!--EVENT 20: "WmiEventConsumer activity detected"-->
-	<!--EVENT 21: "WmiEventConsumerToFilter activity detected"-->
-	<!--DATA: EventType, UtcTime, Operation, User, Name, Type, Destination, Consumer, Filter-->
-	<RuleGroup groupRelation="or">
-		<WmiEvent onmatch="include">
-		  	<Operation name="T1047,Windows_Management_Instrumentation" condition="is">Created</Operation>
-		</WmiEvent>
 	</RuleGroup>
 
 	<!--SYSMON EVENT ID 27 : FILE BLOCK [FileBlockExecutable]-->

@@ -2416,34 +2416,51 @@
 	<!--EVENT 17: "Pipe Created"-->
 	<!--EVENT 18: "Pipe Connected"-->
 	<!--DATA: UtcTime, ProcessGuid, ProcessId, PipeName, Image-->
-	<RuleGroup name="" groupRelation="or">
+	<RuleGroup name="PipeEvent_Include_Group" groupRelation="or">
 		<PipeEvent onmatch="include">
-			<!-- Remote Command Execution Tools -->
-			<PipeName condition="contains any">paexec;remcom;csexec</PipeName>
-			<!-- Password or Credential Dumpers -->
-			<PipeName condition="contains any">\lsadump;\cachedump;\wceservicepipe</PipeName>
-			<!-- Malware -->
-			<PipeName condition="contains any">\isapi_http;\isapi_dg;\isapi_dg2;\sdlrpc;\ahexec;\winsession;\lsassw;\46a676ab7f179e511e30dd2dc41bd388;\9f81f59bc58452127884ce513865ed20;\e710f28d59aa529d6792ca6ff0ca1b34;\rpchlp_3;\NamePipe_MoreWindows;\pcheap_reuse;\gruntsvc;\583da945-62af-10e8-4902-a8f205c72b2e;\bizkaz;\svcctl;\Posh;\jaccdpqnvbrrxlaf;\csexecsvc</PipeName>
-			<PipeName condition="contains any">\atctl;\userpipe;\iehelper;\sdlrpc;\comnap</PipeName>
-			<PipeName condition="contains">\pipe\</PipeName> <!-- EfsPotato https://twitter.com/SBousseaden/status/1429530155291193354?s=20 -->
-			<!-- Cobalt Strike Pipe Names -->
-			<PipeName name="T1021.002,SMB/Windows_Admin_Shares" condition="contains all">MSSE-;-server</PipeName>
-			<PipeName name="T1055,Possible_Cobalt_Strike_post-exploitation_jobs" condition="begin with">\postex_</PipeName>
-			<PipeName name="T1021.004,Remote_Services_SSH" condition="begin with">\postex_ssh_</PipeName>
-			<PipeName name="T1021.002,SMB/Windows_Admin_Shares" condition="begin with">\status_</PipeName>
-			<PipeName name="T1021.002,SMB/Windows_Admin_Shares" condition="begin with">\msagent_</PipeName>
-			<PipeName name="T1021.002,SMB/Windows_Admin_Shares" condition="begin with">\atsvc</PipeName>
-			<PipeName name="T1021.002,SMB/Windows_Admin_Shares" condition="begin with">\gruntsvc</PipeName>
-			<PipeName name="T1021.002,SMB/Windows_Admin_Shares" condition="begin with">\svcctl</PipeName>
-			<PipeName name="T1021.002,SMB/Windows_Admin_Shares" condition="begin with">\msf-pipe</PipeName>
-			<!-- Malleable C2 profiles https://svch0st.medium.com/guide-to-named-pipes-and-hunting-for-cobalt-strike-pipes-dc46b2c5f575 -->
+			<PipeName name="T1055,Process_Injection,Cobalt_Strike_Named_Pipe_Detected" condition="contains any">msagent_;\MSSE-;postex;\status_;\atsvc;\gruntsvc;\svcctl;\msf-pipe</PipeName>
+			<PipeName name="T1055,Process_Injection,Cobalt_Strike_Named_Pipe_Detected" condition="contains any">\DserNamedPipe;\mypipe-;\windows.update.manager;\ntsvcs_;scerpc_;\demoagent;\PGMessagePipe;\MsFTeWds;\f4c3;\fullduplex_;\msrpc_;\f53f;\rpc_;\spoolss_;\win_svc;\SearchTextHarvester</PipeName>
+			<Rule name="T1055,Process_Injection,Cobalt_Strike_Named_Pipe_Detected" groupRelation="and">
+				<PipeName condition="begin with">\Winsock2\CatalogChangeListener-</PipeName>
+				<PipeName condition="end with">-0,</PipeName>
+			</Rule>
+			<Rule name="T1055,Process_Injection,Turla_APT_Named_Pipe_Detection" groupRelation="and">
+				<PipeName condition="contains any">\atctl;\userpipe;\iehelper;\sdlrpc;\comnap</PipeName>
+			</Rule>
+			<Rule name="T1021.002,Windows_Admin_Shares,Lateral_Movement_PSExec_Named_Pipe_Detected" groupRelation="or">
+				<PipeName condition="contains">\PSEXESVC</PipeName>
+				<PipeName condition="end with">-stdin</PipeName>
+				<PipeName condition="end with">-stdout</PipeName>
+			</Rule>
+			<Rule name="T1021.002,Windows_Admin_Shares,Impacket_PSExec.py_Named_Pipe_Detected" groupRelation="and">
+				<PipeName condition="contains">RemCom_</PipeName>
+				<PipeName condition="contains any">stdin;stdout;stderr;communication</PipeName>
+			</Rule>
+			<PipeName name="T1021,Remote_Services,MS-SCMR_Execution" condition="contains">\svcctl</PipeName>
+			<PipeName name="T1003,OS_Credential_Dumping,Credential_Dumping_Command_Mimikatz" condition="contains any">\lsadump;\cachedump;\wceservicepipe</PipeName>
+			<PipeName name="T1055,Process_Injection,Kekeo_Named_Pipe_Detection" condition="contains">tssmp_endpoint</PipeName>
+			<PipeName name="T1055,Process_Injection,cachedump_detected" condition="contains">\cachedumppipe</PipeName>
+			<PipeName name="T1055,Process_Injection,csexec_Named_Pipe_Detection" condition="contains">\csexec</PipeName>
+			<PipeName name="T1055,Process_Injection,paexec_Named_Pipe_Detection" condition="contains">\paexec</PipeName>
+			<PipeName name="T1055,Process_Injection,Turla_HyperStack_Named_Pipe_Detection" condition="begin with">\adschemerpc</PipeName>
+			<PipeName name="T1055,Process_Injection,Hidden_Cobra_Hoplight_Named_Pipe_Detection" condition="begin with">\AnonymousPipe</PipeName>
+			<PipeName name="T1055,Process_Injection,Pacifier_Named_Pipe_Detection" condition="begin with">\bc367</PipeName>
+			<PipeName name="T1055,Process_Injection,Pacifier_Named_Pipe_Detection" condition="begin with">\bc31a7</PipeName>
+			<PipeName name="T1055,Process_Injection,Emissary_Panda_Hyerbri Named_Pipe_Detection" condition="begin with">\testPipe</PipeName>
+			<PipeName name="T1055,Process_Injection,Malicious_Named_Pipe_Detection" condition="contains any">\isapi_http;\isapi_dg;\isapi_dg2;\sdlrpc;\ahexec;\winsession;\lsassw;\46a676ab7f179e511e30dd2dc41bd388;\9f81f59bc58452127884ce513865ed20;\e710f28d59aa529d6792ca6ff0ca1b34;\rpchlp_3;\NamePipe_MoreWindows;\pcheap_reuse;\gruntsvc;\583da945-62af-10e8-4902-a8f205c72b2e;\bizkaz;\Posh;\jaccdpqnvbrrxlaf</PipeName>
+			<PipeName name="T1055,Process_Injection,Malicious_Named_Pipe_Detection" condition="contains any">\atctl;\userpipe;\iehelper;\comnap</PipeName>
+			<Rule name="Detect_suspicious_named_pipe_connections_to_an_AD_FS_WID" groupRelation="and"> 
+				<EventType condition="is">ConnectPipe</EventType>
+				<PipeName condition="is">\MICROSOFT##WID\tsql\query</PipeName>
+			</Rule>
+			<Rule name="T1055,Process_Injection,EFSPotato_Named_Pipe_Detection" groupRelation="and">
+				<PipeName condition="contains any">\pipe\</PipeName>
+				<PipeName condition="excludes">CtxSharefilepipe0</PipeName>
+			</Rule>
+			<PipeName name="Remote_Registry_access_and_enumeration" condition="begin with">\winreg</PipeName>
+			<!-- Malleable C2 profiles -->
 			<PipeName condition="begin with">\mojo.5688.8052.183894939787088877</PipeName>
 			<PipeName condition="begin with">\mojo.5688.8052.35780273329370473</PipeName>
-			<PipeName condition="begin with">\DserNamePipe</PipeName>
-			<PipeName condition="begin with">\mypipe-f</PipeName>
-			<PipeName condition="begin with">\mypipe-h</PipeName>
-			<PipeName condition="begin with">\windows.update.manager</PipeName>
-			<!-- Malleable C2 profiles https://gist.github.com/MHaggis/6c600e524045a6d49c35291a21e10752 -->
 			<PipeName condition="begin with">\demoagent_</PipeName>
 			<PipeName condition="begin with">\PGMessagePipe</PipeName>
 			<PipeName condition="begin with">\MsFteWds</PipeName>
@@ -2456,15 +2473,6 @@
 			<PipeName condition="begin with">\spoolss_</PipeName>
 			<PipeName condition="begin with">\win_svc</PipeName>
 			<PipeName condition="begin with">\SearchTextHarvester</PipeName>
-			<PipeName condition="begin with">\adschemerpc</PipeName> <!-- Turla HyperStack - https://www.accenture.com/us-en/blogs/cyber-defense/turla-belugasturgeon-compromises-government-entity -->
-			<PipeName condition="begin with">\AnonymousPipe</PipeName> <!-- Hidden Cobra Hoplight - https://us-cert.cisa.gov/ncas/analysis-reports/ar19-304a -->
-			<PipeName condition="begin with">\bc367</PipeName> <!-- Pacifier - https://download.bitdefender.com/resources/files/News/CaseStudies/study/115/Bitdefender-Whitepaper-PAC-A4-en-EN1.pdf -->
-			<PipeName condition="begin with">\bc31a7</PipeName> <!-- Pacifier - https://download.bitdefender.com/resources/files/News/CaseStudies/study/115/Bitdefender-Whitepaper-PAC-A4-en-EN1.pdf -->
-			<PipeName condition="begin with">\testPipe</PipeName> <!-- Emissary Panda Hyerbri - https://unit42.paloaltonetworks.com/emissary-panda-attacks-middle-east-government-sharepoint-servers/ -->
-			<Rule groupRelation="and"> <!-- would be noisy otherwise as \Winsock2\CatalogchangeListener-???-0 is a legitimate pipe name -->
-				<PipeName condition="begin with">\Winsock2\CatalogChangeListener-</PipeName>
-				<PipeName condition="end with">-0,</PipeName>
-			</Rule>
 			<!-- Others -->
 			<Rule groupRelation="and">
 				<PipeName condition="begin with">\</PipeName>
@@ -2478,24 +2486,21 @@
 				<PipeName name="T1059.001,PowerShell" condition="begin with">\PSHost</PipeName>
 				<Image condition="is not">powershell_ise.exe</Image>
 			</Rule>
-			<PipeName name="T1021.002,SMB/Windows_Admin_Shares" condition="begin with">\PSEXESVC</PipeName>
-			<PipeName name="T1049,System_Network_Connections_Discovery" condition="begin with">\srvsvc</PipeName>
-			<PipeName name="T1033,System_Owner/User_Discovery" condition="begin with">\winreg</PipeName>
 			<PipeName condition="contains">6e7645c4-32c5-4fe3-aabf-e94c2f4370e7</PipeName> <!-- LiquidSnake hacktool https://github.com/RiccardoAncarani/LiquidSnake -->
 			<Image condition="end with">\scrcons.exe</Image> <!-- Susupicious WMI Event Consumer creating a named pipe -->
-			<Rule groupRelation="and"> <!-- Some interesting ConnectPipe events that we want to include -->
-				<EventType condition="is">ConnectPipe</EventType>
-				<PipeName condition="is">\MICROSOFT##WID\tsql\query</PipeName> <!-- https://github.com/SigmaHQ/sigma/pull/2128 -->
-			</Rule>
 		</PipeEvent>
 	</RuleGroup>
 
-	<RuleGroup groupRelation="or">
+	<RuleGroup name="PipeEvent_Exclude_Group" groupRelation="or">
 		<PipeEvent onmatch="exclude">
-			<!-- the standard named pipes used by Windows services (we want only the ones that begin with these names) -->
+			<!-- Exclude ConnectPipe for noise reduction -->
+			<EventType condition="is">ConnectPipe</EventType>
+			<!-- The standard named pipes used by Windows services (we want only the ones that begin with these names) -->
 			<PipeName condition="is">\scerpc</PipeName>
-			<PipeName condition="is">\ntsvcs</PipeName>
 			<PipeName condition="is">\wkssvc</PipeName>
+			<PipeName condition="is">\spoolss</PipeName>
+			<PipeName condition="is">\ntsvcs</PipeName>
+			<PipeName condition="contains">lsass</PipeName>
 			<!-- Citrix -->
 			<Image condition="contains all">C:\Program Files;\Citrix\ICA Client\SelfServicePlugin\SelfService.exe</Image>
 			<Image condition="contains all">C:\Program Files;\Citrix\ICA Client\Receiver\Receiver.exe</Image>
@@ -2535,6 +2540,41 @@
 				<PipeName condition="begin with">\crashpad_</PipeName>
 			</Rule>
 			<!-- Microsoft -->
+			<Image condition="image">C:\Windows\system32\wbem\wmiprvse.exe</Image>
+			<Image condition="image">C:\Windows\System32\LxRun.exe</Image>
+			<Image condition="image">C:\Windows\System32\SearchIndexer.exe</Image>
+			<Image condition="image">C:\Windows\System32\smss.exe</Image>
+			<Image condition="image">C:\Windows\System32\spoolsv.exe</Image>
+			<Image condition="image">C:\Windows\System32\wininit.exe</Image>
+			<Image condition="image">C:\Windows\system32\DFSRs.exe</Image>
+			<Image condition="begin with">C:\Windows\SystemApps\Microsoft.Windows</Image>
+			<Image condition="is">c:\windows\system32\inetsrv\w3wp.exe</Image>
+			<Image condition="image">C:\Program Files\Common Files\Microsoft Shared\Web Server Extensions\15\BIN\OWSTIMER.EXE</Image>
+			<Image condition="image">C:\Windows\syswow64\snmp.exe</Image>
+			<Image condition="image">C:\Windows\system32\SearchProtocolHost.exe</Image>
+			<Image condition="image">\System</Image>
+			<Image condition="contains">Exchange Server</Image>
+			<Image condition="image">C:\Windows\system32\dns.exe</Image>
+			<PipeName condition="begin with">\M.E.C.Core.WinRMDataCommunicator.NamedPipe.</PipeName>
+			<PipeName condition="is">\sql\query</PipeName>
+			<Image condition="image">C:\Program Files\Microsoft SQL Server\90\Shared\sqlwriter.exe</Image>
+			<PipeName condition="contains">\TDLN-</PipeName>
+			<PipeName condition="is">\InitShutdown</PipeName>
+			<PipeName condition="is">\W32TIME_ALT</PipeName>
+			<PipeName condition="is">\WiFiNetworkManagerTask</PipeName>
+			<PipeName condition="is">\Winsock2CatelogChangeListener</PipeName>
+			<PipeName condition="is">\browser</PipeName>
+			<PipeName condition="is">\epmapper</PipeName>
+			<PipeName condition="is">\eventlog</PipeName>
+			<PipeName condition="is">\ntapvsrq</PipeName>
+			<Rule groupRelation="and">
+				<Image condition="begin with">C:\Windows\Microsoft.NET\Framework</Image>
+				<Image condition="image">ngen.exe</Image>
+			</Rule>
+			<Rule groupRelation="and">
+				<Image condition="begin with">C:\Windows\SystemApps\ShellExperienceHost_</Image>
+				<Image condition="image">ShellExperienceHost.exe</Image>
+			</Rule>
 			<Rule groupRelation="and">
 				<Image condition="contains all">C:\Program Files;\Microsoft\Edge\Application\msedge.exe</Image>
 				<PipeName condition="begin with">\LOCAL\mojo.</PipeName>
@@ -2612,11 +2652,9 @@
 			<Image condition="end with">Program Files\SplunkUniversalForwarder\bin\splunk.exe</Image>
 			<Image condition="end with">Program Files\SplunkUniversalForwarder\bin\splunk-MonitorNoHandle.exe</Image>
 			<PipeName condition="is">\OfcServerNamePipe</PipeName>
-			<PipeName condition="is">\ntapvsrq</PipeName>
-			<PipeName condition="is">\lsass</PipeName>
-			<PipeName condition="is">\spoolss</PipeName>
+			<PipeName condition="contains">ProtectedPrefix\LocalService\FTHPIPE</PipeName>
+			<PipeName condition="contains">vmware-</PipeName>
 			<PipeName condition="contains">Anonymous Pipe</PipeName>
-        	<Image condition="is">c:\windows\system32\inetsrv\w3wp.exe</Image>
 		</PipeEvent>
 	</RuleGroup>
 
@@ -2625,9 +2663,9 @@
 	<!--EVENT 20: "WmiEventConsumer activity detected"-->
 	<!--EVENT 21: "WmiEventConsumerToFilter activity detected"-->
 	<!--DATA: EventType, UtcTime, Operation, User, Name, Type, Destination, Consumer, Filter-->
-	<RuleGroup name="" groupRelation="or">
-		<WmiEvent onmatch="exclude">
-			<!--NOTE: Using exclude with no rules means everything will be logged-->
+	<RuleGroup name="WmiEvent_Include_Group" groupRelation="or">
+		<WmiEvent onmatch="include">
+		  	<Operation name="T1047,Windows_Management_Instrumentation" condition="is">Created</Operation>
 		</WmiEvent>
 	</RuleGroup>
 
