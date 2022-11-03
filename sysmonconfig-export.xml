@@ -2912,7 +2912,7 @@
 	<!--Saves a copy to the archivedir-->
 	<!--Note: Under normal operating conditions this directory might grow to an unreasonable size-->
 	<!--DATA: RuleName, UtcTime, ProcessGuid, ProcessId, User, Image, TargetFilename, Hashes, IsExecutable, Archived -->
-	<RuleGroup groupRelation="or">
+	<RuleGroup name="FileDelete_Include_Group" groupRelation="or">
 		<FileDelete onmatch="include">
 			<!--NOTE: Using "include" with no rules means nothing in this section will be logged-->
 		</FileDelete>
@@ -2921,7 +2921,7 @@
 	<!--SYSMON EVENT ID 24 : CLIPBOARD EVENT MONITORING [ClipboardChange]-->
 	<!--DATA: EventType, UtcTime, ProcessGuid, ProcessId, Image, Session, ClientInfo, Hashes, Archived -->
 	<!--Default set to disabled due to privacy implications and potential data you leave for attackers, enable with care!-->
-	<RuleGroup groupRelation="or">
+	<RuleGroup name="ClipboardChange_Include_Group" groupRelation="or">
 		<ClipboardChange onmatch="include">
 			<!--NOTE: Using "include" with no rules means nothing in this section will be logged-->
 		</ClipboardChange>
@@ -2929,8 +2929,22 @@
 
 	<!--SYSMON EVENT ID 25 : PROCESS TAMPERING [ProcessTampering]-->
 	<!--DATA: EventType, RuleName, UtcTime, ProcessGuid, ProcessId, Image, Type -->
-	<RuleGroup name="" groupRelation="or">
+	<RuleGroup name="ProcessTampering_Include_Group" groupRelation="or">
+		<ProcessTampering onmatch="include">
+			<Rule name="Process_Tampering_Detected" groupRelation="and">
+				<Image condition="contains any">.;&gt;;unknown;anonymous</Image>
+				<Image condition="excludes">C:\Program Files (x86)\Google\Chrome\Application\chrome.exe</Image>
+				<Image condition="excludes">C:\Program Files (x86)\Symantec\</Image>
+				<Image condition="excludes">C:\Program Files\Google\Chrome\Application\chrome.exe</Image>
+				<Image condition="excludes">C:\Program Files\Symantec\</Image>
+			</Rule>
+		</ProcessTampering>
+	</RuleGroup>
+	<RuleGroup name="ProcessTampering_Exclude_Group" groupRelation="or">
 		<ProcessTampering onmatch="exclude">
+			<Rule name="Attack=None,Technique=None,Tactic=None,DS=Network Traffic: Network Traffic Content,Level=0,Desc=exclude common noise" groupRelation="and">
+				<Image condition="contains any">\BHO\ie_to_edge_stub.exe;\Microsoft\Teams\;\Vivaldi\Application\;Google\Chrome\;Google\Update;BraveSoftware\Brave-Browser\;Edge\Application\;EdgeUpdate\Install\;Program Files\SmartGit\</Image>
+			</Rule>
 			<Image condition="is">C:\Program Files\Mozilla Firefox\firefox.exe</Image>
 			<Image condition="is">C:\Program Files\Mozilla Firefox\updater.exe</Image>
 			<Image condition="is">C:\Program Files\Mozilla Firefox\default-browser-agent.exe</Image>
@@ -2938,19 +2952,6 @@
 			<Image condition="is">C:\Program Files\Git\cmd\git.exe</Image>
 			<Image condition="is">C:\Program Files\Git\mingw64\bin\git.exe</Image>
 			<Image condition="is">C:\Program Files\Git\mingw64\libexec\git-core\git.exe</Image>
-			<Image condition="is">C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe</Image>
-			<Rule groupRelation="and">
-				<Image condition="begin with">C:\Program Files (x86)\Microsoft\Edge\Application\</Image>
-				<Image condition="end with">\BHO\ie_to_edge_stub.exe</Image>
-			</Rule>
-			<Rule groupRelation="and">
-				<Image condition="begin with">C:\Program Files (x86)\Microsoft\Edge\Application\</Image>
-				<Image condition="end with">\identity_helper.exe</Image>
-			</Rule>
-			<Rule groupRelation="and">
-				<Image condition="begin with">C:\Program Files (x86)\Microsoft\EdgeUpdate\Install\</Image>
-				<Image condition="contains">\MicrosoftEdge_X64_</Image>
-			</Rule>
 			<Image condition="contains">unknown process</Image>
 			<Image condition="is">C:\Program Files\Microsoft VS Code\Code.exe</Image>
 		</ProcessTampering>
@@ -2959,7 +2960,7 @@
 	<!--SYSMON EVENT ID 26 : FILE DELETE DETECTED [FileDeleteDetected]-->
 	<!--Does NOT save the file-->
 	<!--DATA: RuleName, UtcTime, ProcessGuid, ProcessId, User, Image, TargetFilename, Hashes, IsExecutable, Archived -->
-	<RuleGroup groupRelation="or">
+	<RuleGroup name="FileDeleteDetected_Include_Group" groupRelation="or">
 		<FileDeleteDetected onmatch="include">
 			<TargetFilename condition="contains all">C:\Program Files\Microsoft SQL Server;\Shared\ErrorDumps</TargetFilename>
 			<TargetFilename condition="contains all">C:\Program Files\Microsoft SQL Server;\DataDumps</TargetFilename>
@@ -3127,7 +3128,7 @@
 		</FileDeleteDetected>
 	</RuleGroup>
 
-	<RuleGroup groupRelation="or">
+	<RuleGroup name="FileDeleteDetected_Exclude_Group" groupRelation="or">
 		<FileDeleteDetected onmatch="exclude">
 			<Image condition="contains all">\appdata\local\google\chrome\user data\swreporter\;software_reporter_tool.exe</Image>
 			<Image condition="is">C:\Program Files (x86)\Google\Chrome\Application\chrome.exe</Image>
@@ -3136,14 +3137,14 @@
 	</RuleGroup>
 
 	<!--SYSMON EVENT ID 27 : FILE BLOCK [FileBlockExecutable]-->
-	<RuleGroup groupRelation="or">
+	<RuleGroup name="FileBlockExecutable_Include_Group" groupRelation="or">
 		<FileBlockExecutable onmatch="include">
 			<!--NOTE: Using "include" with no rules means nothing in this section will be logged-->
 		</FileBlockExecutable>
 	</RuleGroup>
 
 	<!--SYSMON EVENT ID 28 : FILE BLOCK SHREDDING [FileBlockShredding]-->
-	<RuleGroup groupRelation="or">
+	<RuleGroup name="FileBlockShredding_Include_Group" groupRelation="or">
 		<FileBlockShredding onmatch="include">
 			<!--NOTE: Using "include" with no rules means nothing in this section will be logged-->
 		</FileBlockShredding>

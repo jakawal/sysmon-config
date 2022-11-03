@@ -678,7 +678,7 @@
 	</RuleGroup>
 
 	<!--SYSMON EVENT ID 27 : FILE BLOCK [FileBlockExecutable]-->
-	<RuleGroup name="ImageBlock" groupRelation="or">
+	<RuleGroup name="FileBlockExecutable_Include_Group" groupRelation="or">
 		<FileBlockExecutable onmatch="include">
 			<!-- Executables dropped to suspicious folders -->
 			<TargetFilename condition="begin with">C:\Users\Public\</TargetFilename> <!-- often used staging directories; could cause false positives --> 
@@ -828,7 +828,9 @@
 			<Image condition="image">calc.exe</Image>
 			<Image condition="image">mspaint.exe</Image>
 		</FileBlockExecutable>
+	</RuleGroup>
 
+	<RuleGroup name="FileBlockExecutable_Exclude_Group" groupRelation="or">
 		<FileBlockExecutable onmatch="exclude">
 			<!-- Exclude executable file that stored by EDR and AV -->
 			<TargetFilename condition="begin with">C:\ProgramData\Microsoft\Windows Defender\Quarantine\</TargetFilename>
@@ -841,8 +843,6 @@
 			<TargetFilename condition="begin with">C:\Windows\System32\Drivers\CrowdStrike\Quarantine\</TargetFilename>
 		</FileBlockExecutable>
 	</RuleGroup>
-
-	
 
 	</EventFiltering>
 </Sysmon>
