@@ -2375,45 +2375,37 @@
 	<!--SYSMON EVENT ID 15 : ALTERNATE DATA STREAM CREATED [FileCreateStreamHash]-->
 	<!--COMMENT: Any files created with an NTFS Alternate Data Stream which match these rules will be hashed and logged. ADS's are used by browsers and email clients to mark files as originating from the Internet or other foreign sources. -->
 	<!--DATA: UtcTime, ProcessGuid, ProcessId, Image, TargetFilename, CreationUtcTime, Hash-->
-	<RuleGroup groupRelation="or">
+	<RuleGroup name="ADS_Include_Group" groupRelation="or">
 		<FileCreateStreamHash onmatch="include">
-			<TargetFilename condition="contains">Downloads</TargetFilename> <!--Downloaded files. Does not include "Run" files in IE-->
-			<TargetFilename condition="contains">Temp\7z</TargetFilename> <!--7zip extractions-->
-			<TargetFilename condition="contains">Startup</TargetFilename> <!--ADS startup | Example: [ https://www.hybrid-analysis.com/sample/a314f6106633fba4b70f9d6ddbee452e8f8f44a72117749c21243dc93c7ed3ac?environmentId=100 ] -->
-			<TargetFilename condition="end with">.bat</TargetFilename> <!--Batch scripting-->
-			<TargetFilename condition="end with">.cmd</TargetFilename> <!--Batch scripting | Credit @ion-storm -->
-			<TargetFilename condition="end with">.doc</TargetFilename> <!--Office doc potentially with macro -->
-			<TargetFilename condition="end with">.hta</TargetFilename> <!--Scripting-->
-			<TargetFilename condition="end with">.jse</TargetFilename> <!--Registry File-->
-			<TargetFilename condition="end with">.lnk</TargetFilename> <!--Shortcut file | Credit @ion-storm -->
-			<TargetFilename condition="end with">.ppt</TargetFilename> <!--Office doc potentially with macros-->
-			<TargetFilename condition="end with">.ps1</TargetFilename> <!--PowerShell-->
-			<TargetFilename condition="end with">.ps2</TargetFilename> <!--PowerShell-->
-			<TargetFilename condition="end with">.reg</TargetFilename> <!--Registry File-->
-			<TargetFilename condition="end with">.sct</TargetFilename> <!--Scripting | Credit @bartblaze -->
-			<TargetFilename condition="end with">.vb</TargetFilename> <!--VisualBasicScripting files-->
-			<TargetFilename condition="end with">.vbe</TargetFilename> <!--VisualBasicScripting files-->
-			<TargetFilename condition="end with">.vbs</TargetFilename> <!--VisualBasicScripting files-->
-			<TargetFilename condition="end with">.wsc</TargetFilename> <!--Scripting | Credit @bartblaze -->
-			<TargetFilename condition="end with">.wsf</TargetFilename> <!--Scripting | Credit @bartblaze -->
-			<TargetFilename condition="end with">Temp\debug.bin</TargetFilename>
-			<TargetFilename condition="end with">.dll</TargetFilename>
-			<TargetFilename condition="end with">.exe</TargetFilename>
-			<TargetFilename condition="contains">Content.Outlook</TargetFilename>
-			<TargetFilename condition="contains">AppData</TargetFilename>
-			<TargetFilename condition="contains">Temp</TargetFilename>
-			<TargetFilename condition="contains">ProgramData</TargetFilename>
-			<TargetFilename condition="contains">Users</TargetFilename>
-			<Rule name="T1089,Drive-by_Compromise" groupRelation="and"> <!-- Track Zone.Identifiers regardless of their download location -->
+			<Rule name="Alternate_Data_Streams" groupRelation="or">
+				<TargetFilename name="Monitor_Path" condition="contains any">Content.Outlook;Downloads;Recycle;\Users\;\ProgramData\;\Windows\;Temp\7z;Temp\;\AppData\Startup;</TargetFilename>
+				<TargetFilename name="Executable_Files" condition="contains any">.exe;.dll;.bat;.cmd;.cmdline;.bin;.reg;.hta;.scr</TargetFilename>
+				<TargetFilename name="Script_Files" condition="contains any">.vbe;.vbs;.vb;.ps1;.ps2;.sct;.wsc;.wsf;.jse;.js</TargetFilename>
+				<TargetFilename name="Macro_Files" condition="contains any">.pptm;.docm;.xlsm;.xlam;.pptm;.potm;.pptm;.sldm</TargetFilename>
+				<TargetFilename name="Certificate_Files" condition="contains any">.pem;.crt;.ca-bundle;.cer;.csr;.der;.p7b;.p7r;.p7s;.pfx;.sto;.p12;.crl;.sst;.key</TargetFilename>
+				<TargetFilename name="Other_Files" condition="contains any">.application;.appref-ms;.lnk;.appref-ms;.sys;.rdp;.eml;.scf;.mht;.manifest;.cpl;.inf</TargetFilename>
+				<TargetFilename name="xxx" condition="contains any"></TargetFilename>
+			</Rule>
+			<Rule name="HTML_Smuggling" groupRelation="and"> <!-- Track Zone.Identifiers regardless of their download location -->
 				<TargetFilename condition="end with">:Zone.Identifier</TargetFilename>
 				<Contents condition="contains any">blob:;about:internet</Contents>
 			</Rule>
 			<TargetFilename condition="end with">:newads</TargetFilename> <!-- CobaltStrike BOF https://github.com/EspressoCake/Self_Deletion_BOF/blob/main/src/main.c -->
+			<Hash name="T1562.002,Disable_Windows_Event_Logging,SysmonEnte_Detection" condition="contains">IMPHASH=84B763C45C0E4A3E7CA5548C710DB4EE</Hash>
+			<Hash name="T1562.002,Disable_Windows_Event_Logging,SysmonQuiet_Detection" condition="contains">IMPHASH=19584675D94829987952432E018D5056</Hash>
+			<Hash name="T1562.002,Disable_Windows_Event_Logging,SharpEvtMute_Detection" condition="contains">IMPHASH=330768a4f172e10acb6287b87289d83b</Hash>
 		</FileCreateStreamHash>
 	</RuleGroup>
 
-	<RuleGroup name="" groupRelation="or">
+	<RuleGroup name="ADS_Exclude_Group" groupRelation="or">
 		<FileCreateStreamHash onmatch="exclude">
+			<Hash condition="contains">IMPHASH=00000000000000000000000000000000</Hash>
+			<TargetFilename condition="contains">AppData\Local\Microsoft\Windows\AppCache\</TargetFilename>
+			<TargetFilename condition="contains">\Microsoft\Windows\INetCache\</TargetFilename>
+			<TargetFilename condition="contains">\Microsoft\Windows\Temporary Internet Files\Content.IE5</TargetFilename> 
+			<TargetFilename condition="contains">\Mozilla\Firefox\Profiles\</TargetFilename>
+			<TargetFilename condition="end with">.default\prefs-1.js</TargetFilename>
+			<TargetFilename condition="end with">Microsoft\Windows\Start Menu\Programs\Startup</TargetFilename>
 		</FileCreateStreamHash>
 	</RuleGroup>
 
