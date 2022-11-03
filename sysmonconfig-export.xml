@@ -2384,7 +2384,6 @@
 				<TargetFilename name="Macro_Files" condition="contains any">.pptm;.docm;.xlsm;.xlam;.pptm;.potm;.pptm;.sldm</TargetFilename>
 				<TargetFilename name="Certificate_Files" condition="contains any">.pem;.crt;.ca-bundle;.cer;.csr;.der;.p7b;.p7r;.p7s;.pfx;.sto;.p12;.crl;.sst;.key</TargetFilename>
 				<TargetFilename name="Other_Files" condition="contains any">.application;.appref-ms;.lnk;.appref-ms;.sys;.rdp;.eml;.scf;.mht;.manifest;.cpl;.inf</TargetFilename>
-				<TargetFilename name="xxx" condition="contains any"></TargetFilename>
 			</Rule>
 			<Rule name="HTML_Smuggling" groupRelation="and"> <!-- Track Zone.Identifiers regardless of their download location -->
 				<TargetFilename condition="end with">:Zone.Identifier</TargetFilename>
