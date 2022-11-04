@@ -3,7 +3,7 @@ Sysmon configuration file
 
 ## Required
 * Windows OS
-* Sysmon version 14.1 or higher
+* Sysmon version 14.11 or higher
 
 ## Use
 run cmd as administrator
@@ -24,7 +24,7 @@ run cmd as administrator
 * Log Location
   * Log File: C:\Windows\System32\winevt\Logs\Microsoft-Windows-Sysmon%4Operational.evtx
   * Event Viewer: Applications and Services Log > Microsoft > Windows > Sysmon > Operational
-* On older systems events are written to the System event log. 
+* On older systems, events are written to the System event log. 
 * Event timestamps are in UTC standard time.
 
 ## References
