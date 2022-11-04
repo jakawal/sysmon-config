@@ -3,7 +3,7 @@
   Author: 		Jakawal Ongthongkum
   Version:		1.3
   Created:		2021-08-09
-  Updated: 		2022-11-03
+  Updated: 		2022-11-04
   Required:		Sysmon version 14.1 or higher (due to new event id and changes in syntax)
 -->
 
@@ -993,7 +993,7 @@
 			<TargetFilename name="T1053,Scheduled_Task_Modified" condition="end with">.job</TargetFilename>
 			<!--Server Software Component: Web Shells-->
 			<Rule name="T1505.003,Server_Software_Component,Web_Shells_Dropped" groupRelation="and">
-				<Image condition="contains any">w3wp.exe;httpd.exe;java.exe;nginx.exe</Image>
+				<Image condition="contains any">w3wp.exe;httpd;java;nginx;tomcat</Image>
 				<TargetFilename condition="contains any">.aspx;.asp;.ashx;.php;.jspx;.jsp</TargetFilename>
 			</Rule>
 			<Rule name="T1505.003,Server_Software_Component,Web_Shells_Dropped" groupRelation="and">
@@ -2672,8 +2672,103 @@
 	<!--SYSMON EVENT ID 22 : DNS QUERY [DnsQuery]-->
 	<!--NOTE: Due to the volume of events that DNS queries generate, some orgs may want to remove this section from their configuration to reduce Sysmon log turnover. -->
 	<!--DATA: RuleName, UtcTime, ProcessGuid, ProcessId, QueryName, QueryType, QueryStatus, QueryResults (can't filter on)-->
-	<RuleGroup name="" groupRelation="or">
+	<RuleGroup name="DnsQuery_Include_Group" groupRelation="or">
+		<DnsQuery onmatch="include">
+			<Rule name="T1048,Exfiltration_Over_Alternative_Protocol,Powershell_TXT_Record_exfiltration" groupRelation="and">
+				<QueryResults condition="contains any">type: 16;type:  16</QueryResults>
+				<Image condition="image">powershell.exe</Image>
+			</Rule>
+			<Rule name="T1059,Powershell,Powershell_Connection_to_github" groupRelation="and">
+				<QueryName condition="contains">github</QueryName>
+				<Image condition="image">powershell.exe</Image>
+			</Rule>
+			<Rule name="Suspicious_DNS_Requests" groupRelation="and">
+				<Image condition="contains any">powershell;cscript.exe;wscript.exe;mshta.exe;bitsadmin.exe;\cmd.exe</Image>
+				<QueryName condition="contains">.</QueryName>
+			</Rule>
+			<Rule name="T1567.002,Exfiltration_to_Cloud_Storage,Dropbox_Cloud_Exfiltration" groupRelation="and">
+				<QueryName condition="end with">dropboxapi.com</QueryName>
+				<Image condition="excludes any">\Dropbox\Client\Dropbox.exe;\Dropbox\bin\Dropbox.exe;\Oracle\Java\</Image>
+			</Rule>
+			<Rule name="T1567.002,Exfiltration_to_Cloud_Storage,OneDrive_Cloud_Exfiltration" groupRelation="and">
+				<QueryName condition="contains">1drv</QueryName>
+				<Image condition="excludes any">\AppData\Local\Microsoft\OneDrive\OneDrive.exe;C:\Program Files (x86)\Google\Chrome\Application\chrome.exe;\Internet Explorer\iexplore.exe;C:\Windows\System32\AppHostRegistrationVerifier.exe;C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe;C:\Program Files (x86)\BraveSoftware\Brave-Browser\Application\brave.exe;C:\Program Files (x86)\Microsoft OneDrive\OneDrive.exe;C:\Program Files\Mozilla Firefox\firefox.exe</Image>
+			</Rule>
+			<QueryName name="T1567.002,Exfiltration_to_Cloud_Storage,Box.com_Cloud_Exfiltration" condition="contains all">.box.com;upload</QueryName>
+			<QueryName name="T1567.002,Exfiltration_to_Cloud_Storage,Mega.co.nz_Cloud_Exfiltration" condition="contains any">mega.nz;mega.co.nz</QueryName>
+			<QueryName name="T1567.002,Exfiltration_to_Cloud_Storage,Privatlab_Cloud_Exfiltration" condition="contains any">privatlab.com</QueryName>
+			<QueryName name="T1195,Supply_Chain_Compromise,Solarwinds/FireEye_sunburst_domains" condition="contains any">thedoccloud.com;deftsecurity.com;websitetheme.com;highdatabase.com;incomeupdate.com;zupertech.com;panhardware.com;databasegalore.com;avsvmcloud.com;freescanonline.com</QueryName>
+			<QueryName name="Social_Networking" condition="contains any">tiktok;parler.com;gab.com;mewe.com;4chan;8chan;facebook;fbcdn;twitter;instagram;snapchat</QueryName>
+			<QueryName name="Internet_Relay_Chat" condition="contains any">efnet;undernet;freenode;ircnet;.rizon;quakenet;oftc.net;dalnet</QueryName>
+			<QueryName name="Internet_Chat" condition="contains any">.slack.com;discord.;telegram.;rocketchat.;mattermost.;flock.com</QueryName>
+			<QueryName name="T1595,Active_Scanning,Advanced_IP_scanner_Detected" condition="contains any">advanced-ip-scanner.com</QueryName>
+			<QueryName name="T1496,Resource_Hijacking,Crypto_Currency_Miner_Detected" condition="contains any">0x1f4b0.com;1q2w3.life;1q2w3.website;31.187.64.216;185.193.38.148;aalbbh84.info;adfreetv.ch;adless.io;adplusplus.fr;adrenali.gq;ajcryptominer.com;ajplugins.com;allfontshere.press;altavista.ovh;amhixwqagiz.ru;appelamule.com;arizona-miner.tk;aster18cdn.nl;aster18prx.nl;avero.xyz;averoconnector.com;bauersagtnein.myeffect.net;bhzejltg.info;blazepool;blockmasters;blockmasterscoins;bmnr.pw;bmst.pw;bohemianpool;carry.myeffect.net;cashbeet.com;cdn-code.host;cfceu.duckdns.org;cfcnet.gdn;cfcnet.top;cfcs1.duckdns.org;chainblock.science;cieh.mx;coin-hive.com;coin-service.com;coin-services.info;coiner.site;coinpirate.cf;coinrail.io;coinwebmining.com;cpu2cash.link;cryptaloot.pro;cryptmonero;crypto-loot.com;crypto-pool;crypto-webminer.com;cryptoloot.pro;d-ns.ga;dataservices.download;directprimal.com;dwarfpool;encoding.ovh;eth-pocket.com;eth-pocket.de;eth-pocket.eu;ethereum-pocket.de;ethereum-pocket.eu;ethtrader.de;eu.nimpool.io;eu.sushipool.com;f1tbit.com;flnqmin.org;freecontent.bid;freecontent.date;freecontent.loan;freecontent.racing;freecontent.stream;freecontent.win;gnrdomimplementation.com;graftpool.ovh;greenindex.dynamic-dns.net;gustaver.ddns.net;hashrefinery;hashvault.pro;herphemiste.com;hide.ovh;hk.rs;hlpidkr.ru;hodlers.party;hodling.faith;hostingcloud.win;hrfziiddxa.ru;ihdvilappuxpgiv.ru;imhvlhaelvvbrq.ru;insdrbot.com;irrrymucwxjl.ru;istlandoll.com;ivuovhsn.ru;iwanttoearn.money;ixvenhgwukn.ru;jqassets.download;jqr-cdn.download;jqrcdn.download;jquerrycdn.download;jqwww.download;jqxrrygqnagn.ru;jscoinminer.com;jwduahujge.ru;ksimdw.ru;l33tsite.info;laferia.cr;ledhenone.com;ltstyov.ru;mepirtedic.com;mine.bz;minercircle.com;minercry.pt;minergate;minero.cc;miners.pro;minescripts.info;mininghub.club;miningpoolhubcoins;minr.pw;mixpools.org;mmc.center;mollnia.com;monerise.com;monero.lindon-pool.win;monero;moriaxmr.com;munero.me;mxcdn1.now.sh;mxcdn2.now.sh;myadstats.com;mypool.online;nablabee.com;nanopool.org;nathetsof.com;nicehash;nimiqpool.com;node.philpool.com;npcdn1.now.sh;nunu-001.now.sh;ogondkskyahxa.ru;ogrid.org;oinkinns.tk;olecintri.com;omine.org;onvid.club;open-hive-server-1.pp.ua;oxwwoeukjispema.ru;pcejuyhjucmkiny.ru;pool.nimiq.watch;pool.nimiqchain.info;pool.porkypool.com;pool.xmr;poolto.be;prohash.net;prohash;proj2018.xyz;pzoifaum.info;ratchetmining.com;realnetwrk.com;reauthenticator.com;rove.cl;ruvuryua.ru;s7ven.com;scaleway.ovh;sentemanactri.com;sickrage.ca/ch;sighash.info;slushpool;soodatmish.com;sparechange.io;statdynamic.com;stati.bid;staticsfs.host;streamplay.to;suprnova.cc;svivqrhrh.ru;sxcdn02.now.sh;sxcdn3.now.sh;sxcdn4.now.sh;sxcdn6.now.sh;synconnector.com;teracycle.net;tercabilis.info;thelifeisbinary.ddns.net;thersprens.com;torrent.pw;ulnawoyyzbljc.ru;unrummaged.com;uoldid.ru;usxmrpool;viaxmr.com;vpzccwpyilvoyg.ru;vzzexalcirfgrf.ru;wbmwss.beetv.net;webmine.cz;webmine.pro;webminepool.tk;webminerpool.com;webwidgetz.duckdns.org;wmemsnhgldd.ru;wmtech.website;wmwmwwfmkvucbln.ru;wrxgandsfcz.ru;xmrm.pw;xmrminingproxy.com;xmrpool;yiimp;yuyyio.com;zavzlen.ru;zergpool;zergpoolcoins;ziykrgc.ru;zlx.com.br;zpool;analytics.blue;estream.to</QueryName>
+			<QueryName name="Suspicious_Domain" condition="contains any">kuternull.com;rimrun.com;0ffice36o;asushotfix;infestexe;rahasn.webhop.org;rahasn.akamake.net;rahasn.homewealth.biz;winodwsupdates;israirairlines</QueryName>
+			<QueryName name="T1311,Dynamic_DNS,Common_Malware_Hosting_Domain" condition="contains any">tiny-share.com;paste.ee;pastebin.com</QueryName>
+			<QueryName name="T1311,Dynamic_DNS,Dynamic_DNS_Query" condition="contains any">afraid.org;duckdns.org;changeip.com;ddns.net;hopto.org;zapto.org;servehttp.com;sytes.net;whoer.net;bravica.net;ip.webmasterhome.cn;whatsmyip.us;myip.kz;ip-addr.es;curlmyip;anysrc.net;anysrc.net;dlinkddns.com;no-ip.com;no-ip.org;no-ip.biz;no-ip.info;noip.com</QueryName>
+			<QueryName name="T1188,Multi-hop_Proxy,Tor2Web" condition="contains any">darknet.to;hiddenservice.net;onion.cab;onion.city;onion.direct;onion.nu;onion.pet;onion.plus;onion.rip;onion.sh;onion.si;onion.to;onion.top;onion.ws;tor-gateways.de;tor2net.com;tor2web.blutmagie.de;tor2web.fi;tor2web.info;tor2web.io;tor2web.org</QueryName>
+			<QueryName name="T1048,Exfiltration_Over_Alternative_Protocol,DNS_Over_HTTPS_Detected" condition="contains any">adblock.mydns.network;ibksturm.synology.me;jcdns.fun;ibuki.cgnat.net;dns.twnic.tw;commons.host;doh.dnswarden.com;dns-nyc.aaflalo.me;dns.aaflalo.me;doh.appliedprivacy.net;doh.captnemo.in;doh.tiar.app;doh.tiarap.org;doh.defaultroutes.de;doh.dns.sb;dns.oszx.co;2.dnscrypt-cert.oszx.co;dnscrypt;edns.233py.com;hk-dns.233py.com;hk2dns.233py.com;hkdns.233py.com;hkdns.233py.com;ndns.233py.com;sdns.233py.com;wdns.233py.com;pastebin.com;dns.adguard.com;dns-family.adguard.com;security-filter-dns.cleanbrowsing.org;family-filter-dns.cleanbrowsing.org;adult-filter-dns.cleanbrowsing.org;cloudflare-dns.com;mozilla.cloudflare-dns.com;dns.233py.com;dns.aaflalo.me;dns.google;doh.opendns.com;dns.quad9.net;dns9.quad9.net;dns10.quad9.net;dns11.quad9.net;doh.xfinity.com;dns.nextdns.io;dns.dnsoverhttps.net;doh.crypto.sx;doh.powerdns.org;doh-ch.blahdns.com;doh-de.blahdns.com;dns.rubyfish.cn;dns.containerpi.com;doh-2.seby.io;doh.seby.io;rdns.faelix.net;doh.li;doh.armadillodns.net;doh.netweaver.uk;doh.42l.fr;dns.aa.net.uk</QueryName>
+			<QueryName name="Download_TLD_DNS_Query" condition="end with">.download</QueryName>
+			<QueryName name="North Korea_TLD_DNS_Query" condition="end with">.kp</QueryName>
+			<QueryName name="Soviet Union_TLD_DNS_Query" condition="end with">.su</QueryName>
+			<QueryName name="Sudan_TLD_DNS_Query" condition="end with">.ss</QueryName>
+			<QueryName name="Suspicious_TLD_.xn_DNS_Query" condition="end with">.xn</QueryName>
+			<QueryName name="Syria_TLD_DNS_Query" condition="end with">.sy</QueryName>
+			<QueryName name="Venezuela_TLD_DNS_Query" condition="end with">.ve</QueryName>
+			<QueryName name="XXX_TLD_DNS_Query" condition="end with">.xxx</QueryName>
+			<QueryName name="China_TLD_DNS_Query" condition="end with">.cn</QueryName>
+			<QueryName name="Click_TLD_DNS_Query" condition="end with">.click</QueryName>
+			<QueryName name="Club_TLD_DNS_Query" condition="end with">.club</QueryName>
+			<QueryName name="IRAN_TLD_DNS_Query" condition="end with">.ir</QueryName>
+			<QueryName name="Russian_TLD_DNS_Query" condition="end with">.ru</QueryName>
+			<QueryName name="Suspicious_TLD_.Host_DNS_Query" condition="end with">.host</QueryName>
+			<QueryName name="Suspicious_TLD_.ICU_DNS_Query" condition="end with">.icu</QueryName>
+			<QueryName name="Suspicious_TLD_.PW_DNS_Query" condition="end with">.pw</QueryName>
+			<QueryName name="Suspicious_TLD_.WEBSITE_DNS_Query" condition="end with">.website</QueryName>
+			<QueryName name="Suspicious_TLD_.ninja_DNS_Query" condition="end with">.ninja</QueryName>
+			<QueryName name="Suspicious_TLD_.rocks_DNS_Query" condition="end with">.rocks</QueryName>
+			<QueryName name="Top_TLD_DNS_Query" condition="end with">.top</QueryName>
+			<QueryName name="Ukraine_TLD_DNS_Query" condition="end with">.ua</QueryName>
+			<QueryName name="XYZ_TLD_DNS_Query" condition="end with">.xyz</QueryName>
+			<Rule name="Suspicious_LDAP_Lookup" groupRelation="and"> <!-- Useful for identifying tools like sharphound -->
+				<QueryName condition="begin with">_ldap.</QueryName>
+				<Image condition="excludes">C:\Windows\</Image>
+				<Image condition="excludes">unknown process</Image>
+				<Image condition="excludes all">C:\ProgramData\Microsoft\Windows Defender\Platform\;\Windows Defender\MsMpEng.exe;C:\Windows\</Image>
+			</Rule>
+			<Image name="Uncategorized_Events" condition="contains any">System;svchost.exe;services.exe;unknown process;\;;</Image>
+		</DnsQuery>
+	</RuleGroup>
+
+	<RuleGroup name="DnsQuery_Exclude_Group" groupRelation="or">
 		<DnsQuery onmatch="exclude">
+			<!-- Image Exclusions -->
+			<Image condition="begin with">C:\Program Files (x86)\Admin Arsenal\</Image>
+			<Image condition="begin with">C:\Program Files (x86)\CheckPoint\</Image>
+			<Image condition="begin with">C:\Program Files (x86)\Fortinet\</Image>
+			<Image condition="begin with">C:\Program Files (x86)\OpenDNS\OpenDNS Connector</Image>
+			<Image condition="begin with">C:\Program Files (x86)\Razer\Razer Services\</Image>
+			<Image condition="begin with">C:\Program Files (x86)\Trend Micro\</Image>
+			<Image condition="begin with">C:\Program Files (x86)\VMware</Image>
+			<Image condition="begin with">C:\Program Files (x86)\Veeam\</Image>
+			<Image condition="begin with">C:\Program Files\CheckPoint\</Image>
+			<Image condition="begin with">C:\Program Files\Trend Micro\</Image>
+			<Image condition="image">Slack.exe</Image>
+			<Image condition="image">ConnectWise.exe</Image>
+			<Image condition="image">git-remote-https.exe</Image>
+			<Image condition="image">C:\Program Files (x86)\Enpass\Enpass.exe</Image>
+			<Image condition="image">C:\Program Files (x86)\Fiserv\Vision\VisionGUI.NET.exe</Image>
+			<Image condition="image">C:\Program Files (x86)\Fortinet\FortiClient\update_task.exe</Image>
+			<Image condition="image">C:\Program Files (x86)\Lenovo\System Update\Tvsukernel.exe</Image>
+			<Image condition="image">C:\Program Files\VMware\vCenter Server\jre\bin\java.exe</Image>
+			<Image condition="image">C:\Program Files\VMware\vCenter Server\python\python.exe</Image>
+			<Image condition="image">C:\Windows\SysWOW64\SearchProtocolHost.exe</Image>
+			<Image condition="image">C:\Windows\System32\dsregcmd.exe</Image>
+			<Image condition="image">C:\Windows\sysmon64.exe</Image>
+			<Image condition="image">C:\Windows\sysmon.exe</Image>
+			<Image condition="is">C:\Program Files\Windows Defender Advanced Threat Protection\MsSense.exe</Image>
+			<Image condition="contains all">C:\Program Files\SentinelOne\Sentinel Agent;\SentinelAgent.exe</Image>
+			<Image condition="contains all">C:\Windows\SystemApps\Microsoft.Windows.Search;SearchApp.exe</Image>
 			<!--Network noise-->
 			<QueryName condition="end with">.arpa.</QueryName> <!--Design decision to not log reverse DNS lookups. You will need to decide.-->
 			<QueryName condition="end with">.arpa</QueryName> <!--Design decision to not log reverse DNS lookups. You will need to decide.-->
@@ -2687,7 +2782,6 @@
 			<QueryName condition="end with">.hotmail.com</QueryName> <!--Microsoft | Microsoft default exclusion-->
 			<QueryName condition="end with">.live.com</QueryName> <!--Microsoft | Microsoft default exclusion-->
 			<QueryName condition="end with">.live.net</QueryName> <!--Microsoft | Microsoft default exclusion-->
-			<QueryName condition="end with">.s-microsoft.com</QueryName> <!--Microsoft-->
 			<QueryName condition="end with">.microsoft.com</QueryName> <!--Microsoft | Microsoft default exclusion-->
 			<QueryName condition="end with">.microsoftonline.com</QueryName> <!--Microsoft | Microsoft default exclusion-->
 			<QueryName condition="end with">.microsoftstore.com</QueryName> <!--Microsoft | Microsoft default exclusion-->
@@ -2695,6 +2789,7 @@
 			<QueryName condition="end with">.msedge.net</QueryName> <!--Microsoft: Doesn't appear to host customer content or subdomains-->
 			<QueryName condition="end with">.msn.com</QueryName> <!--Microsoft | Microsoft default exclusion-->
 			<QueryName condition="end with">.msocdn.com</QueryName> <!--Microsoft-->
+			<QueryName condition="end with">.s-microsoft.com</QueryName> <!--Microsoft-->
 			<QueryName condition="end with">.skype.com</QueryName> <!--Microsoft | Microsoft default exclusion-->
 			<QueryName condition="end with">.skype.net</QueryName> <!--Microsoft | Microsoft default exclusion-->
 			<QueryName condition="end with">.windows.com</QueryName> <!--Microsoft-->
@@ -2734,26 +2829,24 @@
 			<QueryName condition="end with">.spotify.map.fastly.net</QueryName> <!--Spotify-->
 			<QueryName condition="end with">.wbx2.com</QueryName> <!--Webex-->
 			<QueryName condition="end with">.webex.com</QueryName> <!--Webex-->
+			<QueryName condition="end with">googleapis.com</QueryName> <!--Google-->
 			<QueryName condition="is">clients1.google.com</QueryName> <!--Google-->
 			<QueryName condition="is">clients2.google.com</QueryName> <!--Google-->
 			<QueryName condition="is">clients3.google.com</QueryName> <!--Google-->
 			<QueryName condition="is">clients4.google.com</QueryName> <!--Google-->
 			<QueryName condition="is">clients5.google.com</QueryName> <!--Google-->
 			<QueryName condition="is">clients6.google.com</QueryName> <!--Google-->
-			<QueryName condition="is">safebrowsing.googleapis.com</QueryName> <!--Google-->
+			<QueryName condition="is">id.google.com</QueryName> <!--Google-->
 			<!--Goodlist CDN-->
 			<QueryName condition="end with">.akadns.net</QueryName> <!--AkamaiCDN, extensively used by Microsoft | Microsoft default exclusion-->
 			<QueryName condition="end with">.netflix.com</QueryName>
 			<QueryName condition="end with">aspnetcdn.com</QueryName> <!--Microsoft [ https://docs.microsoft.com/en-us/aspnet/ajax/cdn/overview ]-->
-			<QueryName condition="is">ajax.googleapis.com</QueryName>
 			<QueryName condition="is">cdnjs.cloudflare.com</QueryName> <!--Cloudflare: Hosts popular javascript libraries-->
-			<QueryName condition="is">fonts.googleapis.com</QueryName> <!--Google fonts-->
 			<QueryName condition="end with">.typekit.net</QueryName> <!--Adobe fonts-->
 			<QueryName condition="is">cdnjs.cloudflare.com</QueryName>
 			<QueryName condition="end with">.stackassets.com</QueryName> <!--Stack Overflow-->
 			<QueryName condition="end with">.steamcontent.com</QueryName>
 			<QueryName condition="is">play.google.com</QueryName>
-			<QueryName condition="is">content-autofill.googleapis.com</QueryName>
 			<!--Web resources-->
 			<QueryName condition="end with">.disqus.com</QueryName> <!--Microsoft default exclusion-->
 			<QueryName condition="end with">.fontawesome.com</QueryName>
@@ -2848,63 +2941,89 @@
 			<QueryName condition="end with">.w55c.net</QueryName> <!--Ads:dataxu-->
 			<QueryName condition="end with">.ytimg.com</QueryName> <!--Google-->
 			<QueryName condition="end with">.zorosrv.com</QueryName> <!--Ads:Taboola-->
+			<QueryName condition="end with">ads.yahoo.com</QueryName> <!--Ads: Yahoo-->
 			<QueryName condition="is">1rx.io</QueryName> <!--Ads-->
 			<QueryName condition="is">adservice.google.com</QueryName> <!--Google-->
 			<QueryName condition="is">ampcid.google.com</QueryName> <!--Google-->
-			<QueryName condition="is">clientservices.googleapis.com</QueryName> <!--Google-->
+			<QueryName condition="is">d29x207vrinatv.cloudfront.net</QueryName> <!--Amazon-developed applications-->
 			<QueryName condition="is">googleadapis.l.google.com</QueryName> <!--Google-->
-			<QueryName condition="is">imasdk.googleapis.com</QueryName> <!--Google [ https://developers.google.com/interactive-media-ads/docs/sdks/html5/ ] -->
 			<QueryName condition="is">l.google.com</QueryName> <!--Google-->
 			<QueryName condition="is">ml314.com</QueryName> <!--Ads-->
 			<QueryName condition="is">mtalk.google.com</QueryName> <!--Google-->
-			<QueryName condition="is">update.googleapis.com</QueryName> <!--Google-->
 			<QueryName condition="is">www.googletagservices.com</QueryName> <!--Google-->
 			<!--SocialNet-->
 			<QueryName condition="end with">.pscp.tv</QueryName> <!--Twitter:Periscope-->
 			<!--OSCP/CRL Common-->
-			<QueryName condition="end with">.amazontrust.com</QueryName>
+			<QueryName condition="contains">adsniper.ru</QueryName>
+			<QueryName condition="contains">cdnvideo.ru</QueryName>
+			<QueryName condition="contains">chat.minergate.com</QueryName>
+			<QueryName condition="contains">cwsa.minergate.com</QueryName>
+			<QueryName condition="contains">forum.minergate.com</QueryName>
+			<QueryName condition="contains">leadlab.click</QueryName>
+			<QueryName condition="contains">pool.ntp.org</QueryName>
+			<QueryName condition="contains">vmg.host</QueryName>
+			<QueryName condition="contains">yandex.ru</QueryName>
+			<QueryName condition="end with">.autodesk.com</QueryName>
+			<QueryName condition="end with">.avast.com</QueryName>
+			<QueryName condition="end with">.avcdn.net</QueryName>
+			<QueryName condition="end with">.cdn.bitdefender.net</QueryName>
 			<QueryName condition="end with">.digicert.com</QueryName>
+			<QueryName condition="end with">.eset.com</QueryName>
 			<QueryName condition="end with">.globalsign.com</QueryName>
 			<QueryName condition="end with">.globalsign.net</QueryName>
+			<QueryName condition="end with">.intuit.com</QueryName>
+			<QueryName condition="end with">.java.com</QueryName>
+			<QueryName condition="end with">.macromedia.com</QueryName>
+			<QueryName condition="end with">.oracle.com</QueryName>
+			<QueryName condition="end with">.quickbooks.com</QueryName>
+			<QueryName condition="end with">.usertrust.com</QueryName>
+			<QueryName condition="end with">amazontrust.com</QueryName>
+			<QueryName condition="end with">ocsp.identrust.com</QueryName>
+			<QueryName condition="end with">pki.goog</QueryName>
+			<QueryName condition="is">ads.playground.xyz</QueryName>
+			<QueryName condition="is">citrixupdates.cloud.com</QueryName>
+			<QueryName condition="is">forticlient.fortinet.net</QueryName>
+			<QueryName condition="is">mft10.onbaseonline.com</QueryName>
+			<QueryName condition="contains">msocsp.com</QueryName> <!--Microsoft:OCSP-->
 			<QueryName condition="end with">.intel.com</QueryName>
 			<QueryName condition="end with">.symcb.com</QueryName> <!--Digicert-->
 			<QueryName condition="end with">.symcd.com</QueryName> <!--Digicert-->
 			<QueryName condition="end with">.thawte.com</QueryName>
-			<QueryName condition="end with">.usertrust.com</QueryName>
 			<QueryName condition="end with">.verisign.com</QueryName>
-			<QueryName condition="end with">ocsp.identrust.com</QueryName>
-			<QueryName condition="end with">pki.goog</QueryName>
-			<QueryName condition="is">msocsp.com</QueryName> <!--Microsoft:OCSP-->
 			<QueryName condition="is">ocsp.comodoca.com</QueryName>
 			<QueryName condition="is">ocsp.entrust.net</QueryName>
-			<QueryName condition="is">ocsp.godaddy.com</QueryName>
 			<QueryName condition="is">ocsp.int-x3.letsencrypt.org</QueryName>
-			<QueryName condition="is">ocsp.msocsp.com</QueryName> <!--Microsoft:OCSP-->
-			<QueryName condition="end with">pki.goog</QueryName>
 			<QueryName condition="is">ocsp.godaddy.com</QueryName>
+			<QueryName condition="is">ocsp.cybertrust.ne.jp</QueryName>
+			<QueryName condition="is">ocsp.quovadisglobal.com</QueryName>
+			<QueryName condition="is">ocsp.quovadisoffshore.com</QueryName>
+			<QueryName condition="is">ocsp.starfieldtech.com</QueryName>
+			<QueryName condition="is">ocsp.trustwave.com</QueryName>
 			<QueryName condition="is">amazontrust.com</QueryName>
 			<QueryName condition="is">ocsp.sectigo.com</QueryName>
 			<QueryName condition="is">pki-goog.l.google.com</QueryName>
 			<QueryName condition="end with">.usertrust.com</QueryName>
 			<QueryName condition="is">ocsp.comodoca.com</QueryName>
-			<QueryName condition="is">ocsp.verisign.com</QueryName>
 			<QueryName condition="is">ocsp.entrust.net</QueryName>
-			<QueryName condition="is">ocsp.identrust.com</QueryName>
 			<QueryName condition="end with">.ocsp.identrust.com</QueryName>
 			<QueryName condition="is">status.rapidssl.com</QueryName>
-			<QueryName condition="is">status.thawte.com</QueryName>
 			<QueryName condition="is">ocsp.int-x3.letsencrypt.org</QueryName>
 			<QueryName condition="is">subca.ocsp-certum.com</QueryName>
 			<QueryName condition="is">cscasha2.ocsp-certum.com</QueryName>
-			<QueryName condition="is">crl.verisign.com</QueryName>
+			<QueryName condition="is">pki.intel.com</QueryName>
+			<QueryName condition="is">scrootca1.ocsp.secomtrust.net</QueryName>
+			<QueryName condition="is">scrootca2.ocsp.secomtrust.net</QueryName>
+			<QueryName condition="is">stats.anchor.host</QueryName>
+			<QueryName condition="is">ts-ocsp.ws.symantec.com</QueryName>
+			<QueryName condition="is">upgrade.bitdefender.com</QueryName>
 			<!--Others-->
 			<Rule groupRelation="and">
 				<Image condition="is">C:\ProgramData\LogiShrd\LogiOptions\Software\Current\updater.exe</Image>
 				<QueryName condition="end with">.logitech.com</QueryName>
 			</Rule>
-			<Image condition="is">C:\Program Files\Windows Defender Advanced Threat Protection\MsSense.exe</Image>
-			<Image condition="contains all">C:\Program Files\SentinelOne\Sentinel Agent;\SentinelAgent.exe</Image>
-			<Image condition="contains all">C:\Windows\SystemApps\Microsoft.Windows.Search;SearchApp.exe</Image>
+			<QueryName condition="begin with">brave-sync.s3.dualstack.</QueryName>
+			<QueryName condition="end with">.salesforceliveagent.com</QueryName>
+			<QueryName condition="is">ads-serve.brave.com</QueryName>
 		</DnsQuery>
 	</RuleGroup>
 
