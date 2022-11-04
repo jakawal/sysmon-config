@@ -1252,6 +1252,7 @@
 			<Rule name="Executable_Files_Created" groupRelation="and">
 				<TargetFilename condition="contains any">\Downloads\;\Desktop\;C:\Windows\;C:\Program\</TargetFilename>
 				<TargetFilename condition="contains any">.exe;.dll</TargetFilename>
+				<TargetFilename condition="excludes">C:\Windows\Prefetch</TargetFilename>
 			</Rule>
 			<!--Uncategorized-->
 			<Image name="Virtualbox_VM_Escape" condition="image">VirtualboxVM.exe</Image>
@@ -2348,8 +2349,12 @@
 				<TargetObject condition="begin with">HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Tasks</TargetObject>
 			</Rule>
 			<Rule groupRelation="and">
+				<Image condition="image">svchost.exe</Image>
+				<TargetObject condition="begin with">HKLM\System\CurrentControlSet\Services\Tcpip\Parameters\Interfaces</TargetObject>
+			</Rule>
+			<Rule groupRelation="and">
 				<Image condition="is">C:\Program Files\VMware\VMware Tools\vmtoolsd.exe</Image>
-				<TargetObject condition="is">HKLM\System\CurrentControlSet\Services\Tcpip\Parameters</TargetObject>
+				<TargetObject condition="contains">HKLM\System\CurrentControlSet\Services\Tcpip\Parameters</TargetObject>
 			</Rule>
 			<Rule groupRelation="and">
 				<Image condition="is">C:\Windows\system32\lsass.exe</Image>
