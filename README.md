@@ -26,7 +26,7 @@ run cmd as administrator
   * Event Viewer: Applications and Services Log > Microsoft > Windows > Sysmon > Operational
 * On older systems, events are written to the System event log. 
 * Event timestamps are in UTC standard time.
-* Convert evtx to xml
+* Convert EVTX to XML for use in other programs such as SysmonView
   ```
   wevtutil qe C:\Temp\Sysmon.evtx /lf:true /f:xml /e:sysmonview > sysmon.xml
   ```
