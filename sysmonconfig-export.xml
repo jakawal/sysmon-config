@@ -1,9 +1,9 @@
 ﻿<!--
   A Sysmon configuration file
   Author: 		Jakawal Ongthongkum
-  Version:		1.3
+  Version:		1.4
   Created:		2021-08-09
-  Updated: 		2022-12-21
+  Updated: 		2023-01-13
   Required:		Sysmon version 14.11 or higher (due to new event id and changes in syntax)
 -->
 
@@ -3053,20 +3053,9 @@
 
 	<!--SYSMON EVENT ID 25 : PROCESS TAMPERING [ProcessTampering]-->
 	<!--DATA: EventType, RuleName, UtcTime, ProcessGuid, ProcessId, Image, Type -->
-	<RuleGroup name="ProcessTampering_Include_Group" groupRelation="or">
-		<ProcessTampering onmatch="include">
-			<Rule name="Process_Tampering_Detected" groupRelation="and">
-				<Image condition="contains any">.;&gt;;unknown;anonymous</Image>
-				<Image condition="excludes">C:\Program Files (x86)\Google\Chrome\Application\chrome.exe</Image>
-				<Image condition="excludes">C:\Program Files (x86)\Symantec\</Image>
-				<Image condition="excludes">C:\Program Files\Google\Chrome\Application\chrome.exe</Image>
-				<Image condition="excludes">C:\Program Files\Symantec\</Image>
-			</Rule>
-		</ProcessTampering>
-	</RuleGroup>
 	<RuleGroup name="ProcessTampering_Exclude_Group" groupRelation="or">
 		<ProcessTampering onmatch="exclude">
-			<Rule name="Attack=None,Technique=None,Tactic=None,DS=Network Traffic: Network Traffic Content,Level=0,Desc=exclude common noise" groupRelation="and">
+			<Rule name="Exclude_common_noise" groupRelation="and">
 				<Image condition="contains any">\BHO\ie_to_edge_stub.exe;\Microsoft\Teams\;\Vivaldi\Application\;Google\Chrome\;Google\Update;BraveSoftware\Brave-Browser\;Edge\Application\;EdgeUpdate\Install\;Program Files\SmartGit\</Image>
 			</Rule>
 			<Image condition="is">C:\Program Files\Mozilla Firefox\firefox.exe</Image>
@@ -3078,6 +3067,8 @@
 			<Image condition="is">C:\Program Files\Git\mingw64\libexec\git-core\git.exe</Image>
 			<Image condition="contains">unknown process</Image>
 			<Image condition="is">C:\Program Files\Microsoft VS Code\Code.exe</Image>
+			<Image condition="is">C:\Windows\System32\wbem\WMIADAP.exe</Image>
+			<Image condition="is">C:\Program Files (x86)\Symantec\Symantec Endpoint Protection Manager\bin\XDelta64\xdelta3.exe</Image>
 		</ProcessTampering>
 	</RuleGroup>
 
