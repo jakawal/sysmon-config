@@ -35,6 +35,7 @@ run cmd as administrator
 * https://docs.microsoft.com/en-us/sysinternals/downloads/sysmon
 * https://github.com/SwiftOnSecurity/sysmon-config
 * https://github.com/olafhartong/sysmon-modular
+* https://github.com/olafhartong/sysmon-cheatsheet
 * https://github.com/trustedsec/SysmonCommunityGuide
 * https://github.com/Neo23x0/sysmon-config
 * https://github.com/ion-storm/sysmon-config
