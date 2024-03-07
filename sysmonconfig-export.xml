@@ -3,7 +3,7 @@
   Author: 		Jakawal Ongthongkum
   Version:		1.5
   Created:		2021-08-09
-  Updated: 		2023-07-03
+  Updated: 		2023-07-13
   Required:		Sysmon version 15.0 or higher (due to new event id and changes in syntax)
 -->
 
@@ -33,8 +33,8 @@
 			<CommandLine condition="begin with">C:\Windows\system32\wbem\wmiprvse.exe -Embedding</CommandLine> <!--Windows: WMI provider host-->
 			<CommandLine condition="begin with">C:\Windows\system32\wbem\wmiprvse.exe -secured -Embedding</CommandLine> <!--Windows: WMI provider host-->
 			<CommandLine condition="is">C:\Windows\system32\wermgr.exe -upload</CommandLine> <!--Windows:Windows error reporting/telemetry-->
-			<CommandLine condition="is">C:\Windows\system32\SearchIndexer.exe /Embedding</CommandLine> <!--Windows: Search Indexer-->
 			<CommandLine condition="is">C:\windows\system32\wermgr.exe -queuereporting</CommandLine> <!--Windows:Windows error reporting/telemetry-->
+			<CommandLine condition="is">C:\Windows\system32\SearchIndexer.exe /Embedding</CommandLine> <!--Windows: Search Indexer-->
 			<CommandLine condition="is">\??\C:\Windows\system32\autochk.exe *</CommandLine> <!--Microsoft:Bootup: Auto Check Utility-->
 			<CommandLine condition="is">\SystemRoot\System32\smss.exe</CommandLine> <!--Microsoft:Bootup: Windows Session Manager-->
 			<CommandLine condition="is">C:\Windows\System32\RuntimeBroker.exe -Embedding</CommandLine> <!--Windows:Apps permissions [ https://fossbytes.com/runtime-broker-process-windows-10/ ] -->
@@ -404,10 +404,10 @@
 			<Image condition="image">squirrel.exe</Image> <!-- Windows: Update the Nuget/Squirrel packages. Part of Teams. - Can download from URLs -->
 			<Image condition="image">CSC.exe</Image>
 			<!--Relevant 3rd Party Tools-->
-			<Image name="Netcat_Detected" condition="contains any">netcat.exe;nc.exe;nc64.exe;ncat.exe</Image>
+			<Image name="Netcat_Detected,EpiphanyAlert" condition="contains any">netcat.exe;nc.exe;nc64.exe;ncat.exe</Image>
 			<Image name="Procdump_Detected" condition="contains any">procdump</Image>
-			<Image name="PSExec_Network_Connection" condition="contains any">psexe</Image>
-			<Image name="VNC_Network_Connection" condition="contains any">vnc;vncs;vncv</Image>
+			<Image name="PSExec_Network_Connection,EpiphanyAlert" condition="contains any">psexe</Image>
+			<Image name="VNC_Network_Connection,EpiphanyAlert" condition="contains any">vnc;vncs;vncv</Image>
 			<Image name="T1569.002,Service_Execution" condition="image">winexesvc.exe</Image>
 			<Image name="T1595.002,Vulnerability_Scanning,Port_Scan_Tool_Detected" condition="contains any">rcpping;tcpping;tcping;routerscan;grabff;Port-Scan;netscan;\nmap;ipscan;nacmdline.exe;advanced_port_scanner.exe;nmap.exe;zenmap.exe;advanced_ip_scanner.exe</Image>
 			<Image condition="image">psinfo.exe</Image>
@@ -443,7 +443,7 @@
 			<DestinationPort name="T1021,Remote_Services,VNC" condition="is">5900</DestinationPort> <!--VNC protocol: Monitor admin connections, often insecure, using hard-coded admin password-->
 			<DestinationPort name="T1021.006,WinRM" condition="is">5985</DestinationPort> <!-- WinRM protocol used for remote connections to execute commands -->
 			<DestinationPort name="T1021.006,WinRM_over_HTTPS" condition="is">5986</DestinationPort> <!-- WinRM over HTTPS when set up in an environment can be used for remote connections to execute commands -->
-			<DestinationPort name="Alert,Metasploit" condition="is">4444</DestinationPort>
+			<DestinationPort name="Metasploit,EpiphanyAlert" condition="is">4444</DestinationPort>
 			<DestinationPort name="T1021,Remote_Services" condition="is">88</DestinationPort>
 			<!--Ports: Proxy-->
 			<DestinationPort name="T1043,Commonly_Used_Port,Proxy" condition="is">1080</DestinationPort> <!--Socks proxy port | Credit @ion-storm-->
@@ -466,7 +466,7 @@
 			</Rule>
 			<!--Proxy: Multi-hop Proxy-->
 			<Image name="T1090.003,Multi-hop_Proxy,Tor_Connection" condition="image">tor.exe</Image>
-			<DestinationHostname name="T1090.003,Multi-hop_Proxy,Tor2Web" condition="contains any">hiddenservice.net;onion.city;onion.direct;onion.direct;onion.link;onion.nu;onion.pet;onion.plus;onion.rip;onion.sh;onion.sh;onion.si;onion.to;onion.top;onion.ws;tor-gateways.de;tor2net.com;tor2web.blutmagie.de;tor2web.fi;tor2web.info;tor2web.io;tor2web.org;onion.to</DestinationHostname>
+			<DestinationHostname name="T1090.003,Multi-hop_Proxy,Tor2Web,EpiphanyAlert" condition="contains any">hiddenservice.net;onion.city;onion.direct;onion.direct;onion.link;onion.nu;onion.pet;onion.plus;onion.rip;onion.sh;onion.sh;onion.si;onion.to;onion.top;onion.ws;tor-gateways.de;tor2net.com;tor2web.blutmagie.de;tor2web.fi;tor2web.info;tor2web.io;tor2web.org;onion.to</DestinationHostname>
 			<!--Exfiltration Over Alternative Protocol-->
 			<DestinationHostname name="T1048,Exfiltration_Over_Alternative_Protocol,DNS_Over_HTTPS" condition="contains any">dns.google;cloudflare-dns.com;mozilla.cloudflare-dns.com;dns.233py.com;dns.aaflalo.me;doh.opendns.com;.quad9.net;dns.cleanbrowsing.org;dns-family.adguard.com;dns.adguard.com;.233py.com;dnscrypt;dnscrypt-cert.oszx.co;dns.oszx.co;doh.dns.sb;doh.defaultroutes.de;doh.tiarap.org;doh.tiar.app;doh.captnemo.in;.aaflalo.me;doh.appliedprivacy.net;doh.dnswarden.com;commons.host;dns.twnic.tw;ibuki.cgnat.net;doh.xfinity.com;dns.nextdns.io;dns.dnsoverhttps.net;doh.crypto.sx;doh.powerdns.org;.blahdns.com;dns.rubyfish.cn;dns.containerpi.com;.seby.io;rdns.faelix.net;doh.li;.armadillodns.net;doh.netweaver.uk;doh.42l.fr;dns.aa.net.uk;adblock.mydns.network;ibksturm.synology.me;jcdns.fun</DestinationHostname>
 			<!--Transfer_Data_to_Cloud_Account-->
@@ -475,7 +475,7 @@
 			<DestinationHostname name="T1048,Exfiltration_Over_Alternative_Protocol" condition="contains any">.pcloud.com</DestinationHostname>
 			<DestinationHostname name="T1567.002,Exfiltration_to_Cloud_Storage" condition="contains all">.box.com;upload</DestinationHostname>
 			<!--Resource Hijacking-->
-			<DestinationHostname name="T1496,Resource_Hijacking,Crypto_Currency_Miner_Detected" condition="contains any">0x1f4b0.com;1q2w3.life;1q2w3.website;31.187.64.216;185.193.38.148;aalbbh84.info;adfreetv.ch;adless.io;adplusplus.fr;adrenali.gq;ajcryptominer.com;ajplugins.com;allfontshere.press;altavista.ovh;amhixwqagiz.ru;analytics.blue;appelamule.com;arizona-miner.tk;aster18cdn.nl;aster18prx.nl;avero.xyz;averoconnector.com;bauersagtnein.myeffect.net;bhzejltg.info;blazepool;blockmasters;blockmasterscoins;bmnr.pw;bmst.pw;bohemianpool;carry.myeffect.net;cashbeet.com;cdn-code.host;cfceu.duckdns.org;cfcnet.gdn;cfcnet.top;cfcs1.duckdns.org;chainblock.science;cieh.mx;coin-hive.com;coin-service.com;coin-services.info;coiner.site;coinpirate.cf;coinrail.io;coinwebmining.com;cpu2cash.link;cryptaloot.pro;cryptmonero;crypto-loot.com;crypto-pool;crypto-webminer.com;cryptoloot.pro;d-ns.ga;dataservices.download;directprimal.com;dwarfpool;encoding.ovh;estream.to;eth-pocket.com;eth-pocket.de;eth-pocket.eu;ethereum-pocket.de;ethereum-pocket.eu;ethtrader.de;eu.sushipool.com;f1tbit.com;flnqmin.org;freecontent.bid;freecontent.date;freecontent.loan;freecontent.racing;freecontent.stream;freecontent.win;gnrdomimplementation.com;graftpool.ovh;greenindex.dynamic-dns.net;gustaver.ddns.net;hashrefinery;hashvault.pro;herphemiste.com;hide.ovh;hk.rs;hlpidkr.ru;hodlers.party;hodling.faith;hostingcloud.win;hrfziiddxa.ru;ihdvilappuxpgiv.ru;imhvlhaelvvbrq.ru;insdrbot.com;irrrymucwxjl.ru;istlandoll.com;ivuovhsn.ru;iwanttoearn.money;ixvenhgwukn.ru;jqassets.download;jqr-cdn.download;jqrcdn.download;jquerrycdn.download;jqwww.download;jqxrrygqnagn.ru;jscoinminer.com;jwduahujge.ru;ksimdw.ru;l33tsite.info;laferia.cr;ledhenone.com;ltstyov.ru;mepirtedic.com;mine.bz;minercircle.com;minercry.pt;minergate;minero.cc;miners.pro;minescripts.info;mininghub.club;miningpoolhubcoins;minr.pw;mixpools.org;mmc.center;mollnia.com;monerise.com;monero.lindon-pool.win;monero;moriaxmr.com;munero.me;mxcdn1.now.sh;mxcdn2.now.sh;myadstats.com;mypool.online;nablabee.com;nanopool.org;nathetsof.com;nicehash;nimiqpool.com;nimpool.io;node.philpool.com;npcdn1.now.sh;nunu-001.now.sh;ogondkskyahxa.ru;ogrid.org;oinkinns.tk;olecintri.com;omine.org;onvid.club;open-hive-server-1.pp.ua;oxwwoeukjispema.ru;pcejuyhjucmkiny.ru;pool.nimiq.watch;pool.nimiqchain.info;pool.porkypool.com;pool.xmr;poolto.be;prohash.net;prohash;proj2018.xyz;pzoifaum.info;ratchetmining.com;realnetwrk.com;reauthenticator.com;rove.cl;ruvuryua.ru;s7ven.com;scaleway.ovh;sentemanactri.com;sickrage.ca/ch;sighash.info;slushpool;soodatmish.com;sparechange.io;statdynamic.com;stati.bid;staticsfs.host;streamplay.to;supportxmr;suprnova.cc;svivqrhrh.ru;sxcdn02.now.sh;sxcdn3.now.sh;sxcdn4.now.sh;sxcdn6.now.sh;synconnector.com;teracycle.net;tercabilis.info;thelifeisbinary.ddns.net;thersprens.com;torrent.pw;ulnawoyyzbljc.ru;unrummaged.com;uoldid.ru;usxmrpool;viaxmr.com;vpzccwpyilvoyg.ru;vzzexalcirfgrf.ru;wbmwss.beetv.net;webmine.cz;webmine.pro;webminepool.tk;webminerpool.com;webwidgetz.duckdns.org;wmemsnhgldd.ru;wmtech.website;wmwmwwfmkvucbln.ru;wrxgandsfcz.ru;xmrm.pw;xmrminingproxy.com;xmrpool;yiimp;yuyyio.com;zavzlen.ru;zergpool;zergpoolcoins;ziykrgc.ru;zlx.com.br;zpool</DestinationHostname>
+			<DestinationHostname name="T1496,Resource_Hijacking,Crypto_Currency_Miner_Detected,EpiphanyAlert" condition="contains any">0x1f4b0.com;1q2w3.life;1q2w3.website;31.187.64.216;185.193.38.148;aalbbh84.info;adfreetv.ch;adless.io;adplusplus.fr;adrenali.gq;ajcryptominer.com;ajplugins.com;allfontshere.press;altavista.ovh;amhixwqagiz.ru;analytics.blue;appelamule.com;arizona-miner.tk;aster18cdn.nl;aster18prx.nl;avero.xyz;averoconnector.com;bauersagtnein.myeffect.net;bhzejltg.info;blazepool;blockmasters;blockmasterscoins;bmnr.pw;bmst.pw;bohemianpool;carry.myeffect.net;cashbeet.com;cdn-code.host;cfceu.duckdns.org;cfcnet.gdn;cfcnet.top;cfcs1.duckdns.org;chainblock.science;cieh.mx;coin-hive.com;coin-service.com;coin-services.info;coiner.site;coinpirate.cf;coinrail.io;coinwebmining.com;cpu2cash.link;cryptaloot.pro;cryptmonero;crypto-loot.com;crypto-pool;crypto-webminer.com;cryptoloot.pro;d-ns.ga;dataservices.download;directprimal.com;dwarfpool;encoding.ovh;estream.to;eth-pocket.com;eth-pocket.de;eth-pocket.eu;ethereum-pocket.de;ethereum-pocket.eu;ethtrader.de;eu.sushipool.com;f1tbit.com;flnqmin.org;freecontent.bid;freecontent.date;freecontent.loan;freecontent.racing;freecontent.stream;freecontent.win;gnrdomimplementation.com;graftpool.ovh;greenindex.dynamic-dns.net;gustaver.ddns.net;hashrefinery;hashvault.pro;herphemiste.com;hide.ovh;hk.rs;hlpidkr.ru;hodlers.party;hodling.faith;hostingcloud.win;hrfziiddxa.ru;ihdvilappuxpgiv.ru;imhvlhaelvvbrq.ru;insdrbot.com;irrrymucwxjl.ru;istlandoll.com;ivuovhsn.ru;iwanttoearn.money;ixvenhgwukn.ru;jqassets.download;jqr-cdn.download;jqrcdn.download;jquerrycdn.download;jqwww.download;jqxrrygqnagn.ru;jscoinminer.com;jwduahujge.ru;ksimdw.ru;l33tsite.info;laferia.cr;ledhenone.com;ltstyov.ru;mepirtedic.com;mine.bz;minercircle.com;minercry.pt;minergate;minero.cc;miners.pro;minescripts.info;mininghub.club;miningpoolhubcoins;minr.pw;mixpools.org;mmc.center;mollnia.com;monerise.com;monero.lindon-pool.win;monero;moriaxmr.com;munero.me;mxcdn1.now.sh;mxcdn2.now.sh;myadstats.com;mypool.online;nablabee.com;nanopool.org;nathetsof.com;nicehash;nimiqpool.com;nimpool.io;node.philpool.com;npcdn1.now.sh;nunu-001.now.sh;ogondkskyahxa.ru;ogrid.org;oinkinns.tk;olecintri.com;omine.org;onvid.club;open-hive-server-1.pp.ua;oxwwoeukjispema.ru;pcejuyhjucmkiny.ru;pool.nimiq.watch;pool.nimiqchain.info;pool.porkypool.com;pool.xmr;poolto.be;prohash.net;prohash;proj2018.xyz;pzoifaum.info;ratchetmining.com;realnetwrk.com;reauthenticator.com;rove.cl;ruvuryua.ru;s7ven.com;scaleway.ovh;sentemanactri.com;sickrage.ca/ch;sighash.info;slushpool;soodatmish.com;sparechange.io;statdynamic.com;stati.bid;staticsfs.host;streamplay.to;supportxmr;suprnova.cc;svivqrhrh.ru;sxcdn02.now.sh;sxcdn3.now.sh;sxcdn4.now.sh;sxcdn6.now.sh;synconnector.com;teracycle.net;tercabilis.info;thelifeisbinary.ddns.net;thersprens.com;torrent.pw;ulnawoyyzbljc.ru;unrummaged.com;uoldid.ru;usxmrpool;viaxmr.com;vpzccwpyilvoyg.ru;vzzexalcirfgrf.ru;wbmwss.beetv.net;webmine.cz;webmine.pro;webminepool.tk;webminerpool.com;webwidgetz.duckdns.org;wmemsnhgldd.ru;wmtech.website;wmwmwwfmkvucbln.ru;wrxgandsfcz.ru;xmrm.pw;xmrminingproxy.com;xmrpool;yiimp;yuyyio.com;zavzlen.ru;zergpool;zergpoolcoins;ziykrgc.ru;zlx.com.br;zpool</DestinationHostname>
 			<!--UEBA Rules-->
 			<!-- <Rule name="Inbound_Windows_SVCHost_Network_Connection" groupRelation="and">
 				<Image condition="image">C:\Windows\system32\svchost.exe</Image>
@@ -510,7 +510,7 @@
 				<SourceIp condition="excludes any">127.0.0.1;0:0:0:0:0:0:0:1;fe80:0</SourceIp>
 				<Initiated>false</Initiated>
 			</Rule> -->
-			<Rule name="Notepad_connecting_to_the_internet" groupRelation="and">
+			<Rule name="Notepad_connecting_to_the_internet,EpiphanyAlert" groupRelation="and">
 				<Image condition="image">notepad.exe</Image>
 				<DestinationIp condition="excludes">127.0.0.1</DestinationIp>
 			</Rule>
@@ -798,22 +798,22 @@
 				<TargetFilename condition="excludes">\WER\</TargetFilename>
 				<Image condition="image">C:\Windows\system32\wermgr.exe</Image>
 			</Rule>
-			<Rule name="T1203,Exploitation_for_Client_Execution,Office_App_Creating_Exe_File" groupRelation="and">
+			<Rule name="T1203,Exploitation_for_Client_Execution,Office_App_Creating_Exe_File,EpiphanyAlert" groupRelation="and">
 				<Image condition="contains any">winword.exe;excel.exe;powerpnt.exe;outlook.exe;msaccess.exe;mspub.exe;visio.exe;notepad.exe;wordpad.exe;eqnedt32.exe;wordview.exe</Image>
 				<TargetFilename condition="end with">.exe</TargetFilename>
 				<TargetFilename condition="begin with">C:\Users</TargetFilename>
 			</Rule>
-			<Rule name="T1203,Exploitation_for_Client_Execution,Office_App_Creating_DLL_File" groupRelation="and">
+			<Rule name="T1203,Exploitation_for_Client_Execution,Office_App_Creating_DLL_File,EpiphanyAlert" groupRelation="and">
 				<Image condition="contains any">winword.exe;excel.exe;powerpnt.exe;outlook.exe;msaccess.exe;mspub.exe;visio.exe;notepad.exe;wordpad.exe;eqnedt32.exe;wordview.exe</Image>
 				<TargetFilename condition="end with">.dll</TargetFilename>
 				<TargetFilename condition="begin with">C:\Users</TargetFilename>
 			</Rule>
 			<!--Exploitation for Privilege Escalation-->
-			<Rule name="T1068,Exploitation_for_Privilege_Escalation,Printer_Exploitation_Detected" groupRelation="and">
+			<Rule name="T1068,Exploitation_for_Privilege_Escalation,Printer_Exploitation_Detected,EpiphanyAlert" groupRelation="and">
 				<TargetFilename condition="end with">.SPL</TargetFilename>
 				<Image condition="excludes any">spoolsv.exe;printfilterpipelinesvc.exe;printisolationhost.exe;splwow64.exe;msiexec.exe;poqexec.exe</Image>
 			</Rule>
-			<Rule name="T1068,Exploitation_for_Privilege_Escalation,Printer_Spooler_Created_exe_file" groupRelation="and">
+			<Rule name="T1068,Exploitation_for_Privilege_Escalation,Printer_Spooler_Created_exe_file,EpiphanyAlert" groupRelation="and">
 				<Image condition="image">spoolsv.exe</Image>
 				<TargetFilename condition="end with">.exe</TargetFilename>
 				<TargetFilename condition="excludes">C\:\Windows\System32\spool\;C\:\Windows\Temp\;C\:\Users\</TargetFilename>
@@ -927,12 +927,12 @@
 			<TargetFilename name="T1574.002,Hijack_Execution_Flow,Finfisher_DLL_Sideload_Detection" condition="end with">ftllib.dll</TargetFilename>
 			<TargetFilename name="T1574.002,Hijack_Execution_Flow,Finfisher_DLL_Sideload_Detection" condition="end with">userenv.dll</TargetFilename>
 			<!--User Execution: Malicious File-->
-			<Rule name="T1204.002,Malicious_File,Generic_Ransomware_Detection" groupRelation="and">
+			<Rule name="T1204.002,Malicious_File,Generic_Ransomware_Detection,EpiphanyAlert" groupRelation="and">
 				<TargetFilename condition="contains any">!!!-WARNING-!!!.html;!!!-WARNING-!!!.txt;!!! HOW TO DECRYPT FILES !!!;!!!README!!!;!!!READ_TO_UNLOCK!!!.TXT;!!!_READ_ME_;!Recovery_;!Where_are_my_files!.html;!_HOW_TO_RESTORE_;!_RECOVERY_HELP_!.txt;!recover!;# DECRYPT MY FILES #.html;# DECRYPT MY FILES #.txt;# DECRYPT MY FILES #.vbs;# SATAN CRYPTOR #;+recover+;.8lock8;.31392E30362E32303136_;.ABCDEF;.CIop;.CR1;.CRAB;.CRYPTOSHIELD;.Cl0p;.Contact_Here_To_Recover_Your_Files.txt;.CryptoTorLocker2015!;.HERMES;.HakunaMatata;.How_To_Decrypt.txt;.How_To_Get_Back.txt;.KEYZ.KEYH0LES;.L0CKED;.LOL!;.MATRIX;.OMG!;.R.i.P;.RMCM1;.RSplited;.SUPERCRYPT;.SecureCrypted;.TheTrumpLocker;.VBRANSOM;.VforVendetta;.Where_my_files.txt;.XBTL;._AiraCropEncrypted!;.airacropencrypted!;.areyoulovemyrans;.berkshire;.bitpy;.bitx;.blocatto;.bomber;.braincrypt;.breakingbad;.breeding123;.cerber;.cifgksaffsfyghd;.country82000;.crypt;.crypted;.crypton;.cryptotorlocker;.decrypt2017;.deria;.dglnl;.disposed2017;.doomed;.encrypted.locked;.encrypted;.encryptedyourfiles;.enjey;.evillock;.filegofprencrp;.fileiscryptedhard;.firecrypt;.fuckyourdata;.gangbang;.gefickt;.googl;.happydayzz;.hceem;.helpdecrypt;.helpmeencedfiles;.hnumkhotep;.hydracrypt_ID;.iaufkakfhsaraf;.info.txt;.jimm;.kharma;.killedXXX;.lambda_l0cked;.letmetrydecfiles;.locked;.locker16;.loveransisgood;.lovewindows;.magic_software_syndicate;.mention9823;.moments2900;.myrandsext2017;.newlock;.no_more_ransom;.nochance;.noproblemwedecfiles;.notfoundrans;.ohwqg;.one-we_can-help_you;.oops;.osiris;.otherinformation;.paytounlock;.powerfulldecrypt;.powned;.pr0lock;.prolock;.prosperous666;.pwnd;.ransom;.readme2unlock;.righ;.roger;.ryk;.satan;.savethequeen;.sigaint.org;.skjdthghh;.skynet;.snatch;.stubbin;.supported2017;.suppose666;.theworldisyours;.txd0t;.warn_wallet;.weapologize;.weareyourfriends;.weencedufiles;.wowreadfordecryp;.wowwhereismyfiles;.wvtr0;.yourransom;.zzzzz ;.{CRYPTENDBLACKDC};-DECRYPT.txt;000-IF-YOU-WANT-DEC-FILES;000-No-PROBLEM-WE-DEC-FILES;000-PLEASE-READ-WE-HELP;001-READ-FOR-DECRYPT-FILES;1025-7152.exe;:\windows\update_collector.exe;=READ=THIS=PLEASE=;@cock.li;@countermail.com;@firemail.cc;@india.com;@mail.ru;@ukr.net;ASSISTANCE_IN_RECOVERY;ATTENTION!!!.txt;ATTENTION.url;Aescrypt.exe;AllFilesAreLocked;BTC_DECRYPT_FILES;BUYUNLOCKCODE.txt;BUYUNLOCKCODE;BitCryptorFileList.txt;C:\ProgramData\dtb.dat;C:\Programdata\WinMgr;C:\Programdata\clean.bat;C:\Programdata\run.bat;C:\Windows\svchost.exe;CEBER3;CHECK-IT-HELP-FILES;COME_RIPRISTINARE_I_FILE.;COMO_ABRIR_ARQUIVOS.txt;COMO_RESTAURAR_ARCHIVOS;Coin.Locker.txt;Comment débloquer mes fichiers.txt;Como descriptografar seus arquivos.txt;Corona-virus-Map;Corona.bat;Corona.sfx;CryptoRansomware;Crytp0l0cker;Cyber SpLiTTer Vbs.exe;Cyborg_DECRYPT;DALE_FILES.TXT;DECRYPT-FILES;DECRYPTION INSTRUCTIONS.;DECRYPTION_HOWTO.Notepad;DECRYPT_INFORMATION;DECRYPT_INSTRUCTION.HTML;DECRYPT_INSTRUCTION.URL;DECRYPT_INSTRUCTIONS.html;DECRYPT_INSTRUCTIONS;DECRYPT_ReadMe1.TXT;DECRYPT_Readme.TXT.ReadMe;DECRYPT_YOUR_FILES;DESIFROVANI_POKYNY.html;Decrypt All Files;DecryptAllFiles;DecryptFile;Decrypt_readme.txt;DesktopOsiris;ENTSCHLUSSELN_HINWEISE.html;EdgeLocker;FILESAREGONE.txt;FILES_BACK.txt;File Decrypt Help.html;GJENOPPRETTING_AV_FILER;GetYouFiles.txt;HAPPEN-ENCED-FILES;HELLOTHERE.TXT;HELP-ME-ENCED-FILES;HELPDECRYPT_YOUR_FILES.HTML;HELP_DECRYPT.HTML;HELP_DECRYPT.PNG;HELP_DECRYPT.URL;HELP_DECRYPT.lnk;HELP_ME_PLEASE.txt;HELP_RESTORE_FILES_;HELP_TO_SAVE_FILES.bmp;HELP_TO_SAVE_FILES;HELP_YOURFILES.HTML;HELP_YOUR_FILES.PNG;HELP_YOUR_FILES.html;HELP_YOUR_FILES;HOW-TO-DECRYPT-FILES.HTML;HOW-TO-RESTORE-FILES;HOW TO BACK YOUR FILES;HOW TO DECRYPT FILES.HTML;HOW TO DECRYPT FILES.txt;HOW TO RECOVER;HOWTO_RECOVER_FILES_;HOWTO_RESTORE_FILES;HOWTO_RESTORE_FILES_;HOW_DECRYPT.HTML;HOW_DECRYPT.TXT;HOW_DECRYPT.URL;HOW_OPEN_FILES;HOW_TO_DECRYPT.HTML;HOW_TO_DECRYPT_;HOW_TO_PAY_THE_RANSOM;HOW_TO_RESTORE_FILES.html;HOW_TO_RESTORE_FILES;HOW_TO_RESTORE_YOUR_DATA;HOW_TO_UNLOCK_FILES_README_;HWID Lock.exe;Hacked_Read_me_to_decrypt_files.html;Help Decrypt.html;How decrypt files.hta;How to decrypt LeChiffre files.html;How to decrypt your data.txt;HowDecrypt.gif;HowDecrypt.txt;How_to_decrypt_your_files.jpg;How_to_restore_files.hta;HowtoRestore_File;HowtoRestore_Files;Howto_RESTORE_FILES.html;Howto_Restore_FILES.TXT;IAMREADYTOPAY.TXT;IF-YOU-WANT-DEC-FILES;IF_WANT_FILES_BACK_PLS_READ.html;IHAVEYOURSECRET.KEY;IMPORTANT READ ME.txt;IMPORTANT.README;INSTALL_TOR.URL;INSTRUCCIONES;INSTRUCCIONES_DESCIFRADO.html;INSTRUCTION RESTORE FILE;INSTRUCTIONS_DE_DECRYPTAGE.html;INSTUCCIONES_DESCRIFRADO;ISTRUZIONI_DECRITTAZIONE.html;Important!.txt;Instructionaga.txt;KryptoLocker_README.txt;LEER_INMEDIATAMENTE;LET-ME-TRY-DEC-FILES;Locked-by-Mafia;MENSAGEM.txt;MERRY_I_LOVE_YOU_BRUCE.hta;No-PROBLEM-WE-DEC-FILES;OKSOWATHAPPENDTOYOURFILES.TXT;ONTSLEUTELINGS_INSTRUCTIES.html;OSIRIS-;PAYLOADBIN;PINGY@INDIA.COM;PLEASE-READ-WE-HELP.;PLEASE-READIT-IF_YOU-WANT.html;PLEASE-READIT-IF_YOU-WANT;PLEASE-README-AFFECTED-FILES;PLS-DEC-MY-FILES;PURELOCKER;Payment_Instructions.jpg;Please Read Me!!!;READ-FOR-DECCCC-FILESSS;READ-FOR-DECRYPT-FILES;READ-READ-READ;READ IF YOU WANT YOUR FILES BACK.html;READ ME FOR DECRYPT.txt;README HOW TO DECRYPT YOUR FILES.HTML;README!!!;README_DECRYPT_HYDRA_ID_;README_DECRYPT_HYRDA_ID_;README_DECRYPT_UMBRE_ID_;README_DONT_DELETE;README_HOW_TO_UNLOCK.HTML;README_HOW_TO_UNLOCK.TXT;README_RECOVER_FILES_;README_TO_RECURE_YOUR_FILES;READTHISNOW!!!.txt;READ_IT.txt;READ_ME_!.txt;READ_ME_TO_DECRYPT_YOU_INFORMA;READ_THIS_TO_DECRYPT.html;RECOVER-FILES;RECOVERY_FILE.;RECOVERY_FILES.TXT;RECOVER_MY_FILE;RESTORE_CORUPTED_FILES;RESTORE_FILES_;RETURN FILES.txt;RETURN YOUR FILES;RETURNFILES_.txt;RETURN_FILES.txt;RETURN_FILES_.txt;Rans0m_N0te_Read_ME;Read Me (How Decrypt) !!!!.txt;ReadDecryptFilesHere;Read_this_file.txt;Receipt.exe;RecoveryManual.html;Recovery_File_;Recovery_file_;Rooster865qq;SECRET.KEY;SECRETIDHERE.KEY;SHTODELATVAM.txt;SIFRE_COZME_TALIMATI.html;SORRY-FOR-FILES;Survey Locker.exe;TRY-READ-ME-TO-DEC;Temp\satan\satan;ThxForYurTyme;UNLOCK_FILES_INSTRUCTIONS.html;UNLOCK_FILES_INSTRUCTIONS.txt;UnblockFiles.vbs;VIP72.exe;Vape Launcher.exe;WANT_FILES_BACK;WE-MUST-DEC-FILES;WHERE-YOUR-FILES;WORMKILLER@INDIA.COM.XTBL;What happen to my files.txt;Whereisyourfiles;WindowsApplication1.exe;YOUGOTHACKED.TXT;YOUR_FILES.txt;YOUR_FILES.url;YOUR_FILES_ARE_DEAD;YOUR_FILES_ARE_ENCRYPTED.HTML;YOUR_FILES_ARE_ENCRYPTED.TXT;YOUR_FILES_ARE_LOCKED.txt;Your files are locked !!!!.txt;Your files are locked !!!.txt;Your files are locked !!.txt;Your files are locked !.txt;Your files encrypted by our friends !!! txt;Your files encrypted by our friends !!!.txt;[KASISKI];_Adatok_visszaallitasahoz_utasitasok;_DECRYPT_ASSISTANCE_;_DECRYPT_INFO_;_DECRYPT_INFO_szesnl;_DEC_FILES.;_FILES_WERE_ENCRYPTED_@.TXT;_HELP_HELP_HELP_;_HELP_Recover_Files_;_HELP_instructions.bmp;_HELP_instructions.txt;_HOWDO_text.bmp;_HOWDO_text.html;_HOW_TO_Decrypt;_H_e_l_p_RECOVER_INSTRUCTIONS+;_H_e_l_p_RECOVER_INSTRUCTIONS;_Locky_recover;_Locky_recover_instructions.bmp;_Locky_recover_instructions.txt;_README.hta;_README.jpg;_READ_ME!;_RECOVER_INSTRUCTIONS;_ReCoVeRy_+;_USE_TO_FIX_;_WHAT_is.html;_help_instruct;_how_recover.txt;_how_recover;_how_recover_;_recover_;_secret_code.txt;_steaveiwalker@india.com_;aeroware;confirmation.key;contains(to_string($message.file_created), "howrecover+;crjoker.html;cryptinfo.txt;cryptolocker.;cryptopp;de_crypt_readme.;de_crypt_readme.bmp;de_crypt_readme.html;de_crypt_readme.txt;decipher_ne;decrypt-instruct;decrypt explanations.;decrypt my file;decrypt your file;decrypt_Globe;decrypt_instruct;decrypted_files.dat;decryptional;decryptmyfiles;decypt_your_files.html;default32643264.bmp;default432643264.jpg;email-salazar_slytherin10;enc_files.txt;encryptor_raas_readme_liesmich;enigma.hta;enigma_encr.txt;exit.hhr.obleep;fattura_;file0locked;files_are_encrypted.;-filesencrypted;firemail.cc;firstransomware.exe;gmx.de;hacks.at.sigaint.org;help-file-decrypt.enc;help_decrypt;help_file_;help_instructions.;help_my_files;help_recover;help_recover_instructions;help_restore;help_restore_files;help_your_file;helpmeencedfiles;how to decrypt aes files.lnk;how to decrypt;how to get data.txt;how_decrypt.gif;how_recover;how_to_decrypt;how_to_recover;howrecover+ recoveryfile_;howrecover+;howto_recover_file;howto_restore;howtodecrypt;howtodecryptaesfiles.txt;inbox.ru;info@kraken.cc_worldcza@email.cz;install_tor;iran.ir;last_chance.txt;maestro@pizzacrypts.info;maxcrypt.bmp;only-we_can-help_you;openforyou@india.com;opensourcemail.org;padcrypt;paycrypt.bmp;popcorn_time.exe;powerfulldecrypt;protonmail.ch;qbmail.biz;randomname;readme_decrypt;readme_for_decrypt;readme_liesmich_encryptor_raas;recover_file;recover_file_;recover_instruction;recoverfile;recoverfile_;recovery+;recovery_file.txt;recovery_key.txt;recoveryfile;recover}-;restore_files.txt;restorefiles;restorefiles_;ryukreadme.html;tuta.io;tutanota.com;tutanota.de;unCrypte;vault.hta;vault.key;vault.txt;want your files back.;warning-!!;wie_zum_Wiederherstellen_von_Dateien.txt;wowreadfordecryp;wowwhereismyfiles;zXz.html;zycrypt.;zzzzzzzzzzzzzzzzzyyy</TargetFilename>
 				<TargetFilename condition="excludes all">C:\Users\;\Google\Chrome Beta\User Data\;\IndexedDB\</TargetFilename>
 				<TargetFilename condition="excludes any">C:\Program Files\WindowsApps\Microsoft.YourPhone_;C:\Program Files\dotnet\shared\Microsoft.NETCore.App\;\Microsoft.NET\assembly\GAC_MSIL</TargetFilename>
 			</Rule>
-			<TargetFilename name="T1204.002,Malicious_File,Common_Files_of_CrackMapExec" condition="contains">crackmapexec</TargetFilename>
+			<TargetFilename name="T1204.002,Malicious_File,Common_Files_of_CrackMapExec,EpiphanyAlert" condition="contains">crackmapexec</TargetFilename>
 			<TargetFilename name="T1204.002,Malicious_File,Common_Files_of_CrackMapExec" condition="end with">\Crypto.Cipher._AES.pyd</TargetFilename>
 			<TargetFilename name="T1204.002,Malicious_File,Common_Files_of_CrackMapExec" condition="end with">\Crypto.Cipher._DES.pyd</TargetFilename>
 			<TargetFilename name="T1204.002,Malicious_File,Common_Files_of_CrackMapExec" condition="end with">\Crypto.Hash._SHA256.pyd</TargetFilename>
@@ -942,7 +942,7 @@
 			<TargetFilename name="T1204.002,Malicious_File,Common_Files_of_CrackMapExec" condition="end with">\greenlet.pyd</TargetFilename>
 			<TargetFilename name="T1204.002,Malicious_File,KeeFarce.exe_default_injected_DLL_name" condition="end with">BootStrapDLL.dll</TargetFilename>
 			<TargetFilename name="T1204.002,Malicious_File,MegaCortex_Ransomware" condition="begin with">C:\windows\temp\wininit.exe</TargetFilename>
-			<TargetFilename name="T1204.002,Malicious_File,Mimikatz_Files" condition="contains any">lazycat;powerkatz;mimikatz;mimidrv;mimilove;mimilib;mimikittenz;mimiauth;invoke-mimi</TargetFilename>
+			<TargetFilename name="T1204.002,Malicious_File,Mimikatz_Files,EpiphanyAlert" condition="contains any">lazycat;powerkatz;mimikatz;mimidrv;mimilove;mimilib;mimikittenz;mimiauth;invoke-mimi</TargetFilename>
 			<TargetFilename name="T1204.002,Malicious_File,RDP_Wrapper" condition="end with">rdpwrap.dll</TargetFilename>
 			<TargetFilename name="T1204.002,Malicious_File,winspool.drv_dropped" condition="end with">winspool.drv</TargetFilename>
 			<!--Data Encrypted for Impact-->
@@ -1229,7 +1229,7 @@
 				<Image condition="begin with">C:\Windows\</Image>
 				<Image condition="contains">\config\systemprofile\</Image>
 			</Rule>
-			<Rule name="T1036.007,Masquerading,Double_File_Extension" groupRelation="or">
+			<Rule name="T1036.007,Masquerading,Double_File_Extension,EpiphanyAlert" groupRelation="or">
 				<TargetFilename condition="end with">      .exe</TargetFilename>
 				<TargetFilename condition="end with">.7z.exe</TargetFilename>
 				<TargetFilename condition="end with">.doc.exe</TargetFilename>
@@ -1462,7 +1462,7 @@
 				<TargetObject condition="excludes">$</TargetObject>
 				<EventType condition="is">CreateKey</EventType>
 			</Rule>
-			<Rule name="T1136,Create_Account,Hidden_New_user_created" groupRelation="and">
+			<Rule name="T1136,Create_Account,Hidden_New_user_created,EpiphanyAlert" groupRelation="and">
 				<TargetObject condition="begin with">HKLM\SAM\SAM\DOMAINS\Account\Users\Names\</TargetObject>
 				<TargetObject condition="contains">$</TargetObject>
 				<EventType condition="is">CreateKey</EventType>
@@ -1872,6 +1872,10 @@
 			<TargetObject name="Detect_LSA_Credential_Provider_Changes" condition="begin with">HKLM\SYSTEM\CurrentControlSet\Control\Lsa\</TargetObject>
 			<TargetObject name="Detect_NETSH_Helper_DLL_Changes" condition="begin with">HKLM\SOFTWARE\Microsoft\Netsh</TargetObject>
 			<TargetObject name="Detect_Security_Provider_Changes" condition="begin with">HKLM\SYSTEM\CurrentControlSet\Control\SecurityProviders\SecurityProviders\</TargetObject>
+			<Rule name="T1003,Credential_Dumping,EpiphanyAlert" groupRelation="and">
+				<TargetObject condition="contains">\Control\SecurityProviders\WDigest</TargetObject>
+				<Details condition="contains">DWORD (0x00000001)</Details>
+			</Rule>
 			<TargetObject name="T1003,Credential_Dumping" condition="contains">\Control\SecurityProviders\WDigest</TargetObject>
 			<TargetObject condition="contains">Software\Microsoft\Windows\CurrentVersion\Internet Settings\ProxyEnable</TargetObject> <!--Windows: Malware often disables a web proxy for 2nd stage downloads -->
 			<!--DLLs that get injected into every process at launch-->
@@ -1923,7 +1927,7 @@
 			<!--Install/Run artifacts-->
 			<TargetObject name="ClickOnce_URL_Update_Artifact" condition="end with">\UrlUpdateInfo</TargetObject>
 			<TargetObject name="Installer_Source_Artifact" condition="end with">\InstallSource</TargetObject>
-			<TargetObject name="Alert,Sysinternals_Tool_Used" condition="end with">\EulaAccepted</TargetObject> <!--Sysinternals tool launched. Lots of useful abilities for attackers -->
+			<TargetObject name="Sysinternals_Tool_Used,EpiphanyAlert" condition="end with">\EulaAccepted</TargetObject> <!--Sysinternals tool launched. Lots of useful abilities for attackers -->
 			<!--Windows Defender tampering-->
 			<TargetObject name="T1562,Disabling_Security_Tools,Tamper-Defender" condition="end with">\DisableAntiSpyware</TargetObject>
 			<TargetObject name="T1562,Disabling_Security_Tools,Tamper-Defender" condition="end with">\DisableAntiVirus</TargetObject>
@@ -1968,7 +1972,7 @@
 			<TargetObject name="Suspicious_Keyboard_Layout_Load" condition="contains">\Keyboard Layout\Preload</TargetObject> <!--Microsoft:Windows: Keyboard layout loaded into user session [ https://renenyffenegger.ch/notes/Windows/registry/tree/HKEY_CURRENT_USER/Keyboard-Layout/Preload/index ] -->
 			<TargetObject name="Suspicious_Keyboard_Layout_Load" condition="contains">\Keyboard Layout\Substitutes</TargetObject> <!--Microsoft:Windows: Keyboard layout loaded into user session [ https://renenyffenegger.ch/notes/Windows/registry/tree/HKEY_CURRENT_USER/Keyboard-Layout/Preload/index ] -->
 			<!--Impair Defenses: Disable Windows Event Logging-->
-			<Rule name="T1562.002,Disable_Windows_Event_Logging,Disabling_of_Windows_Event_Log_Source" groupRelation="and">
+			<Rule name="T1562.002,Disable_Windows_Event_Logging,Disabling_of_Windows_Event_Log_Source,EpiphanyAlert" groupRelation="and">
 				<TargetObject condition="begin with">HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\WINEVT\</TargetObject>
 				<TargetObject condition="end with">\Enabled</TargetObject>
 				<Details condition="contains">DWORD (0x00000000)</Details>
@@ -2432,7 +2436,7 @@
 			<Rule name="T1055,Process_Injection,Turla_APT_Named_Pipe_Detection" groupRelation="and">
 				<PipeName condition="contains any">\atctl;\userpipe;\iehelper;\sdlrpc;\comnap</PipeName>
 			</Rule>
-			<Rule name="T1021.002,Windows_Admin_Shares,Lateral_Movement_PSExec_Named_Pipe_Detected" groupRelation="or">
+			<Rule name="T1021.002,Windows_Admin_Shares,Lateral_Movement_PSExec_Named_Pipe_Detected,EpiphanyAlert" groupRelation="or">
 				<PipeName condition="contains">\PSEXESVC</PipeName>
 				<PipeName condition="end with">-stdin</PipeName>
 				<PipeName condition="end with">-stdout</PipeName>
@@ -3256,7 +3260,7 @@
 				<TargetFilename condition="begin with">C:\Users\</TargetFilename>
 				<TargetFilename condition="contains">\Downloads</TargetFilename>
 			</Rule>
-			<Rule name="T1036.008,Pe_File_Detected_under_Unusual_File_extension" groupRelation="or">
+			<Rule name="T1036.008,Pe_File_Detected_under_Unusual_File_extension,EpiphanyAlert" groupRelation="or">
 				<TargetFilename condition="not end with">.exe</TargetFilename>
 				<TargetFilename condition="not end with">.dll</TargetFilename>
 				<TargetFilename condition="not end with">.sys</TargetFilename>
@@ -3303,25 +3307,27 @@
             <TargetFilename condition="begin with">C:\Windows\System32\spool\drivers\color</TargetFilename>
             <TargetFilename condition="begin with">C:\Windows\SysWOW64\Tasks</TargetFilename>
 			<!-- Executables double extensions -->
-			<TargetFilename condition="end with">.pdf.exe</TargetFilename>
-			<TargetFilename condition="end with">.doc.exe</TargetFilename>
-			<TargetFilename condition="end with">.docx.exe</TargetFilename>
-			<TargetFilename condition="end with">.xls.exe</TargetFilename>
-			<TargetFilename condition="end with">.xlsx.exe</TargetFilename>
-			<TargetFilename condition="end with">.xlsm.exe</TargetFilename>
-			<TargetFilename condition="end with">.docm.exe</TargetFilename>
-			<TargetFilename condition="end with">.ppt.exe</TargetFilename>
-			<TargetFilename condition="end with">.pptx.exe</TargetFilename>
-			<TargetFilename condition="end with">.txt.exe</TargetFilename>
-			<TargetFilename condition="end with">.rtf.exe</TargetFilename>
-			<TargetFilename condition="end with">.htm.exe</TargetFilename>
-			<TargetFilename condition="end with">.html.exe</TargetFilename>
-			<TargetFilename condition="end with">.iso.exe</TargetFilename>
-			<TargetFilename condition="end with">.zip.exe</TargetFilename>
-			<TargetFilename condition="end with">.rar.exe</TargetFilename>
-			<TargetFilename condition="end with">.7z.exe</TargetFilename>
+			<Rule name="Executables_double_extensions,EpiphanyAlert" groupRelation="or">
+				<TargetFilename condition="end with">.pdf.exe</TargetFilename>
+				<TargetFilename condition="end with">.doc.exe</TargetFilename>
+				<TargetFilename condition="end with">.docx.exe</TargetFilename>
+				<TargetFilename condition="end with">.xls.exe</TargetFilename>
+				<TargetFilename condition="end with">.xlsx.exe</TargetFilename>
+				<TargetFilename condition="end with">.xlsm.exe</TargetFilename>
+				<TargetFilename condition="end with">.docm.exe</TargetFilename>
+				<TargetFilename condition="end with">.ppt.exe</TargetFilename>
+				<TargetFilename condition="end with">.pptx.exe</TargetFilename>
+				<TargetFilename condition="end with">.txt.exe</TargetFilename>
+				<TargetFilename condition="end with">.rtf.exe</TargetFilename>
+				<TargetFilename condition="end with">.htm.exe</TargetFilename>
+				<TargetFilename condition="end with">.html.exe</TargetFilename>
+				<TargetFilename condition="end with">.iso.exe</TargetFilename>
+				<TargetFilename condition="end with">.zip.exe</TargetFilename>
+				<TargetFilename condition="end with">.rar.exe</TargetFilename>
+				<TargetFilename condition="end with">.7z.exe</TargetFilename>
+			</Rule>
 			<!-- Tools that tamper with Sysmon -->
-			<Rule name="Tools_that_tamper_with_Sysmon" groupRelation="or">
+			<Rule name="Tools_that_tamper_with_Sysmon,EpiphanyAlert" groupRelation="or">
 				<TargetFilename condition="end with">\EntenLoader.exe</TargetFilename>
 				<TargetFilename condition="end with">\SysmonQuiet.exe</TargetFilename>
 				<TargetFilename condition="end with">\SharpEvtMute.exe</TargetFilename>
@@ -3329,7 +3335,7 @@
 				<TargetFilename condition="end with">\SysmonEOP.exe</TargetFilename>
 			</Rule>
 			<!-- Hacktools based on Imphashes -->
-			<Rule name="Malicious_File_Detection" groupRelation="or">
+			<Rule name="Malicious_File_Detection,EpiphanyAlert" groupRelation="or">
 				<Hashes condition="contains">IMPHASH=BCCA3C247B619DCD13C8CDFF5F123932</Hashes> <!-- PetitPotam -->
 				<Hashes condition="contains">IMPHASH=3A19059BD7688CB88E70005F18EFC439</Hashes> <!-- PetitPotam -->
 				<Hashes condition="contains">IMPHASH=bf6223a49e45d99094406777eb6004ba</Hashes> <!-- PetitPotam -->
@@ -3435,20 +3441,21 @@
 				<Hashes condition="contains">SHA256=76a2f2644cb372f540e179ca2baa110b71de3370bb560aca65dcddbd7da3701e</Hashes> <!--Exchange Zero Day Dropped DLL-->
 			</Rule>
 			<!-- Microsoft Office Programs Dropping Executables -->
-			<Image condition="image">winword.exe</Image>
-			<Image condition="image">excel.exe</Image>
-			<Image condition="image">powerpnt.exe</Image>
-			<Image condition="image">msaccess.exe</Image>
-			<Image condition="image">mspub.exe</Image>
-			<Image condition="image">eqnedt32.exe</Image>
-			<Image condition="image">visio.exe</Image>
-			<Image condition="image">wordpad.exe</Image>
-			<Image condition="image">wordview.exe</Image>
-			<Image condition="image">msohtmed.exe</Image>
-			<!-- OneNote Application Dropping Executables -->
-			<Image condition="image">onenote.exe</Image>
-			<Image condition="image">onenotem.exe</Image>
-			<Image condition="image">onenoteim.exe</Image>
+			<Rule name="MS_Office_Dropping_Executables,EpiphanyAlert" groupRelation="or">
+				<Image condition="image">winword.exe</Image>
+				<Image condition="image">excel.exe</Image>
+				<Image condition="image">powerpnt.exe</Image>
+				<Image condition="image">msaccess.exe</Image>
+				<Image condition="image">mspub.exe</Image>
+				<Image condition="image">eqnedt32.exe</Image>
+				<Image condition="image">visio.exe</Image>
+				<Image condition="image">wordpad.exe</Image>
+				<Image condition="image">wordview.exe</Image>
+				<Image condition="image">msohtmed.exe</Image>
+				<Image condition="image">onenote.exe</Image>
+				<Image condition="image">onenotem.exe</Image>
+				<Image condition="image">onenoteim.exe</Image>
+			</Rule>
 			<!-- LOLBINs that can be used to download executables or drop files -->
 			<Rule name="LOLbins_that_drop_files" groupRelation="or">
 				<Image condition="image">certutil.exe</Image>
@@ -3478,8 +3485,9 @@
 				<Image condition="is">csc.exe</Image>
 				<Image condition="is">sc.exe</Image>
 				<Image condition="is">taskkill.exe</Image>
-				<Image condition="is">xcopy.exe</Image>
-				<Image condition="is">robocopy.exe</Image>
+				<Image condition="contains">xcopy</Image>
+				<Image condition="contains">robocopy</Image>
+				<Image condition="contains">rawcopy</Image>
 				<Image condition="is">makecab.exe</Image>
 				<Image condition="is">GfxDownloadWrapper.exe</Image>
 				<Image condition="is">curl.exe</Image>
@@ -3539,7 +3547,7 @@
 			<Image name="T1059.001,PowerShell" condition="image">pwsh.exe</Image>
 			<Image name="T1059.001,PowerShell" condition="image">powershell_ise.exe</Image>
 			<Image name="T1059.001,PowerShell" condition="contains">Sqlps.exe</Image>
-			<Rule name="PSexec_and_PSEXESVC_Dropping_Binaries_Detection" groupRelation="or">
+			<Rule name="PSexec_and_PSEXESVC_Dropping_Binaries_Detection,EpiphanyAlert" groupRelation="or">
 				<Image condition="contains any">psexesvc</Image>
 				<Image condition="contains any">psexec</Image>
 			</Rule>
@@ -3555,7 +3563,7 @@
 				<Image condition="begin with">C:\Program Files\ESET</Image>
 				<Image condition="begin with">C:\ProgramData\Microsoft\Windows Defender\</Image>
 			</Rule>
-			<Rule name="Exclude_executable_file_that_stored_by_EDR_and_AV" groupRelation="or">
+			<Rule name="Exclude_executable_file_stored_by_EDR_and_AV" groupRelation="or">
 				<TargetFilename condition="begin with">C:\ProgramData\Microsoft\Windows Defender\Quarantine\</TargetFilename>
 				<TargetFilename condition="begin with">C:\Windows\fireeye\</TargetFilename>
 				<TargetFilename condition="begin with">C:\Windows\CarbonBlack\</TargetFilename>
