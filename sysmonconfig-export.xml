@@ -1310,6 +1310,7 @@
 			<TargetFilename condition="end with">.paf</TargetFilename>
 			<TargetFilename condition="end with">.pgp</TargetFilename>
 			<TargetFilename condition="end with">.ppk</TargetFilename>
+			<TargetFilename condition="end with">.rdp</TargetFilename>
 			<TargetFilename condition="end with">.rwz</TargetFilename>
 			<TargetFilename condition="end with">.set</TargetFilename>
 			<TargetFilename condition="end with">.settingcontent-ms</TargetFilename>
@@ -1957,6 +1958,8 @@
 			<TargetObject name="T1548.002,Bypass_User_Access_Control" condition="contains">\mscfile\shell\open\command</TargetObject>
 			<TargetObject name="T1548.002,Bypass_User_Access_Control" condition="contains">ms-settings\shell\open\command</TargetObject>
 			<TargetObject name="T1548.002,Bypass_User_Access_Control" condition="begin with">HKCU\Software\Classes\AppX82a6gwre4fdg3bt635tn5ctqjf8msdd2\Shell\open\command</TargetObject>
+			<TargetObject name="T1548.002,Bypass_User_Access_Control" condition="begin with">HKLM\Software\Microsoft\Windows NT\CurrentVersion\UAC\COMAutoApprovalList</TargetObject>
+			<TargetObject name="T1548.002,Bypass_User_Access_Control" condition="contains">CurrentVersion\ICM\Calibration</TargetObject>
 			<!--Windows application compatibility-->
 			<TargetObject name="T1138,AppCompatShim" condition="begin with">HKLM\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Custom</TargetObject> <!--Windows: AppCompat [ https://www.fireeye.com/blog/threat-research/2017/05/fin7-shim-databases-persistence.html ] -->
 			<TargetObject name="T1138,AppCompatShim" condition="begin with">HKLM\Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\InstalledSDB</TargetObject> <!--Windows: AppCompat [ https://attack.mitre.org/wiki/Technique/T1138 ] -->
