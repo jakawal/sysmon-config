@@ -1760,6 +1760,8 @@
 			<TargetObject name="T1547,Registry_Run_Keys" condition="begin with">HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\System</TargetObject>
 			<TargetObject name="T1547,Registry_Run_Keys" condition="contains">UserInitMprLogonScript</TargetObject>
 			<TargetObject name="T1547,Registry_Run_Keys,BootVerificationProgram_Autorun" condition="begin with">HKLM\SYSTEM\CurrentControlSet\Control\BootVerificationProgram\ImagePath</TargetObject>
+			<!-- Run Command (Win+R) -->
+			<TargetObject name="T1204.004,Run_Command" condition="contains">Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU</TargetObject>
 			<!--Other Common Malware Persistence locations-->
 			<TargetObject name="Terminal_Server_AutoRun" condition="contains">Terminal Server\Wds\rdpwd\StartupPrograms</TargetObject>
 			<TargetObject name="Alternate_Shell_AvailableShells_Hijack" condition="contains">Winlogon\AlternateShells\AvailableShells</TargetObject>
